@@ -1,0 +1,471 @@
+<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/store_style.css?v=3">
+    <style>
+        .price-slider-wrapper {
+            width: 100%;
+            padding: 10px 0;
+            position: relative;
+        }
+
+        .slider-track-bg {
+            width: 100%;
+            height: 6px;
+            background-color: #e0e0e0;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 3px;
+            z-index: 1;
+        }
+
+        .slider-track-progress {
+            height: 6px;
+            background-color: #8c3333;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            border-radius: 3px;
+        }
+
+        .range-input-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .range-input-container input[type="range"] {
+            position: absolute;
+            width: 100%;
+            top: -3px;
+            left: 0;
+            height: 6px;
+            -webkit-appearance: none;
+            background: none;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .range-input-container input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #8c3333;
+            cursor: pointer;
+            pointer-events: auto;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .range-input-container input[type="range"]::-moz-range-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #8c3333;
+            cursor: pointer;
+            pointer-events: auto;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .price-values {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 15px;
+            color: #333;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+
+<%@ include file="components/header.jsp" %>
+<main>
+    <div class="content-container"
+         style="display: grid; grid-template-columns: 280px 1fr; gap: 30px; align-items: start;">
+<%--        todo thanh filter--%>
+
+        <div class="product-content">
+            <div class="shop-content">
+                <c:choose>
+                    <c:when test="${not empty searchKeyword}">
+                        <h3 class="type-wine">Kết quả tìm kiếm cho: "${searchKeyword}"</h3>
+                        <p>Tìm thấy ${products.size()} sản phẩm</p>
+                    </c:when>
+                    <c:otherwise>
+                        <h3 class="type-wine">Tất cả sản phẩm</h3>
+                    </c:otherwise>
+                </c:choose>
+
+                <div class="display-container">
+                    <p>Hiển thị kết quả 1-24 trong số</p>
+                    <div class="display-mode-container">
+                        <select id="view-mode">
+                            <option value="default">Thứ tự mặc định</option>
+                            <option value="price-asc">Giá: Thấp đến Cao</option>
+                            <option value="price-desc">Giá: Cao đến Thấp</option>
+                            <option value="rating">Đánh giá cao nhất</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="product-grid">
+
+                <c:if test="${empty products}">
+                    <p style="text-align: center; width: 100%;">Không tìm thấy sản phẩm nào phù
+                        hợp.</p>
+                </c:if>
+                <c:forEach var="p" items="${products}">
+                    <div class="product-card">
+                        <div class="product-image" style="position: relative;">
+                            <form action="favorites" method="post" class="wishlist-form"
+                                  onsubmit="toggleFavorite(event, this)">
+                                <c:choose>
+                                    <c:when
+                                            test="${not empty favouriteProductMap and favouriteProductMap[p.id]}">
+                                        <input type="hidden" name="action" value="remove">
+                                        <input type="hidden" name="productId" value="${p.id}">
+                                        <button type="submit" class="wishlist-btn active"
+                                                aria-label="Xóa khỏi yêu thích">
+                                            <i class="fa-solid fa-heart"></i>
+                                        </button>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <input type="hidden" name="action" value="add">
+                                        <input type="hidden" name="productId" value="${p.id}">
+                                        <button type="submit" class="wishlist-btn"
+                                                aria-label="Thêm vào yêu thích">
+                                            <i class="fa-regular fa-heart"></i>
+                                        </button>
+                                    </c:otherwise>
+                                </c:choose>
+                            </form>
+
+                            <a href="detail?id=${p.id}" class="product-link">
+                                <c:choose>
+                                    <c:when test="${not empty p.imageUrl}">
+                                        <img src="${p.imageUrl}" alt="${p.productName}">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img src="https://via.placeholder.com/300x400?text=Wine"
+                                             alt="Chưa có ảnh">
+                                    </c:otherwise>
+                                </c:choose>
+                            </a>
+
+                            <!-- Discount badge -->
+                            <c:if test="${p.discountedPrice < p.price}">
+                                <c:set var="discountPercent"
+                                       value="${((p.price - p.discountedPrice) / p.price) * 100}"/>
+                                <div
+                                        style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                    -
+                                    <fmt:formatNumber value="${discountPercent}"
+                                                      maxFractionDigits="0"/>%
+                                </div>
+                            </c:if>
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">
+                                <a href="detail?id=${p.id}">${p.productName}</a>
+                            </h3>
+
+                            <div class="product-extra-details">
+                                <ul>
+                                    <li><strong>Xuất xứ:</strong> ${p.origin}</li>
+
+                                    <li><strong>Loại:</strong> ${p.typeId}</li>
+
+                                    <li><strong>Nồng độ:</strong> ${p.alcohol}%</li>
+                                </ul>
+                            </div>
+
+                            <p class="product-producer">Nhà sản xuất: ${p.manufacturerId}</p>
+
+                            <div class="product-rating">
+                                <fmt:formatNumber var="roundedRating" value="${p.rating}"
+                                                  maxFractionDigits="0"/>
+
+                                <c:forEach begin="1" end="5" var="i">
+                                    <c:choose>
+                                        <c:when test="${i <= roundedRating}">
+                                            <i class="fa-solid fa-star"
+                                               style="color: #FFD700;"></i>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <i class="fa-regular fa-star"
+                                               style="color: #ccc;"></i>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:forEach>
+
+                                <span style="font-size: 12px; color: #666;">(${p.totalReviews})</span>
+                            </div>
+
+                            <p class="product-price">
+                                <c:choose>
+                                    <c:when test="${p.discountedPrice < p.price}">
+                                        <span style="color: #8c3333; font-weight: bold; font-size: 1.1rem; margin-right: 8px;">
+                                            <fmt:formatNumber value="${p.discountedPrice}" type="number" maxFractionDigits="0"/>₫
+                                        </span>
+                                        <span style="text-decoration: line-through; color: #999; font-size: 0.9rem;">
+                                            <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/>₫
+                                        </span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <fmt:setLocale value="vi_VN"/>
+                                        <fmt:formatNumber value="${p.price}" type="number"
+                                                          maxFractionDigits="0"/>₫
+                                    </c:otherwise>
+                                </c:choose>
+                            </p>
+
+                            <a href="add-cart?productId=${p.id}&quantity=1"
+                               class="add-to-cart-btn">Thêm vào giỏ</a>
+                        </div>
+                    </div>
+                </c:forEach>
+            </div>
+            <nav class="pagination-container" aria-label="Page navigation">
+
+                <%-- Xác định đường dẫn gốc: store hay filter --%>
+                <c:set var="baseUrl"
+                       value="${requestScope['javax.servlet.forward.servlet_path'] == '/filter' ? 'filter' : 'store'}"/>
+
+                <ul class="pagination">
+                    <%-- Nút Previous --%>
+                    <li class="page-item ${currentPage == 1 ? 'disabled' : ''}">
+                        <%-- Link: baseUrl + page mới + filterParams cũ --%>
+                        <a class="page-link"
+                           href="${baseUrl}?page=${currentPage - 1}${filterParams}"
+                           aria-label="Previous">
+                            <i class="fa-solid fa-angle-left"></i>
+                        </a>
+                    </li>
+
+                    <%-- Các số trang --%>
+                    <c:forEach begin="1" end="${totalPages}" var="i">
+                        <li class="page-item ${currentPage == i ? 'active' : ''}">
+                            <a class="page-link"
+                               href="${baseUrl}?page=${i}${filterParams}">${i}</a>
+                        </li>
+                    </c:forEach>
+
+                    <%-- Nút Next --%>
+                    <li
+                            class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                        <a class="page-link"
+                           href="${baseUrl}?page=${currentPage + 1}${filterParams}"
+                           aria-label="Next">
+                            <i class="fa-solid fa-angle-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</main>
+<%@ include file="components/footer.jsp" %>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const rangeMin = document.getElementById("input-min");
+        const rangeMax = document.getElementById("input-max");
+        const visualTrack = document.getElementById("visual-track");
+        const displayMin = document.getElementById("min-price-display");
+        const displayMax = document.getElementById("max-price-display");
+        const hiddenInput = document.getElementById("hidden-price-filter");
+
+        const minLimit = 0;
+        const maxLimit = parseInt(rangeMax.max);
+        const gap = maxLimit / 20;// Khoảng cách tối thiểu giữa 2 nút
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(value);
+        }
+
+        function updateSlider() {
+            let minVal = parseInt(rangeMin.value);
+            let maxVal = parseInt(rangeMax.value);
+
+            // Chặn không cho 2 nút kéo qua nhau
+            if (maxVal - minVal < gap) {
+                if (this === rangeMin) {
+                    rangeMin.value = maxVal - gap;
+                    minVal = maxVal - gap;
+                } else {
+                    rangeMax.value = minVal + gap;
+                    maxVal = minVal + gap;
+                }
+            }
+
+            // Tính toán % để vẽ thanh màu đỏ
+            // Công thức: left = % của nút min, right = 100% - % của nút max
+            let percentMin = (minVal / maxLimit) * 100;
+            let percentMax = (maxVal / maxLimit) * 100;
+
+            visualTrack.style.left = percentMin + "%";
+            visualTrack.style.width = (percentMax - percentMin) + "%";
+
+            // Hiển thị text
+            displayMin.textContent = formatCurrency(minVal);
+            displayMax.textContent = formatCurrency(maxVal);
+
+            // Cập nhật input ẩn
+            hiddenInput.value = minVal + "-" + maxVal;
+        }
+
+        rangeMin.addEventListener("input", updateSlider);
+        rangeMax.addEventListener("input", updateSlider);
+
+        updateSlider();
+    });
+</script>
+<%--<script>--%>
+<%--    document.addEventListener("DOMContentLoaded", function () {--%>
+
+<%--        const isLoggedIn = "${not empty sessionScope.user}" === "true";--%>
+
+<%--        if (!isLoggedIn) {--%>
+<%--            const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];--%>
+<%--            document.querySelectorAll('.wishlist-form').forEach(form => {--%>
+<%--                const productId = form.querySelector('input[name="productId"]').value;--%>
+<%--                const button = form.querySelector('button');--%>
+<%--                const icon = button.querySelector('i');--%>
+
+<%--                if (guestFavorites.includes(productId)) {--%>
+<%--                    button.classList.add('active');--%>
+<%--                    icon.classList.remove('fa-regular');--%>
+<%--                    icon.classList.add('fa-solid');--%>
+<%--                }--%>
+<%--            });--%>
+<%--        }--%>
+
+<%--        if (isLoggedIn) {--%>
+<%--            const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];--%>
+<%--            if (guestFavorites.length > 0) {--%>
+<%--                console.log('Syncing guest favorites:', guestFavorites);--%>
+<%--                fetch('favorites', {--%>
+<%--                    method: 'POST',--%>
+<%--                    headers: {--%>
+<%--                        'Content-Type': 'application/x-www-form-urlencoded',--%>
+<%--                        'X-Requested-With': 'XMLHttpRequest'--%>
+<%--                    },--%>
+<%--                    body: new URLSearchParams({--%>
+<%--                        action: 'sync',--%>
+<%--                        productIds: guestFavorites.join(',')--%>
+<%--                    })--%>
+<%--                })--%>
+<%--                    .then(response => response.json())--%>
+<%--                    .then(data => {--%>
+<%--                        if (data.status === 'success') {--%>
+<%--                            console.log('Sync successful');--%>
+<%--                            localStorage.removeItem('guestFavorites');--%>
+<%--                        }--%>
+<%--                    })--%>
+<%--                    .catch(err => console.error('Sync failed:', err));--%>
+<%--            }--%>
+<%--        }--%>
+<%--    });--%>
+
+<%--    function toggleFavorite(event, form) {--%>
+<%--        event.preventDefault();--%>
+
+<%--        const isLoggedIn = "${not empty sessionScope.user}" === "true";--%>
+<%--        const formData = new FormData(form);--%>
+<%--        const productId = formData.get('productId');--%>
+<%--        const button = form.querySelector('button');--%>
+<%--        const icon = button.querySelector('i');--%>
+<%--        const wasActive = button.classList.contains('active');--%>
+
+<%--        button.classList.toggle('active');--%>
+<%--        if (button.classList.contains('active')) {--%>
+<%--            icon.classList.remove('fa-regular');--%>
+<%--            icon.classList.add('fa-solid');--%>
+<%--        } else {--%>
+<%--            icon.classList.remove('fa-solid');--%>
+<%--            icon.classList.add('fa-regular');--%>
+<%--        }--%>
+
+<%--        if (!isLoggedIn) {--%>
+<%--            let guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];--%>
+
+<%--            if (wasActive) {--%>
+<%--                // Remove--%>
+<%--                guestFavorites = guestFavorites.filter(id => id !== productId);--%>
+<%--            } else {--%>
+<%--                // Add--%>
+<%--                if (!guestFavorites.includes(productId)) {--%>
+<%--                    guestFavorites.push(productId);--%>
+<%--                }--%>
+<%--            }--%>
+
+<%--            localStorage.setItem('guestFavorites', JSON.stringify(guestFavorites));--%>
+<%--            console.log('Guest favorites updated:', guestFavorites);--%>
+<%--            return; // Stop here, don't call server--%>
+<%--        }--%>
+
+<%--        // Handle Logged In Mode (Server)--%>
+<%--        const url = form.getAttribute('action');--%>
+<%--        fetch(url, {--%>
+<%--            method: 'POST',--%>
+<%--            body: new URLSearchParams(formData),--%>
+<%--            headers: {--%>
+<%--                'X-Requested-With': 'XMLHttpRequest',--%>
+<%--                'Content-Type': 'application/x-www-form-urlencoded'--%>
+<%--            }--%>
+<%--        })--%>
+<%--            .then(response => {--%>
+<%--                if (response.status === 401) {--%>
+<%--                    // Should not happen if isLoggedIn check works, but just in case--%>
+<%--                    window.location.href = '${pageContext.request.contextPath}/AuthPages/Login.jsp';--%>
+<%--                    return;--%>
+<%--                }--%>
+<%--                return response.json();--%>
+<%--            })--%>
+<%--            .then(data => {--%>
+<%--                if (data && data.status === 'success') {--%>
+<%--                    // Success--%>
+<%--                } else {--%>
+<%--                    // Revert UI--%>
+<%--                    console.error('Action failed, reverting UI');--%>
+<%--                    revertUI(button, icon, wasActive);--%>
+<%--                }--%>
+<%--            })--%>
+<%--            .catch(error => {--%>
+<%--                console.error('Error:', error);--%>
+<%--                revertUI(button, icon, wasActive);--%>
+<%--            });--%>
+<%--    }--%>
+
+<%--    function revertUI(button, icon, wasActive) {--%>
+<%--        if (wasActive) {--%>
+<%--            button.classList.add('active');--%>
+<%--            icon.classList.remove('fa-regular');--%>
+<%--            icon.classList.add('fa-solid');--%>
+<%--        } else {--%>
+<%--            button.classList.remove('active');--%>
+<%--            icon.classList.remove('fa-solid');--%>
+<%--            icon.classList.add('fa-regular');--%>
+<%--        }--%>
+<%--    }--%>
+<%--</script>--%>
+</body>
+
+</html>

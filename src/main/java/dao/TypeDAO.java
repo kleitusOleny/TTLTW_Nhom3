@@ -1,5 +1,7 @@
 package dao;
 
+import model.ProductType;
+
 import java.util.List;
 
 public class TypeDAO extends ADAO{

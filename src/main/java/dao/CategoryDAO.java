@@ -1,5 +1,7 @@
 package dao;
 
+import model.Category;
+
 import java.util.List;
 
 public class CategoryDAO extends ADAO{

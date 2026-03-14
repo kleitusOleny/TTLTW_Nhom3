@@ -417,4 +417,5 @@ public class ProductDAO extends ADAO {
                         .mapToBean(Product.class)
                         .list());
     }
+    
 }
