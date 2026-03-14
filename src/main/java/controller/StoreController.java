@@ -1,0 +1,99 @@
+package controller;
+
+//import dao.FavouriteDAO;
+import dao.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.Product;
+//import model.User;
+import services.ProductService;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet(name = "StoreController", value = "/store")
+public class StoreController extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("curHeader","store");
+        ProductDAO dao = new ProductDAO();
+        CategoryDAO categoryDAO = new CategoryDAO();
+        ManufacturerDAO manuDAO = new ManufacturerDAO();
+        TypeDAO typeDAO = new TypeDAO();
+        TagDAO tagDAO = new TagDAO();
+        // 1. Cấu hình phân trang
+        int pageSize = 16;
+        int page = 1;
+        
+        String pageParam = request.getParameter("page");
+        if (pageParam != null && !pageParam.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+        
+        String sort = request.getParameter("sort");
+        if (sort == null) {
+            sort = "default";
+        }
+        
+        // Tính toán vị trí bắt đầu
+        int offset = (page - 1) * pageSize;
+        
+        // 2. Lấy dữ liệu
+        List<Product> products = dao.getProducts(pageSize, offset,sort);
+        int totalProducts = ProductService.countTotalProducts();
+        double maxPrice = dao.getMaxPrice();
+        request.setAttribute("maxPrice", maxPrice > 0 ? maxPrice : 10000000);
+        
+        // 3. Tính tổng số trang
+        int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
+
+        // 4. Load user's favorite product IDs if logged in
+//        HttpSession session = request.getSession(false);
+//        if (session != null) {
+//            User user = (User) session.getAttribute("user");
+//            if (user != null) {
+//                FavouriteDAO favouriteDAO = new FavouriteDAO();
+//                List<Map<String, Object>> userFavourites = favouriteDAO.getFavouritesWithProductsByUserID(user.getId());
+//
+//                Map<String, Boolean> favouriteProductMap = new HashMap<>();
+//                for (Map<String, Object> fav : userFavourites) {
+//                    favouriteProductMap.put((String) fav.get("product_id"), true);
+//                }
+//                request.setAttribute("favouriteProductMap", favouriteProductMap);
+//            }
+//        }
+        
+        
+        request.setAttribute("currentSort", sort);
+        
+        // 5. Gửi dữ liệu sang JSP
+        request.setAttribute("products", products);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("categories", categoryDAO.getAllCategories());
+        request.setAttribute("types", typeDAO.getAllTypes());
+        request.setAttribute("manufacturers", manuDAO.getAllManufacturers());
+        request.setAttribute("tags", tagDAO.getAllTags());
+        request.setAttribute("origins", dao.getAllOrigins());
+        request.setAttribute("capacities", dao.getAllCapacities());
+        request.setAttribute("selectedTags", new ArrayList<>());
+        
+        
+        request.getRequestDispatcher("store.jsp").forward(request, response);
+    }
+    
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
+    }
+}
