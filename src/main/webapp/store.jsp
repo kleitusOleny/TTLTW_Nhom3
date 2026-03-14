@@ -100,7 +100,163 @@
 <main>
     <div class="content-container"
          style="display: grid; grid-template-columns: 280px 1fr; gap: 30px; align-items: start;">
-<%--        todo thanh filter--%>
+        <aside class="filter-content">
+            <h3 class="filter-title">Bộ Lọc Sản Phẩm</h3>
+            <form action="filter" method="get">
+                <c:if test="${not empty searchKeyword}">
+                    <input type="hidden" name="search" value="${searchKeyword}">
+                </c:if>
+                <%-- 1. LỌC GIÁ --%>
+                <fmt:formatNumber var="maxPriceInt" value="${maxPrice}"
+                                  maxFractionDigits="0" groupingUsed="false"/>
+                <div class="filter-widget">
+                    <h4 class="widget-title">Lọc theo giá</h4>
+                    <c:set var="minVal" value="0"/>
+                    <c:set var="maxVal" value="${maxPriceInt}"/>
+
+                    <c:if test="${not empty selectedPrices && selectedPrices.size() > 0}">
+                        <c:set var="priceRange" value="${selectedPrices[0]}"/>
+                        <c:set var="parts" value="${fn:split(priceRange, '-')}"/>
+                        <c:if test="${fn:length(parts) == 2}">
+                            <c:set var="minVal" value="${parts[0]}"/>
+                            <c:set var="maxVal"
+                                   value="${parts[1] == 'max' ? maxPriceInt : parts[1]}"/>
+                        </c:if>
+                    </c:if>
+
+                    <div class="price-slider-wrapper">
+                        <div class="slider-track-bg"></div>
+                        <div class="slider-track-progress" id="visual-track"></div>
+                        <div class="range-input-container">
+                            <input type="range" id="input-min" min="0" max="${maxPriceInt}"
+                                   step="10000" value="${minVal}">
+                            <input type="range" id="input-max" min="0" max="${maxPriceInt}"
+                                   step="10000" value="${maxVal}">
+                        </div>
+
+                        <input type="hidden" name="price" id="hidden-price-filter"
+                               value="${minVal}-${maxVal}">
+                    </div>
+
+                    <div class="price-values">
+                        <span id="min-price-display">0 ₫</span>
+                        <span id="max-price-display">
+                            <fmt:formatNumber value="${maxPrice}" type="number" maxFractionDigits="0"/>₫
+                        </span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary"
+                            style="width: 100%; margin-top: 10px;">Áp dụng
+                    </button>
+                </div>
+
+                <%-- 2. DANH MỤC --%>
+                <div class="filter-widget">
+                    <h4 class="widget-title">Danh Mục</h4>
+                    <ul class="filter-list">
+                        <c:forEach var="c" items="${categories}">
+                            <c:set var="cid" value="${c.id}"/>
+                            <li>
+                                <input type="checkbox" id="cat-${c.id}" name="category"
+                                       value="${c.id}" ${fn:contains(selectedCategories,
+                                        String.valueOf(cid)) ? 'checked' : '' }>
+                                <label for="cat-${c.id}">${c.categoryName}</label>
+                            </li>
+                        </c:forEach>
+                    </ul>
+                </div>
+
+                <%-- 3. LOẠI RƯỢU --%>
+                <div class="filter-widget">
+                    <h4 class="widget-title">Loại Rượu</h4>
+                    <ul class="filter-list">
+                        <c:forEach var="t" items="${types}">
+                            <c:set var="tid" value="${t.id}"/>
+                            <li>
+                                <input type="checkbox" id="type-${t.id}" name="type"
+                                       value="${t.id}" ${fn:contains(selectedTypes,
+                                        String.valueOf(tid)) ? 'checked' : '' }>
+                                <label for="type-${t.id}">${t.typeName}</label>
+                            </li>
+                        </c:forEach>
+                    </ul>
+                </div>
+
+                <%-- 4. XUẤT XỨ --%>
+                <div class="filter-widget">
+                    <h4 class="widget-title">Xuất Xứ</h4>
+                    <ul class="filter-list">
+                        <c:forEach var="o" items="${origins}" varStatus="loop">
+                            <li>
+                                <input type="checkbox" id="origin-${loop.index}"
+                                       name="origin" value="${o}"
+                                    ${fn:contains(selectedOrigins, o)
+                                            ? 'checked' : '' }>
+                                <label for="origin-${loop.index}">${o}</label>
+                            </li>
+                        </c:forEach>
+                    </ul>
+                </div>
+
+                <%-- 5. NHÀ SẢN XUẤT--%>
+                <div class="filter-widget">
+                    <h4 class="widget-title">Nhà sản xuất</h4>
+                    <ul class="filter-list">
+                        <c:forEach var="m" items="${manufacturers}">
+                            <c:set var="mid" value="${m.id}"/>
+                            <li>
+                                <input type="checkbox" id="manu-${m.id}"
+                                       name="manufacturer" value="${m.id}"
+                                    ${fn:contains(selectedManufacturers,
+                                            String.valueOf(mid)) ? 'checked' : '' }>
+                                <label
+                                        for="manu-${m.id}">${m.manufacturerName}</label>
+                            </li>
+                        </c:forEach>
+                    </ul>
+                </div>
+
+                <%-- 6. DUNG TÍCH --%>
+                <div class="filter-widget">
+                    <h4 class="widget-title">Dung tích</h4>
+                    <ul class="filter-list">
+                        <c:forEach var="cap" items="${capacities}"
+                                   varStatus="loop">
+                            <li>
+                                <input type="checkbox"
+                                       id="cap-${loop.index}"
+                                       name="capacity" value="${cap}"
+                                    ${fn:contains(selectedCapacities,
+                                            cap) ? 'checked' : '' }>
+
+                                <label
+                                        for="cap-${loop.index}">${cap}</label>
+                            </li>
+                        </c:forEach>
+                    </ul>
+                </div>
+
+                <div class="filter-widget">
+                    <h4 class="widget-title">Tags nổi bật</h4>
+                    <ul class="filter-list">
+                        <c:forEach var="tag" items="${tags}">
+                            <c:set var="tagid" value="${tag.id}"/>
+                            <li>
+                                <input type="checkbox" id="tag-${tag.id}" name="tag" value="${tag.id}"
+                                    ${fn:contains(selectedTags, String.valueOf(tagid)) ? 'checked': '' }>
+                                <label for="tag-${tag.id}">${tag.tagName}</label>
+                            </li>
+                        </c:forEach>
+                    </ul>
+                </div>
+
+                <button type="submit" class="btn btn-primary"
+                        style="width: 100%; margin-top: 10px; border: #000000 2px solid ;">Áp
+                    dụng bộ lọc
+                </button>
+
+            </form>
+        </aside>
 
         <div class="product-content">
             <div class="shop-content">
