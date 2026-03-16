@@ -11,7 +11,7 @@
   <meta charset="UTF-8">
   <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
   <title>Authentication</title>
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/AuthPages/auth_css/Authentication.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/auth/auth_css/authentication.css">
 </head>
 <body>
 <div class="forgot-password-container">

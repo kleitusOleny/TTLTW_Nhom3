@@ -11,7 +11,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
   <title>OnBoarding</title>
-  <link rel="stylesheet" href="${pageContext.request.contextPath}/AuthPages/auth_css/OnBoarding.css">
+  <link rel="stylesheet" href="${pageContext.request.contextPath}/auth/auth_css/onboarding.css">
 </head>
 <body>
 <div class="register-page">

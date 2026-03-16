@@ -13,7 +13,7 @@
     <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
     <title>Login</title>
     <script src='${pageContext.request.contextPath}/popup.js'></script>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/AuthPages/auth_css/Login.css">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/auth/auth_css/login.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
