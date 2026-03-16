@@ -1,0 +1,109 @@
+package model;
+
+import org.jdbi.v3.core.mapper.reflect.ColumnName;
+
+import java.sql.Timestamp;
+
+public class Banner {
+    @ColumnName("id")
+    private int id;
+
+    @ColumnName("url_banner")
+    private String urlBanner;
+
+    @ColumnName("target_url")
+    private String targetUrl;
+
+    @ColumnName("event_date")
+    private Timestamp eventDate;
+
+    @ColumnName("life_time")
+    private int lifeTime;
+
+    @ColumnName("active")
+    private boolean active;
+
+    @ColumnName("create_at")
+    private Timestamp createAt;
+
+    @ColumnName("update_at")
+    private Timestamp updateAt;
+
+    @ColumnName("is_delete")
+    private boolean isDelete;
+
+    public Banner() {
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getUrlBanner() {
+        return urlBanner;
+    }
+
+    public void setUrlBanner(String urlBanner) {
+        this.urlBanner = urlBanner;
+    }
+
+    public String getTargetUrl() {
+        return targetUrl;
+    }
+
+    public void setTargetUrl(String targetUrl) {
+        this.targetUrl = targetUrl;
+    }
+
+    public Timestamp getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(Timestamp eventDate) {
+        this.eventDate = eventDate;
+    }
+
+    public int getLifeTime() {
+        return lifeTime;
+    }
+
+    public void setLifeTime(int lifeTime) {
+        this.lifeTime = lifeTime;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Timestamp getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(Timestamp createAt) {
+        this.createAt = createAt;
+    }
+
+    public Timestamp getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(Timestamp updateAt) {
+        this.updateAt = updateAt;
+    }
+
+    public boolean isDelete() {
+        return isDelete;
+    }
+
+    public void setDelete(boolean delete) {
+        isDelete = delete;
+    }
+}
