@@ -66,7 +66,7 @@ public class LoginGoogle extends HttpServlet {
             } else {
                 request.setAttribute("loginError",
                         "Tài khoản của bạn đã bị khoá, vui lòng liên hệ Admin để giải quyết");
-                request.getRequestDispatcher("/AuthPages/Login.jsp").forward(request, response);
+                request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
             }
         } else {
             System.out.println("Token: " + idTokenString);

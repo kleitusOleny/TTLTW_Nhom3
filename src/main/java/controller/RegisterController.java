@@ -16,7 +16,7 @@ import java.util.Map;
 public class RegisterController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/AuthPages/Register.jsp").forward(request, response);
+        request.getRequestDispatcher("/auth/Register.jsp").forward(request, response);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class RegisterController extends HttpServlet {
         allErrors.putAll(userValidationServices.validateBirth(birth));
         allErrors.putAll(userValidationServices.isPasswordEqualConfirmed(plainPassword, confirmPassword));
 
-        String registerUrl = "/AuthPages/Register.jsp";
+        String registerUrl = "/auth/Register.jsp";
         // Nếu là false thì pass
         if (allErrors.isEmpty()) {
             String fullName = lastname + " " + firstname;

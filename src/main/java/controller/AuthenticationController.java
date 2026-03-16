@@ -13,7 +13,7 @@ import java.io.IOException;
 public class AuthenticationController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/AuthPages/Authentication.jsp").forward(request, response);
+        request.getRequestDispatcher("/auth/Authentication.jsp").forward(request, response);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class AuthenticationController extends HttpServlet {
                     }
                 }
             }
-            request.getRequestDispatcher("/AuthPages/Authentication.jsp").forward(request, response);
+            request.getRequestDispatcher("/auth/Authentication.jsp").forward(request, response);
 
             // ------------------------ Button cho xác nhận ---------------------------------
         } else if ("finish-otp".equals(action)) {
@@ -76,7 +76,7 @@ public class AuthenticationController extends HttpServlet {
                         response.sendRedirect(request.getContextPath() + "/home" + "?registerSuccess");
                     } else {
                         request.setAttribute("otpError", "Lỗi lưu dữ liệu, vui lòng thử lại!");
-                        request.getRequestDispatcher("/AuthPages/Authentication.jsp").forward(request, response);
+                        request.getRequestDispatcher("/auth/Authentication.jsp").forward(request, response);
                     }
                 } else {
                     // Luồng từ quên mật khẩu
@@ -85,7 +85,7 @@ public class AuthenticationController extends HttpServlet {
                 }
             } else {
                 request.setAttribute("otpError", "Mã OTP không chính xác!");
-                request.getRequestDispatcher("/AuthPages/Authentication.jsp").forward(request, response);
+                request.getRequestDispatcher("/auth/Authentication.jsp").forward(request, response);
             }
         }
     }

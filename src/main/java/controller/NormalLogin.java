@@ -17,7 +17,7 @@ public class NormalLogin extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/AuthPages/Login.jsp").forward(request, response);
+        request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
     }
 
     @Override
@@ -76,15 +76,15 @@ public class NormalLogin extends HttpServlet {
                 } else {
                     request.setAttribute("loginError",
                             "Tài khoản của bạn đã bị khoá, vui lòng liên hệ Admin để giải quyết");
-                    request.getRequestDispatcher("/AuthPages/Login.jsp").forward(request, response);
+                    request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
                 }
             } else {
                 request.setAttribute("loginError", "Bạn đã nhập sai tên tài khoản hoặc mật khẩu");
-                request.getRequestDispatcher("/AuthPages/Login.jsp").forward(request, response);
+                request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
             }
         } else {
             allErrors.forEach(request::setAttribute);
-            request.getRequestDispatcher("/AuthPages/Login.jsp").forward(request, response);
+            request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
         }
     }
 }

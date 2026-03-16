@@ -53,9 +53,9 @@ public class UserDAO extends ADAO implements IDAO<User> {
         int generatedId = jdbi.withHandle(handle -> handle
                 .createUpdate(
                         """
-                                 INSERT INTO users 
+                                 INSERT INTO users
                                  (email, username, password_hash, phone_number, full_name, birth_day, administrator, active, created_at)
-                                 VALUES 
+                                 VALUES
                                  (:email, :username, :passwordHash, :phoneNumber, :fullName, :birthDay, :administrator, :active, :createdAt)
                                 """)
                 .bind("email", entity.getEmail())

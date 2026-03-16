@@ -15,10 +15,29 @@
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
           integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-          crossorigin="anonymous" referrerpolicy="no-referrer" />
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/index_style.css">
 </head>
+<style>
+    #topFavoritesGrid::-webkit-scrollbar {
+        display: none;
+    }
 
+    .scroll-btn:hover {
+        background: #fff !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+    }
+    .voucher-card-shipping {
+        background: linear-gradient(135deg, #28a745, #218838);
+        color: white;
+    }
+
+    .voucher-card-premium {
+        background: linear-gradient(135deg, #fff, #f8f9fa);
+        border: 1px solid gold;
+        border-left: 5px solid #ffc107;
+    }
+</style>
 <body>
 <%@ include file="components/header.jsp" %>
 <main>
@@ -116,17 +135,14 @@
             <h2 class="section-title text-center mb-4">Mã Giảm Giá Dành Cho Bạn</h2>
             <div class="row g-4">
                 <c:forEach var="v" items="${publicVouchers}">
-                    <c:set var="typeUpper" value="${fn:toUpperCase(v.applyType)}" />
-                    <c:if
-                            test="${fn:contains(typeUpper, 'USER') or fn:contains(typeUpper, 'SHIP')}">
+                    <c:set var="typeUpper" value="${fn:toUpperCase(v.applyType)}"/>
+                    <c:if test="${fn:contains(typeUpper, 'USER') or fn:contains(typeUpper, 'SHIP')}">
                         <div class="col-md-4 col-sm-6">
-                            <div
-                                    class="voucher-card ${fn:contains(typeUpper, 'SHIP') ? 'voucher-card-shipping' : 'voucher-card-premium'} p-3 rounded shadow-sm d-flex align-items-center justify-content-between">
+                            <div class="voucher-card ${fn:contains(typeUpper, 'SHIP') ? 'voucher-card-shipping' : 'voucher-card-premium'} p-3 rounded shadow-sm d-flex align-items-center justify-content-between">
                                 <div class="voucher-icon me-3">
                                     <c:choose>
                                         <c:when test="${fn:contains(typeUpper, 'SHIP')}">
-                                            <i
-                                                    class="fa-solid fa-truck-fast fa-2x text-white"></i>
+                                            <i class="fa-solid fa-truck-fast fa-2x text-white"></i>
                                         </c:when>
                                         <c:otherwise>
                                             <i class="fa-solid fa-gift fa-2x text-warning"></i>
@@ -134,28 +150,22 @@
                                     </c:choose>
                                 </div>
                                 <div class="voucher-info flex-grow-1">
-                                    <h5
-                                            class="mb-1 fw-bold ${fn:contains(typeUpper, 'SHIP') ? 'text-white' : 'text-dark'}">
-                                            ${v.discountCode}</h5>
+                                    <h5 class="mb-1 fw-bold ${fn:contains(typeUpper, 'SHIP') ? 'text-white' : 'text-dark'}">
+                                            ${v.discountCode}
+                                    </h5>
                                     <p class="mb-0 ${fn:contains(typeUpper, 'SHIP') ? 'text-warning fw-bold' : 'text-danger fw-bold'}"
-                                       style="font-size: 1.1em;">
-                                        Giảm
+                                       style="font-size: 1.1em;"> Giảm
                                         <c:choose>
-                                            <c:when
-                                                    test="${fn:toUpperCase(v.discountType) == 'PERCENT'}">
-                                                <fmt:formatNumber value="${v.discountValue}"
-                                                                  type="number" maxFractionDigits="0" />%
+                                            <c:when test="${fn:toUpperCase(v.discountType) == 'PERCENT'}">
+                                                <fmt:formatNumber value="${v.discountValue}" type="number" maxFractionDigits="0"/>%
                                             </c:when>
                                             <c:otherwise>
-                                                <fmt:formatNumber value="${v.discountValue}"
-                                                                  type="number" maxFractionDigits="0" />₫
+                                                <fmt:formatNumber value="${v.discountValue}" type="number" maxFractionDigits="0"/>₫
                                             </c:otherwise>
                                         </c:choose>
                                     </p>
-                                    <small
-                                            class="${fn:contains(typeUpper, 'SHIP') ? 'text-white fw-bold' : 'text-dark fw-bold'}">HSD:
-                                        <fmt:formatDate value="${v.discountTo}"
-                                                        pattern="dd/MM/yyyy" />
+                                    <small class="${fn:contains(typeUpper, 'SHIP') ? 'text-white fw-bold' : 'text-dark fw-bold'}">HSD:
+                                        <fmt:formatDate value="${v.discountTo}" pattern="dd/MM/yyyy"/>
                                     </small>
                                 </div>
                                 <c:choose>
@@ -165,8 +175,7 @@
                                         </button>
                                     </c:when>
                                     <c:otherwise>
-                                        <button
-                                                class="btn btn-sm ${fn:contains(typeUpper, 'SHIP') ? 'btn-light text-success' : 'btn-dark'} ms-2"
+                                        <button class="btn btn-sm ${fn:contains(typeUpper, 'SHIP') ? 'btn-light text-success' : 'btn-dark'} ms-2"
                                                 onclick="collectVoucherHome(${v.id})">
                                             Thu Thập
                                         </button>
@@ -178,49 +187,13 @@
                 </c:forEach>
             </div>
         </section>
-        <style>
-            .voucher-card-shipping {
-                background: linear-gradient(135deg, #28a745, #218838);
-                color: white;
-            }
-
-            .voucher-card-premium {
-                background: linear-gradient(135deg, #fff, #f8f9fa);
-                border: 1px solid gold;
-                border-left: 5px solid #ffc107;
-            }
-        </style>
-        <script>
-            function collectVoucherHome(discountId) {
-                fetch('cart/collect-voucher?discountId=' + discountId, {
-                    method: 'POST'
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert(data.message);
-                            location.reload();
-                        } else {
-                            alert(data.message);
-                        }
-                    })
-                    .catch(error => console.error('Error collecting voucher:', error));
-            }
-        </script>
     </c:if>
 
     <c:if test="${not empty topFavouritesList}">
         <section class="featured-products container" style="position: relative;">
             <h2 class="section-title">Sản Phẩm Được Yêu Thích Nhiều Nhất</h2>
-            <p class="section-subtitle">Những chai vang được khách hàng yêu thích và đánh giá
+            <p class="section-subtitle">Những chai vang được khách hàng yêu thích và đánh giá cao</p>
 
-                <!-- Navigation Buttons -->
-
-
-                cao
-            </p>
-
-            <!-- Navigation Buttons -->
             <button class="scroll-btn scroll-btn-left" onclick="scrollFavorites('left')"
                     style="position: absolute; left: -20px; top: 50%; transform: translateY(-50%); z-index: 10; background: rgba(255,255,255,0.9); border: 1px solid #ddd; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.15);">
                 <i class="fa-solid fa-chevron-left"></i>
@@ -260,32 +233,22 @@
                                 </c:choose>
                             </a>
 
-                            <!-- DEBUG: VD/0281 | discount_type=[${fav.discount_type}] | discount_value=[${fav.discount_value}] | empty?=${empty fav.discount_type} -->
-
-                            <!-- Discount badge -->
-                            <c:if
-                                    test="${fav.discount_type == 'PERCENT' or fav.discount_type == 'percent'}">
-                                <div
-                                        style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                    -
-                                    <fmt:formatNumber value="${fav.discount_value}"
-                                                      maxFractionDigits="0" />%
+                            <!-- hiển thị giảm giá -->
+                            <c:if test="${fav.discount_type == 'PERCENT' or fav.discount_type == 'percent'}">
+                                <div style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                    -<fmt:formatNumber value="${fav.discount_value}" maxFractionDigits="0"/>%
                                 </div>
                             </c:if>
-                            <c:if
-                                    test="${fav.discount_type == 'AMOUNT' or fav.discount_type == 'amount'}">
-                                <div
-                                        style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            <c:if test="${fav.discount_type == 'AMOUNT' or fav.discount_type == 'amount'}">
+                                <div style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                     Giảm
-                                    <fmt:formatNumber value="${fav.discount_value}"
-                                                      maxFractionDigits="0" />₫
+                                    <fmt:formatNumber value="${fav.discount_value}" maxFractionDigits="0"/>₫
                                 </div>
                             </c:if>
                         </div>
                         <div class="product-info">
                             <h3 class="product-name">
-                                <a
-                                        href="${pageContext.request.contextPath}/detail?id=${fav.product_id}">
+                                <a href="${pageContext.request.contextPath}/detail?id=${fav.product_id}">
                                     <c:choose>
                                         <c:when test="${fn:length(fav.product_name) > 50}">
                                             ${fn:substring(fav.product_name, 0, 50)}...
@@ -310,46 +273,41 @@
                             </p>
 
                             <p class="product-price">
-                                <c:set var="price" value="${fav.price}" />
-                                <c:set var="discountValue" value="${fav.discount_value}" />
-                                <c:set var="discountType" value="${fav.discount_type}" />
-                                <c:set var="discountedPrice" value="${price}" />
+                                <c:set var="price" value="${fav.price}"/>
+                                <c:set var="discountValue" value="${fav.discount_value}"/>
+                                <c:set var="discountType" value="${fav.discount_type}"/>
+                                <c:set var="discountedPrice" value="${price}"/>
 
                                 <c:if test="${not empty discountType}">
                                     <c:set var="discountTypeUpper"
-                                           value="${fn:toUpperCase(discountType)}" />
+                                           value="${fn:toUpperCase(discountType)}"/>
                                     <c:choose>
                                         <c:when test="${discountTypeUpper == 'PERCENT'}">
                                             <c:set var="discountedPrice"
-                                                   value="${price * (1 - discountValue / 100.0)}" />
+                                                   value="${price * (1 - discountValue / 100.0)}"/>
                                         </c:when>
                                         <c:when test="${discountTypeUpper == 'AMOUNT'}">
                                             <c:set var="discountedPrice"
-                                                   value="${price - discountValue}" />
+                                                   value="${price - discountValue}"/>
                                         </c:when>
                                     </c:choose>
                                 </c:if>
 
-                                <fmt:setLocale value="vi_VN" />
+                                <fmt:setLocale value="vi_VN"/>
                                 <c:choose>
                                     <c:when test="${discountedPrice < price}">
-                                                                <span
-                                                                        style="color: #8c3333; font-weight: bold; font-size: 1.1rem;"
-                                                                        class="me-2">
-                                                                    <fmt:formatNumber value="${discountedPrice}"
-                                                                                      type="number" maxFractionDigits="0" />₫
-                                                                </span>
-                                        <span class="text-muted text-decoration-line-through"
-                                              style="font-size: 0.9rem;">
-                                                                    <fmt:formatNumber value="${price}" type="number"
-                                                                                      maxFractionDigits="0" />₫
-                                                                </span>
+                                        <span style="color: #8c3333; font-weight: bold; font-size: 1.1rem;" class="me-2">
+                                            <fmt:formatNumber value="${discountedPrice}" type="number"
+                                                              maxFractionDigits="0"/>₫
+                                        </span>
+                                        <span class="text-muted text-decoration-line-through" style="font-size: 0.9rem;">
+                                            <fmt:formatNumber value="${price}" type="number" maxFractionDigits="0"/>₫
+                                        </span>
                                     </c:when>
                                     <c:otherwise>
-                                                                <span style="color: #8c3333; font-weight: bold;">
-                                                                    <fmt:formatNumber value="${price}" type="number"
-                                                                                      maxFractionDigits="0" />₫
-                                                                </span>
+                                        <span style="color: #8c3333; font-weight: bold;">
+                                            <fmt:formatNumber value="${price}" type="number" maxFractionDigits="0"/>₫
+                                        </span>
                                     </c:otherwise>
                                 </c:choose>
                             </p>
@@ -360,17 +318,6 @@
                     </div>
                 </c:forEach>
             </div>
-
-            <style>
-                #topFavoritesGrid::-webkit-scrollbar {
-                    display: none;
-                }
-
-                .scroll-btn:hover {
-                    background: #fff !important;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
-                }
-            </style>
         </section>
     </c:if>
 
@@ -381,137 +328,124 @@
             <div id="userFavoritesCarousel" class="carousel slide" data-bs-ride="false">
                 <div class="carousel-inner">
                     <c:forEach var="fav" items="${userFavouritesList}" varStatus="status">
-                        <c:if test="${status.index % 4 == 0}">
-                            <div class="carousel-item ${status.index == 0 ? 'active' : ''}">
-                            <div class="product-grid"
-                            style="grid-template-columns: repeat(4, 1fr); gap: 30px;">
-                        </c:if>
+                    <c:if test="${status.index % 4 == 0}">
+                    <div class="carousel-item ${status.index == 0 ? 'active' : ''}">
+                        <div class="product-grid" style="grid-template-columns: repeat(4, 1fr); gap: 30px;">
+                            </c:if>
 
-                        <div class="product-card">
-                            <div class="product-image">
-                                <form action="${pageContext.request.contextPath}/favorites"
-                                      method="post" class="wishlist-form"
-                                      onsubmit="toggleFavorite(event, this)">
-                                    <input type="hidden" name="action" value="remove">
-                                    <input type="hidden" name="favouriteId"
-                                           value="${fav.favourite_id}">
-                                    <input type="hidden" name="productId"
-                                           value="${fav.product_id}">
-                                    <button type="submit" class="wishlist-btn active"
-                                            aria-label="Xóa khỏi yêu thích">
-                                        <i class="fa-solid fa-heart"></i>
-                                    </button>
-                                </form>
+                            <div class="product-card">
+                                <div class="product-image">
+                                    <form action="${pageContext.request.contextPath}/favorites"
+                                          method="post" class="wishlist-form"
+                                          onsubmit="toggleFavorite(event, this)">
+                                        <input type="hidden" name="action" value="remove">
+                                        <input type="hidden" name="favouriteId"
+                                               value="${fav.favourite_id}">
+                                        <input type="hidden" name="productId"
+                                               value="${fav.product_id}">
+                                        <button type="submit" class="wishlist-btn active"
+                                                aria-label="Xóa khỏi yêu thích">
+                                            <i class="fa-solid fa-heart"></i>
+                                        </button>
+                                    </form>
 
-                                <a href="${pageContext.request.contextPath}/detail?id=${fav.product_id}"
-                                   class="product-link">
-                                    <c:choose>
-                                        <c:when test="${not empty fav.image_url}">
-                                            <img src="${pageContext.request.contextPath}/${fav.image_url}"
-                                                 alt="${fav.product_name}">
-                                        </c:when>
-                                        <c:otherwise>
-                                            <img src="https://via.placeholder.com/300x400?text=Wine"
-                                                 alt="Chưa có ảnh">
-                                        </c:otherwise>
-                                    </c:choose>
-                                </a>
-                            </div>
-                            <div class="product-info">
-                                <h3 class="product-name">
-                                    <a
-                                            href="${pageContext.request.contextPath}/detail?id=${fav.product_id}">
+                                    <a href="${pageContext.request.contextPath}/detail?id=${fav.product_id}"
+                                       class="product-link">
                                         <c:choose>
-                                            <c:when test="${fn:length(fav.product_name) > 50}">
-                                                ${fn:substring(fav.product_name, 0, 50)}...
+                                            <c:when test="${not empty fav.image_url}">
+                                                <img src="${pageContext.request.contextPath}/${fav.image_url}"
+                                                     alt="${fav.product_name}">
                                             </c:when>
                                             <c:otherwise>
-                                                ${fav.product_name}
+                                                <img src="https://via.placeholder.com/300x400?text=Wine"
+                                                     alt="Chưa có ảnh">
                                             </c:otherwise>
                                         </c:choose>
                                     </a>
-                                </h3>
-
-                                <div class="product-extra-details">
-                                    <ul>
-                                        <li><strong>Xuất xứ:</strong> ${fav.origin}</li>
-                                        <li><strong>Loại:</strong> ${fav.type_name}</li>
-                                        <li><strong>Nồng độ:</strong> ${fav.alcohol}%</li>
-                                    </ul>
                                 </div>
+                                <div class="product-info">
+                                    <h3 class="product-name">
+                                        <a href="${pageContext.request.contextPath}/detail?id=${fav.product_id}">
+                                            <c:choose>
+                                                <c:when test="${fn:length(fav.product_name) > 50}">
+                                                    ${fn:substring(fav.product_name, 0, 50)}...
+                                                </c:when>
+                                                <c:otherwise>
+                                                    ${fav.product_name}
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </a>
+                                    </h3>
 
-                                <p class="product-producer">Nhà sản xuất:
-                                        ${fav.manufacturer_name}</p>
+                                    <div class="product-extra-details">
+                                        <ul>
+                                            <li><strong>Xuất xứ:</strong> ${fav.origin}</li>
+                                            <li><strong>Loại:</strong> ${fav.type_name}</li>
+                                            <li><strong>Nồng độ:</strong> ${fav.alcohol}%</li>
+                                        </ul>
+                                    </div>
 
-                                <p class="product-price">
-                                    <c:set var="price" value="${fav.price}" />
-                                    <c:set var="discountValue" value="${fav.discount_value}" />
-                                    <c:set var="discountType" value="${fav.discount_type}" />
-                                    <c:set var="discountedPrice" value="${price}" />
+                                    <p class="product-producer">Nhà sản xuất: ${fav.manufacturer_name}</p>
 
-                                    <c:if test="${not empty discountType}">
-                                        <c:set var="discountTypeUpper"
-                                               value="${fn:toUpperCase(discountType)}" />
+                                    <p class="product-price">
+                                        <c:set var="price" value="${fav.price}"/>
+                                        <c:set var="discountValue" value="${fav.discount_value}"/>
+                                        <c:set var="discountType" value="${fav.discount_type}"/>
+                                        <c:set var="discountedPrice" value="${price}"/>
+
+                                        <c:if test="${not empty discountType}">
+                                            <c:set var="discountTypeUpper" value="${fn:toUpperCase(discountType)}"/>
+                                            <c:choose>
+                                                <c:when test="${discountTypeUpper == 'PERCENT'}">
+                                                    <c:set var="discountedPrice" value="${price * (1 - discountValue / 100.0)}"/>
+                                                </c:when>
+                                                <c:when test="${discountTypeUpper == 'AMOUNT'}">
+                                                    <c:set var="discountedPrice" value="${price - discountValue}"/>
+                                                </c:when>
+                                            </c:choose>
+                                        </c:if>
+
+                                        <fmt:setLocale value="vi_VN"/>
                                         <c:choose>
-                                            <c:when test="${discountTypeUpper == 'PERCENT'}">
-                                                <c:set var="discountedPrice"
-                                                       value="${price * (1 - discountValue / 100.0)}" />
+                                            <c:when test="${discountedPrice < price}">
+                                            <span style="color: #8c3333; font-weight: bold;" class="me-2">
+                                                <fmt:formatNumber value="${discountedPrice}" type="number"
+                                                                  maxFractionDigits="0"/>₫
+                                            </span>
+                                                <span class="text-muted text-decoration-line-through small">
+                                                <fmt:formatNumber value="${price}" type="number" maxFractionDigits="0"/>₫
+                                            </span>
                                             </c:when>
-                                            <c:when test="${discountTypeUpper == 'AMOUNT'}">
-                                                <c:set var="discountedPrice"
-                                                       value="${price - discountValue}" />
-                                            </c:when>
+                                            <c:otherwise>
+                                            <span style="color: #8c3333; font-weight: bold;">
+                                                <fmt:formatNumber value="${price}" type="number" maxFractionDigits="0"/>₫
+                                            </span>
+                                            </c:otherwise>
                                         </c:choose>
-                                    </c:if>
+                                    </p>
 
-                                    <fmt:setLocale value="vi_VN" />
-                                    <c:choose>
-                                        <c:when test="${discountedPrice < price}">
-                                                                    <span style="color: #8c3333; font-weight: bold;"
-                                                                          class="me-2">
-                                                                        <fmt:formatNumber value="${discountedPrice}"
-                                                                                          type="number" maxFractionDigits="0" />₫
-                                                                    </span>
-                                            <span
-                                                    class="text-muted text-decoration-line-through small">
-                                                                        <fmt:formatNumber value="${price}" type="number"
-                                                                                          maxFractionDigits="0" />₫
-                                                                    </span>
-                                        </c:when>
-                                        <c:otherwise>
-                                                                    <span style="color: #8c3333; font-weight: bold;">
-                                                                        <fmt:formatNumber value="${price}" type="number"
-                                                                                          maxFractionDigits="0" />₫
-                                                                    </span>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </p>
-
-                                <a href="${pageContext.request.contextPath}/add-cart?productId=${fav.product_id}&quantity=1"
-                                   class="add-to-cart-btn">Thêm vào giỏ</a>
+                                    <a href="${pageContext.request.contextPath}/add-cart?productId=${fav.product_id}&quantity=1"
+                                       class="add-to-cart-btn">Thêm vào giỏ</a>
+                                </div>
                             </div>
+
+                            <c:if test="${status.index % 4 == 3 || status.last}"> </c:if>
+                            </c:forEach>
                         </div>
 
-                        <c:if test="${status.index % 4 == 3 || status.last}">
-                            </div>
-                            </div>
-                        </c:if>
-                    </c:forEach>
-                </div>
-
-                <button class="carousel-control-prev" type="button" data-bs-target="#userFavoritesCarousel"
-                        data-bs-slide="prev" style="left: -60px; top: -290px">
+                        <button class="carousel-control-prev" type="button" data-bs-target="#userFavoritesCarousel"
+                                data-bs-slide="prev" style="left: -60px; top: -290px">
                                 <span class="carousel-control-prev-icon" aria-hidden="true"
                                       style="background-color: #8c3333; border-radius: 50%; padding: 20px;"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#userFavoritesCarousel"
-                        data-bs-slide="next" style="top: -240px">
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#userFavoritesCarousel"
+                                data-bs-slide="next" style="top: -240px">
                                 <span class="carousel-control-next-icon" aria-hidden="true"
                                       style="background-color: #8c3333; border-radius: 50%; padding: 20px;"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-            </div>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
         </section>
     </c:if>
 
@@ -786,9 +720,11 @@
             </div>
             <div class="modal-footer border-0 justify-content-center">
                 <button type="button" id="modalSecondaryBtn" class="btn btn-secondary px-4 me-2"
-                        data-bs-dismiss="modal" style="display:none;">Không</button>
+                        data-bs-dismiss="modal" style="display:none;">Không
+                </button>
                 <button type="button" id="modalPrimaryBtn" class="btn btn-primary px-4"
-                        data-bs-dismiss="modal">Đồng ý</button>
+                        data-bs-dismiss="modal">Đồng ý
+                </button>
             </div>
         </div>
     </div>
@@ -819,7 +755,7 @@
 
             primaryBtn.textContent = 'Đăng nhập';
             primaryBtn.onclick = function () {
-                window.location.href = 'AuthPages/Login.jsp';
+                window.location.href = 'auth/Login.jsp';
             };
         } else {
             secondaryBtn.style.display = 'none';
@@ -1006,7 +942,7 @@
         })
             .then(response => {
                 if (response.status === 401) {
-                    window.location.href = '${pageContext.request.contextPath}/AuthPages/Login.jsp';
+                    window.location.href = '${pageContext.request.contextPath}/auth/Login.jsp';
                     return;
                 }
                 return response.json();
@@ -1041,6 +977,23 @@
                     icon.classList.add('fa-regular');
                 }
             });
+    }
+</script>
+<script>
+    function collectVoucherHome(discountId) {
+        fetch('cart/collect-voucher?discountId=' + discountId, {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => console.error('Error collecting voucher:', error));
     }
 </script>
 </body>

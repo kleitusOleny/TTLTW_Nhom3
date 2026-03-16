@@ -291,28 +291,28 @@
                 <c:forEach var="p" items="${products}">
                     <div class="product-card">
                         <div class="product-image" style="position: relative;">
-                            <form action="favorites" method="post" class="wishlist-form"
-                                  onsubmit="toggleFavorite(event, this)">
-                                <c:choose>
-                                    <c:when
-                                            test="${not empty favouriteProductMap and favouriteProductMap[p.id]}">
-                                        <input type="hidden" name="action" value="remove">
-                                        <input type="hidden" name="productId" value="${p.id}">
-                                        <button type="submit" class="wishlist-btn active"
-                                                aria-label="Xóa khỏi yêu thích">
-                                            <i class="fa-solid fa-heart"></i>
-                                        </button>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <input type="hidden" name="action" value="add">
-                                        <input type="hidden" name="productId" value="${p.id}">
-                                        <button type="submit" class="wishlist-btn"
-                                                aria-label="Thêm vào yêu thích">
-                                            <i class="fa-regular fa-heart"></i>
-                                        </button>
-                                    </c:otherwise>
-                                </c:choose>
-                            </form>
+<%--                            <form action="favorites" method="post" class="wishlist-form"--%>
+<%--                                  onsubmit="toggleFavorite(event, this)">--%>
+<%--                                <c:choose>--%>
+<%--                                    <c:when--%>
+<%--                                            test="${not empty favouriteProductMap and favouriteProductMap[p.id]}">--%>
+<%--                                        <input type="hidden" name="action" value="remove">--%>
+<%--                                        <input type="hidden" name="productId" value="${p.id}">--%>
+<%--                                        <button type="submit" class="wishlist-btn active"--%>
+<%--                                                aria-label="Xóa khỏi yêu thích">--%>
+<%--                                            <i class="fa-solid fa-heart"></i>--%>
+<%--                                        </button>--%>
+<%--                                    </c:when>--%>
+<%--                                    <c:otherwise>--%>
+<%--                                        <input type="hidden" name="action" value="add">--%>
+<%--                                        <input type="hidden" name="productId" value="${p.id}">--%>
+<%--                                        <button type="submit" class="wishlist-btn"--%>
+<%--                                                aria-label="Thêm vào yêu thích">--%>
+<%--                                            <i class="fa-regular fa-heart"></i>--%>
+<%--                                        </button>--%>
+<%--                                    </c:otherwise>--%>
+<%--                                </c:choose>--%>
+<%--                            </form>--%>
 
                             <a href="detail?id=${p.id}" class="product-link">
                                 <c:choose>
@@ -327,16 +327,16 @@
                             </a>
 
                             <!-- Discount badge -->
-                            <c:if test="${p.discountedPrice < p.price}">
-                                <c:set var="discountPercent"
-                                       value="${((p.price - p.discountedPrice) / p.price) * 100}"/>
-                                <div
-                                        style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                                    -
-                                    <fmt:formatNumber value="${discountPercent}"
-                                                      maxFractionDigits="0"/>%
-                                </div>
-                            </c:if>
+<%--                            <c:if test="${p.discountedPrice < p.price}">--%>
+<%--                                <c:set var="discountPercent"--%>
+<%--                                       value="${((p.price - p.discountedPrice) / p.price) * 100}"/>--%>
+<%--                                <div--%>
+<%--                                        style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">--%>
+<%--                                    ---%>
+<%--                                    <fmt:formatNumber value="${discountPercent}"--%>
+<%--                                                      maxFractionDigits="0"/>%--%>
+<%--                                </div>--%>
+<%--                            </c:if>--%>
                         </div>
                         <div class="product-info">
                             <h3 class="product-name">
@@ -376,21 +376,21 @@
                             </div>
 
                             <p class="product-price">
-                                <c:choose>
-                                    <c:when test="${p.discountedPrice < p.price}">
-                                        <span style="color: #8c3333; font-weight: bold; font-size: 1.1rem; margin-right: 8px;">
-                                            <fmt:formatNumber value="${p.discountedPrice}" type="number" maxFractionDigits="0"/>₫
-                                        </span>
-                                        <span style="text-decoration: line-through; color: #999; font-size: 0.9rem;">
-                                            <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/>₫
-                                        </span>
-                                    </c:when>
-                                    <c:otherwise>
+<%--                                <c:choose>--%>
+<%--                                    <c:when test="${p.discountedPrice < p.price}">--%>
+<%--                                        <span style="color: #8c3333; font-weight: bold; font-size: 1.1rem; margin-right: 8px;">--%>
+<%--                                            <fmt:formatNumber value="${p.discountedPrice}" type="number" maxFractionDigits="0"/>₫--%>
+<%--                                        </span>--%>
+<%--                                        <span style="text-decoration: line-through; color: #999; font-size: 0.9rem;">--%>
+<%--                                            <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/>₫--%>
+<%--                                        </span>--%>
+<%--                                    </c:when>--%>
+<%--                                    <c:otherwise>--%>
                                         <fmt:setLocale value="vi_VN"/>
                                         <fmt:formatNumber value="${p.price}" type="number"
                                                           maxFractionDigits="0"/>₫
-                                    </c:otherwise>
-                                </c:choose>
+<%--                                    </c:otherwise>--%>
+<%--                                </c:choose>--%>
                             </p>
 
                             <a href="add-cart?productId=${p.id}&quantity=1"
@@ -425,8 +425,7 @@
                     </c:forEach>
 
                     <%-- Nút Next --%>
-                    <li
-                            class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
+                    <li class="page-item ${currentPage == totalPages ? 'disabled' : ''}">
                         <a class="page-link"
                            href="${baseUrl}?page=${currentPage + 1}${filterParams}"
                            aria-label="Next">
@@ -493,135 +492,135 @@
         updateSlider();
     });
 </script>
-<%--<script>--%>
-<%--    document.addEventListener("DOMContentLoaded", function () {--%>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
 
-<%--        const isLoggedIn = "${not empty sessionScope.user}" === "true";--%>
+        const isLoggedIn = "${not empty sessionScope.user}" === "true";
 
-<%--        if (!isLoggedIn) {--%>
-<%--            const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];--%>
-<%--            document.querySelectorAll('.wishlist-form').forEach(form => {--%>
-<%--                const productId = form.querySelector('input[name="productId"]').value;--%>
-<%--                const button = form.querySelector('button');--%>
-<%--                const icon = button.querySelector('i');--%>
+        if (!isLoggedIn) {
+            const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];
+            document.querySelectorAll('.wishlist-form').forEach(form => {
+                const productId = form.querySelector('input[name="productId"]').value;
+                const button = form.querySelector('button');
+                const icon = button.querySelector('i');
 
-<%--                if (guestFavorites.includes(productId)) {--%>
-<%--                    button.classList.add('active');--%>
-<%--                    icon.classList.remove('fa-regular');--%>
-<%--                    icon.classList.add('fa-solid');--%>
-<%--                }--%>
-<%--            });--%>
-<%--        }--%>
+                if (guestFavorites.includes(productId)) {
+                    button.classList.add('active');
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                }
+            });
+        }
 
-<%--        if (isLoggedIn) {--%>
-<%--            const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];--%>
-<%--            if (guestFavorites.length > 0) {--%>
-<%--                console.log('Syncing guest favorites:', guestFavorites);--%>
-<%--                fetch('favorites', {--%>
-<%--                    method: 'POST',--%>
-<%--                    headers: {--%>
-<%--                        'Content-Type': 'application/x-www-form-urlencoded',--%>
-<%--                        'X-Requested-With': 'XMLHttpRequest'--%>
-<%--                    },--%>
-<%--                    body: new URLSearchParams({--%>
-<%--                        action: 'sync',--%>
-<%--                        productIds: guestFavorites.join(',')--%>
-<%--                    })--%>
-<%--                })--%>
-<%--                    .then(response => response.json())--%>
-<%--                    .then(data => {--%>
-<%--                        if (data.status === 'success') {--%>
-<%--                            console.log('Sync successful');--%>
-<%--                            localStorage.removeItem('guestFavorites');--%>
-<%--                        }--%>
-<%--                    })--%>
-<%--                    .catch(err => console.error('Sync failed:', err));--%>
-<%--            }--%>
-<%--        }--%>
-<%--    });--%>
+        if (isLoggedIn) {
+            const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];
+            if (guestFavorites.length > 0) {
+                console.log('Syncing guest favorites:', guestFavorites);
+                fetch('favorites', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({
+                        action: 'sync',
+                        productIds: guestFavorites.join(',')
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            console.log('Sync successful');
+                            localStorage.removeItem('guestFavorites');
+                        }
+                    })
+                    .catch(err => console.error('Sync failed:', err));
+            }
+        }
+    });
 
-<%--    function toggleFavorite(event, form) {--%>
-<%--        event.preventDefault();--%>
+    function toggleFavorite(event, form) {
+        event.preventDefault();
 
-<%--        const isLoggedIn = "${not empty sessionScope.user}" === "true";--%>
-<%--        const formData = new FormData(form);--%>
-<%--        const productId = formData.get('productId');--%>
-<%--        const button = form.querySelector('button');--%>
-<%--        const icon = button.querySelector('i');--%>
-<%--        const wasActive = button.classList.contains('active');--%>
+        const isLoggedIn = "${not empty sessionScope.user}" === "true";
+        const formData = new FormData(form);
+        const productId = formData.get('productId');
+        const button = form.querySelector('button');
+        const icon = button.querySelector('i');
+        const wasActive = button.classList.contains('active');
 
-<%--        button.classList.toggle('active');--%>
-<%--        if (button.classList.contains('active')) {--%>
-<%--            icon.classList.remove('fa-regular');--%>
-<%--            icon.classList.add('fa-solid');--%>
-<%--        } else {--%>
-<%--            icon.classList.remove('fa-solid');--%>
-<%--            icon.classList.add('fa-regular');--%>
-<%--        }--%>
+        button.classList.toggle('active');
+        if (button.classList.contains('active')) {
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+        } else {
+            icon.classList.remove('fa-solid');
+            icon.classList.add('fa-regular');
+        }
 
-<%--        if (!isLoggedIn) {--%>
-<%--            let guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];--%>
+        if (!isLoggedIn) {
+            let guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];
 
-<%--            if (wasActive) {--%>
-<%--                // Remove--%>
-<%--                guestFavorites = guestFavorites.filter(id => id !== productId);--%>
-<%--            } else {--%>
-<%--                // Add--%>
-<%--                if (!guestFavorites.includes(productId)) {--%>
-<%--                    guestFavorites.push(productId);--%>
-<%--                }--%>
-<%--            }--%>
+            if (wasActive) {
+                // Remove
+                guestFavorites = guestFavorites.filter(id => id !== productId);
+            } else {
+                // Add
+                if (!guestFavorites.includes(productId)) {
+                    guestFavorites.push(productId);
+                }
+            }
 
-<%--            localStorage.setItem('guestFavorites', JSON.stringify(guestFavorites));--%>
-<%--            console.log('Guest favorites updated:', guestFavorites);--%>
-<%--            return; // Stop here, don't call server--%>
-<%--        }--%>
+            localStorage.setItem('guestFavorites', JSON.stringify(guestFavorites));
+            console.log('Guest favorites updated:', guestFavorites);
+            return; // Stop here, don't call server
+        }
 
-<%--        // Handle Logged In Mode (Server)--%>
-<%--        const url = form.getAttribute('action');--%>
-<%--        fetch(url, {--%>
-<%--            method: 'POST',--%>
-<%--            body: new URLSearchParams(formData),--%>
-<%--            headers: {--%>
-<%--                'X-Requested-With': 'XMLHttpRequest',--%>
-<%--                'Content-Type': 'application/x-www-form-urlencoded'--%>
-<%--            }--%>
-<%--        })--%>
-<%--            .then(response => {--%>
-<%--                if (response.status === 401) {--%>
-<%--                    // Should not happen if isLoggedIn check works, but just in case--%>
-<%--                    window.location.href = '${pageContext.request.contextPath}/AuthPages/Login.jsp';--%>
-<%--                    return;--%>
-<%--                }--%>
-<%--                return response.json();--%>
-<%--            })--%>
-<%--            .then(data => {--%>
-<%--                if (data && data.status === 'success') {--%>
-<%--                    // Success--%>
-<%--                } else {--%>
-<%--                    // Revert UI--%>
-<%--                    console.error('Action failed, reverting UI');--%>
-<%--                    revertUI(button, icon, wasActive);--%>
-<%--                }--%>
-<%--            })--%>
-<%--            .catch(error => {--%>
-<%--                console.error('Error:', error);--%>
-<%--                revertUI(button, icon, wasActive);--%>
-<%--            });--%>
-<%--    }--%>
+        // Handle Logged In Mode (Server)
+        const url = form.getAttribute('action');
+        fetch(url, {
+            method: 'POST',
+            body: new URLSearchParams(formData),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        })
+            .then(response => {
+                if (response.status === 401) {
+                    // Should not happen if isLoggedIn check works, but just in case
+                    window.location.href = '${pageContext.request.contextPath}/AuthPages/Login.jsp';
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.status === 'success') {
+                    // Success
+                } else {
+                    // Revert UI
+                    console.error('Action failed, reverting UI');
+                    revertUI(button, icon, wasActive);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                revertUI(button, icon, wasActive);
+            });
+    }
 
-<%--    function revertUI(button, icon, wasActive) {--%>
-<%--        if (wasActive) {--%>
-<%--            button.classList.add('active');--%>
-<%--            icon.classList.remove('fa-regular');--%>
-<%--            icon.classList.add('fa-solid');--%>
-<%--        } else {--%>
-<%--            button.classList.remove('active');--%>
-<%--            icon.classList.remove('fa-solid');--%>
-<%--            icon.classList.add('fa-regular');--%>
-<%--        }--%>
-<%--    }--%>
-<%--</script>--%>
+    function revertUI(button, icon, wasActive) {
+        if (wasActive) {
+            button.classList.add('active');
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+        } else {
+            button.classList.remove('active');
+            icon.classList.remove('fa-solid');
+            icon.classList.add('fa-regular');
+        }
+    }
+</script>
 </body>
 
 </html>

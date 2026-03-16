@@ -14,7 +14,7 @@ import java.util.Map;
 public class RecoveryController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/AuthPages/ForgotPassword.jsp").forward(request, response);
+        request.getRequestDispatcher("/auth/ForgotPassword.jsp").forward(request, response);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class RecoveryController extends HttpServlet {
             }
         } else {
             allErrors.forEach(request::setAttribute);
-            request.getRequestDispatcher("/AuthPages/ForgotPassword.jsp").forward(request, response);
+            request.getRequestDispatcher("/auth/ForgotPassword.jsp").forward(request, response);
         }
     }
 }

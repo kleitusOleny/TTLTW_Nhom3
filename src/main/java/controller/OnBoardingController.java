@@ -17,7 +17,7 @@ import java.util.Map;
 public class OnBoardingController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.getRequestDispatcher("/AuthPages/OnBoarding.jsp").forward(request, response);
+        request.getRequestDispatcher("/auth/OnBoarding.jsp").forward(request, response);
     }
 
     @Override
@@ -40,7 +40,7 @@ public class OnBoardingController extends HttpServlet {
         allErrors.putAll(userValidationServices.validateBirth(birth));
 
         User account;
-        String onBoardingUrl = "/AuthPages/OnBoarding.jsp";
+        String onBoardingUrl = "/auth/OnBoarding.jsp";
         AuthServices authService = new AuthServices();
         // Nếu là false thì pass
         if (allErrors.isEmpty()) {

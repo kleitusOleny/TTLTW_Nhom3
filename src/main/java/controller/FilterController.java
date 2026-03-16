@@ -1,6 +1,6 @@
 package controller;
 
-//import dao.FavouriteDAO;
+import dao.FavouriteDAO;
 import dao.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Product;
-//import model.User;
+import model.User;
 
 import java.io.IOException;
 import java.util.*;
@@ -88,22 +88,22 @@ public class FilterController extends HttpServlet {
         request.setAttribute("selectedCapacities", capacities != null ? Arrays.asList(capacities) : new ArrayList<>());
         request.setAttribute("selectedTags", tags != null ? Arrays.asList(tags) : new ArrayList<>());
 
-//        HttpSession session = request.getSession(false);
-//        if (session != null) {
-//            User user = (User) session.getAttribute("user");
-//            if (user != null) {
-//                FavouriteDAO favouriteDAO = new FavouriteDAO();
-//                List<Map<String, Object>> userFavourites = favouriteDAO.getFavouritesWithProductsByUserID(user.getId());
-//                Map<String, Boolean> favouriteProductMap = new HashMap<>();
-//                for (Map<String, Object> fav : userFavourites) {
-//                    Object productIdObj = fav.get("product_id");
-//                    if (productIdObj != null) {
-//                        favouriteProductMap.put(String.valueOf(productIdObj), true);
-//                    }
-//                }
-//                request.setAttribute("favouriteProductMap", favouriteProductMap);
-//            }
-//        }
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            User user = (User) session.getAttribute("user");
+            if (user != null) {
+                FavouriteDAO favouriteDAO = new FavouriteDAO();
+                List<Map<String, Object>> userFavourites = favouriteDAO.getFavouritesWithProductsByUserID(user.getId());
+                Map<String, Boolean> favouriteProductMap = new HashMap<>();
+                for (Map<String, Object> fav : userFavourites) {
+                    Object productIdObj = fav.get("product_id");
+                    if (productIdObj != null) {
+                        favouriteProductMap.put(String.valueOf(productIdObj), true);
+                    }
+                }
+                request.setAttribute("favouriteProductMap", favouriteProductMap);
+            }
+        }
 
         request.getRequestDispatcher("store.jsp").forward(request, response);
     }
