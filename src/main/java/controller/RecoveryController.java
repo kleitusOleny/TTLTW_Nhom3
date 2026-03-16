@@ -1,0 +1,49 @@
+package controller;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import jakarta.servlet.annotation.*;
+import services.AuthServices;
+import services.UserValidationServices;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+@WebServlet(name = "ForgotPassword", value = "/forgotpassword")
+public class RecoveryController extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.getRequestDispatcher("/AuthPages/ForgotPassword.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        String plainPassword = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirm-password");
+
+        UserValidationServices userValidationServices = new UserValidationServices();
+        Map<String, String> allErrors = new HashMap<>();
+        allErrors.putAll(userValidationServices.isPasswordEqualConfirmed(plainPassword, confirmPassword));
+        allErrors.putAll(userValidationServices.validatePassword(plainPassword));
+
+        AuthServices authService = new AuthServices();
+        if (allErrors.isEmpty()){
+            String emailGetFromSession = (String) session.getAttribute("otpEmail");
+            if (emailGetFromSession != null) {
+                boolean renewPassword = authService.updatePasswordAfterAuthentication(emailGetFromSession, plainPassword);
+                if (renewPassword) {
+                    response.sendRedirect(request.getContextPath() + "/login");
+                } else {
+                    request.setAttribute("userError", "Tài khoản này không tồn tại");
+                }
+            } else {
+                response.sendRedirect(request.getContextPath() + "/authentication" + "?failResetPassword");
+            }
+        } else {
+            allErrors.forEach(request::setAttribute);
+            request.getRequestDispatcher("/AuthPages/ForgotPassword.jsp").forward(request, response);
+        }
+    }
+}
