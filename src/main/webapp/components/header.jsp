@@ -64,8 +64,7 @@
                     </li>
 
                     <li class="has-dropdown">
-                        <a href="${pageContext.request.contextPath}/store" class="${current.equals("
-                                            store") ? "active" : '' }">
+                        <a href="${pageContext.request.contextPath}/store" class="${current.equals("store") ? "active" : '' }">
                             Rượu Vang
                             <i class="fa-solid fa-caret-down"></i>
                         </a>

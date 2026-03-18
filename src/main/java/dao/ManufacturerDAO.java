@@ -11,4 +11,30 @@ public class ManufacturerDAO extends ADAO{
                 .mapToBean(Manufacturer.class)
                 .list());
     }
+    
+    public int insert(Manufacturer m) {
+        String query = "INSERT INTO manufacturers (manufacturer_name, location, is_delete) VALUES (:manufacturerName, :location, 0)";
+        return jdbi.withHandle(handle ->
+                handle.createUpdate(query)
+                        .bindBean(m)
+                        .execute());
+    }
+
+    public int delete(int id) {
+        String query = "UPDATE manufacturers SET is_delete = 1 WHERE id = :id";
+        return jdbi.withHandle(handle ->
+                handle.createUpdate(query)
+                        .bind("id", id)
+                        .execute());
+    }
+    
+    public int update(Manufacturer m) {
+        String query = "UPDATE manufacturers SET manufacturer_name = :manufacturerName, location = :location WHERE id = :id";
+        return jdbi.withHandle(handle ->
+                handle.createUpdate(query)
+                        .bind("id", m.getId())
+                        .bind("manufacturerName", m.getManufacturerName())
+                        .bind("location", m.getLocation())
+                        .execute());
+    }
 }

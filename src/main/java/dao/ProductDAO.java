@@ -124,8 +124,8 @@ public class ProductDAO extends ADAO {
                 "p.id, p.product_name, p.slug, p.price, p.capacity, p.alcohol, p.origin, p.quantity, p.create_at, " +
                 "t.type_name AS typeId, " +
                 "m.manufacturer_name AS manufacturerId, " +
-                "d.discount_value AS discount_value, " +
-                "d.discount_type AS discount_type, " +
+//                "d.discount_value AS discount_value, " +
+//                "d.discount_type AS discount_type, " +
 
                 "(SELECT url_img FROM p_img WHERE product_id = p.id LIMIT 1) AS imageUrl, " +
 
@@ -139,9 +139,8 @@ public class ProductDAO extends ADAO {
                 "FROM products p " +
                 "LEFT JOIN product_types t ON p.type_id = t.id " +
                 "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
-                "LEFT JOIN dis_process dp ON p.id = dp.product_id AND dp.is_delete = 0 " +
-                "LEFT JOIN discounts d ON dp.discount_id = d.id AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to "
-                +
+//                "LEFT JOIN dis_process dp ON p.id = dp.product_id AND dp.is_delete = 0 " +
+//                "LEFT JOIN discounts d ON dp.discount_id = d.id AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to " +
                 "WHERE p.is_delete = 0 " +
                 order +
                 "LIMIT :limit OFFSET :offset";

@@ -1,0 +1,83 @@
+package controller;
+
+import dao.BlogDAO;
+import dao.FavouriteDAO;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import model.Blogs;
+import model.Discount;
+import model.User;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+@WebServlet(name = "HomeController", value = "/home")
+public class HomeController extends HttpServlet {
+    private FavouriteDAO favouriteDAO;
+    private services.DiscountService discountService;
+    private BlogDAO blogDAO;
+
+    @Override
+    public void init() {
+        favouriteDAO = new FavouriteDAO();
+        discountService = new services.DiscountService();
+        blogDAO = new BlogDAO();
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setAttribute("curHeader", "home");
+
+        List<Map<String, Object>> topFavouritesList = favouriteDAO.getTopFavouritedProducts(4);
+
+        if (topFavouritesList != null && !topFavouritesList.isEmpty()) {
+            for (Map<String, Object> fav : topFavouritesList) {
+                System.out.println("Product: " + fav.get("product_id") +
+                        " | discount_type: " + fav.get("discount_type") +
+                        " | discount_value: " + fav.get("discount_value"));
+            }
+        }
+
+        request.setAttribute("topFavouritesList", topFavouritesList);
+
+        HttpSession session = request.getSession(false);
+        int userId = 0;
+        if (session != null) {
+            User user = (User) session.getAttribute("user");
+            if (user != null) {
+                userId = user.getId();
+                List<Map<String, Object>> userFavouritesList = favouriteDAO
+                        .getFavouritesWithProductsByUserID(user.getId());
+                request.setAttribute("userFavouritesList", userFavouritesList);
+            }
+        }
+
+        List<Discount> publicVouchers = discountService.getPublicDiscounts();
+        request.setAttribute("publicVouchers", publicVouchers);
+
+        java.util.Set<Integer> collectedVoucherIds = new java.util.HashSet<>();
+        if (userId > 0) {
+            List<Discount> userVouchers = discountService.getUserVouchers(userId);
+            for (Discount d : userVouchers) {
+                collectedVoucherIds.add(d.getId());
+            }
+        }
+        request.setAttribute("collectedVoucherIds", collectedVoucherIds);
+
+        List<Blogs> latestBlogs = blogDAO.getLatestBlogs(3);
+        request.setAttribute("latestBlogs", latestBlogs);
+
+        request.getRequestDispatcher("index.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+    }
+}
