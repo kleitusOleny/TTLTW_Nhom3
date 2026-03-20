@@ -59,6 +59,10 @@ public class AuthServices {
         }
         if (user == null) return null;
         String hashedPass = user.getPasswordHash();
+        if (hashedPass == null) {
+            System.out.println("Tài khoản này được đăng kí thông qua Google");
+            return null;
+        }
         if (BCrypt.checkpw(plainPassword, hashedPass)) {
             return user;
         } else {
@@ -68,7 +72,10 @@ public class AuthServices {
 
     public User register(String fullName, String email, String username, String plainPassword, String phoneNumber, Timestamp birthday) {
         if (userDAO.countUserId(email) > 0) return null;
-        String hashedPass = BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
+        String hashedPass = null;
+        if (plainPassword != null && !plainPassword.isEmpty()){
+               hashedPass = BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
+        }
 
         User user = new User();
         user.setEmail(email);
