@@ -1,21 +1,17 @@
 package dao;
 
 import java.util.List;
+import java.util.Optional;
 
-public interface IDAO<T> {
-    List<T> getAll();
+public interface IDAO<T, ID> {
 
-    T findById(T id);
+    List<T> findAll();
 
-    boolean create(T entity);
+    Optional<T> findById(ID id);
 
-    boolean update(T entity);
+    T save(T entity);
 
-    boolean delete(T id);
+    void deleteById(ID id);
 
-    List<T> search(String keyword);
-
-    boolean exists(T id);
-
-
+    boolean existsById(ID id);
 }
