@@ -1,0 +1,28 @@
+package controller.account_manager;
+
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import jakarta.servlet.annotation.*;
+import services.AccountManagerServices;
+
+import java.io.IOException;
+
+@WebServlet(name = "ToggleAccountController", urlPatterns = {"/account-manager/toggle-status"})
+public class ToggleAccountController extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        int id = Integer.parseInt(request.getParameter("id"));
+        AccountManagerServices service = new AccountManagerServices();
+        boolean result = service.toggleStatus(id);
+        if (result) {
+            response.setStatus(HttpServletResponse.SC_OK);
+        } else {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
+}
