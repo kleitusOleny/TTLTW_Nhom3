@@ -17,7 +17,7 @@ public class FeedbackServices {
         feedback.setDelete(false);
         feedback.setStatus(false);
 
-        feedbackDAO.create(feedback);
+        feedbackDAO.save(feedback);
     }
 
     public void updateFeedback(int id, boolean status){
@@ -26,13 +26,10 @@ public class FeedbackServices {
         feedback.setStatus(status);
         feedback.setUpdateAt(Timestamp.valueOf(LocalDateTime.now()));
 
-        feedbackDAO.update(feedback);
+        feedbackDAO.save(feedback);
     }
 
     public void deleteFeedback(int id) {
-        Feedback feedback = new Feedback();
-        feedback.setId(id);
-
-        feedbackDAO.delete(feedback);
+        feedbackDAO.deleteById(id);
     }
 }

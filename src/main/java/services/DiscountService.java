@@ -8,6 +8,7 @@ import model.UserVoucher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class DiscountService {
     private DiscountDAO discountDAO = new DiscountDAO();
@@ -17,12 +18,11 @@ public class DiscountService {
         List<UserVoucher> userVouchers = userVoucherDAO.findByUserId(userId);
         List<Discount> discounts = new ArrayList<>();
         for (UserVoucher uv : userVouchers) {
-            Discount d = new Discount();
-            d.setId(uv.getDiscountId());
-            Discount found = discountDAO.findById(d);
-            if (found != null && found.isActive() && found.getQuantity() > 0) {
-                discounts.add(found);
-            }
+            discountDAO.findById(uv.getDiscountId()).ifPresent(found -> {
+                if (found.isActive() && found.getQuantity() > 0) {
+                    discounts.add(found);
+                }
+            });
         }
         return discounts;
     }
@@ -68,20 +68,18 @@ public class DiscountService {
     }
 
     public boolean collectVoucher(int userId, int discountId) {
-        // Check if already collected (double check)
         List<UserVoucher> existing = userVoucherDAO.findByUserId(userId);
         for (UserVoucher uv : existing) {
             if (uv.getDiscountId() == discountId) {
-                return false; // Already collected
+                return false;
             }
         }
 
-        // Decrement quantity
         boolean decremented = discountDAO.decrementQuantity(discountId);
         if (decremented) {
-            // Create UserVoucher
             UserVoucher uv = new UserVoucher(userId, discountId);
-            return userVoucherDAO.create(uv);
+            userVoucherDAO.save(uv);
+            return true;
         }
         return false;
     }
