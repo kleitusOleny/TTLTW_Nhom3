@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 
 public class Discount {
     @ColumnName("id")
-    private int id;
+    private Integer id;
 
     @ColumnName("discount_code")
     private String discountCode;
@@ -44,11 +44,11 @@ public class Discount {
     public Discount() {
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

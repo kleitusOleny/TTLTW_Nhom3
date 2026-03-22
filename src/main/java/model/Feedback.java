@@ -6,7 +6,7 @@ import java.sql.Timestamp;
 
 public class Feedback {
     @ColumnName("id")
-    private int id;
+    private Integer id;
 
     @ColumnName("user_id")
     private int uId;
@@ -48,11 +48,11 @@ public class Feedback {
         this.status = status;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

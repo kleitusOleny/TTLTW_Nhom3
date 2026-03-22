@@ -7,7 +7,7 @@ import java.sql.Timestamp;
 
 public class UserVoucher implements Serializable {
     @ColumnName("id")
-    private int id;
+    private Integer id;
 
     @ColumnName("user_id")
     private int userId;
@@ -31,11 +31,11 @@ public class UserVoucher implements Serializable {
         this.createdAt = new Timestamp(System.currentTimeMillis());
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
