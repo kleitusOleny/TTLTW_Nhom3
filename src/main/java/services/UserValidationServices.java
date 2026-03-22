@@ -2,6 +2,7 @@ package services;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -115,14 +116,17 @@ public class UserValidationServices {
 
     public Map<String, String> validateBirth(String birth){
         Map<String, String> errors = new HashMap<>();
-        if (birth == null || birth.isEmpty()) {
+        if (birth == null || birth.isEmpty() || birth.equals("")) {
             errors.put("birthError", "Lỗi trường nhập ngày sinh");
         }
-        LocalDate now = LocalDate.now();
-        LocalDate birthDay = LocalDate.parse(birth);
-        int age = Period.between(birthDay, now).getYears();
-        if (age < 18) {
-            errors.put("ageError", "Ngày sinh không đủ tuổi");
+        try {
+            LocalDate birthDay = LocalDate.parse(birth);
+            int age = Period.between(birthDay, LocalDate.now()).getYears();
+            if (age < 18) {
+                errors.put("ageError", "Ngày sinh không đủ tuổi");
+            }
+        }catch (DateTimeParseException e) {
+            errors.put("birthError", "Định dạng ngày tháng không hợp lệ!");
         }
         return errors;
     }
