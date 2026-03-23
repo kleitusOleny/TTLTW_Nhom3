@@ -88,7 +88,7 @@ public class AuthServices {
         user.setActive(1);
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
-        userDAO.create(user);
+        userDAO.save(user);
         return user;
     }
 

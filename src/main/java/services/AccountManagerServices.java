@@ -26,13 +26,11 @@ public class AccountManagerServices {
         user.setAdministrator(0);
         user.setActive(1);
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        return userDAO.create(user);
+        return userDAO.save(user)!=null;
     }
 
-    public void updateAccount(String id, String email, String plainPassword, String fullName, String birth, String username, String phoneNumber, String isActive, String isAdministrator) throws ParseException {
-        User searchEntity = new User();
-        searchEntity.setId(Integer.parseInt(id));
-        User currentUser = userDAO.findById(searchEntity);
+    public void updateAccount(int id, String email, String plainPassword, String fullName, String birth, String username, String phoneNumber, String isActive, String isAdministrator) throws ParseException {
+        User currentUser = userDAO.findById(id).orElse(null);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date parsedDate = dateFormat.parse(birth);
@@ -51,14 +49,12 @@ public class AccountManagerServices {
             currentUser.setActive(Integer.parseInt(isActive));
             currentUser.setAdministrator(Integer.parseInt(isAdministrator));
             currentUser.setUpdateAt(new Timestamp(System.currentTimeMillis()));
-            userDAO.update(currentUser);
+            userDAO.save(currentUser);
         }
     }
 
     public boolean toggleStatus(int id){
-        User searchEntity = new User();
-        searchEntity.setId(id);
-        User currentUser = userDAO.findById(searchEntity);
+        User currentUser = userDAO.findById(id).orElse(null);
         if (currentUser != null) {
             int newStatus = (currentUser.getActive() == 1) ? 0 : 1;
             return userDAO.updateActive(currentUser.getId(), newStatus);

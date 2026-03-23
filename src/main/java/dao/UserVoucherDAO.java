@@ -3,24 +3,10 @@ package dao;
 import model.UserVoucher;
 
 import java.util.List;
+import java.util.Optional;
 
-public class UserVoucherDAO extends ADAO implements IDAO<UserVoucher> {
+public class UserVoucherDAO extends ADAO implements IDAO<UserVoucher, Integer> {
 
-    @Override
-    public List<UserVoucher> getAll() {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM user_vouchers")
-                .mapToBean(UserVoucher.class)
-                .list());
-    }
-
-    @Override
-    public UserVoucher findById(UserVoucher entity) {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM user_vouchers WHERE id = :id")
-                .bind("id", entity.getId())
-                .mapToBean(UserVoucher.class)
-                .findFirst()
-                .orElse(null));
-    }
 
     public List<UserVoucher> findByUserId(int userId) {
         return jdbi.withHandle(
@@ -30,22 +16,6 @@ public class UserVoucherDAO extends ADAO implements IDAO<UserVoucher> {
                         .list());
     }
 
-    @Override
-    public boolean create(UserVoucher entity) {
-        return jdbi.withHandle(handle -> handle.createUpdate(
-                "INSERT INTO user_vouchers (user_id, discount_id, is_used, created_at) VALUES (:userId, :discountId, :used, :createdAt)")
-                .bindBean(entity)
-                .execute() > 0);
-    }
-
-    @Override
-    public boolean update(UserVoucher entity) {
-        return jdbi
-                .withHandle(handle -> handle.createUpdate("UPDATE user_vouchers SET is_used = :isUsed WHERE id = :id")
-                        .bind("isUsed", entity.isUsed())
-                        .bind("id", entity.getId())
-                        .execute() > 0);
-    }
 
     public boolean markAsUsed(int id) {
         return jdbi.withHandle(handle -> handle.createUpdate("UPDATE user_vouchers SET is_used = 1 WHERE id = :id")
@@ -54,19 +24,66 @@ public class UserVoucherDAO extends ADAO implements IDAO<UserVoucher> {
     }
 
     @Override
-    public boolean delete(UserVoucher entity) {
-        return jdbi.withHandle(handle -> handle.createUpdate("DELETE FROM user_vouchers WHERE id = :id")
-                .bind("id", entity.getId())
+    public List<UserVoucher> findAll() {
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM user_vouchers")
+                .mapToBean(UserVoucher.class)
+                .list());
+    }
+
+    @Override
+    public Optional<UserVoucher> findById(Integer id) {
+        return Optional.of(jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM user_vouchers WHERE id = :id")
+                .bind("id", id)
+                .mapToBean(UserVoucher.class)
+                .findFirst()
+                .orElse(null)));
+    }
+
+    @Override
+    public UserVoucher save(UserVoucher entity) {
+        return jdbi.withHandle(handle -> {
+            if (entity.getId() == null) {
+
+                Integer id = handle.createUpdate("""
+                    INSERT INTO user_vouchers
+                    (user_id, discount_id, is_used, created_at)
+                    VALUES (:userId, :discountId, :isUsed, :createdAt)
+                    """)
+                        .bindBean(entity)
+                        .executeAndReturnGeneratedKeys("id")
+                        .mapTo(Integer.class)
+                        .one();
+
+                entity.setId(id);
+
+            } else {
+                int rows = handle.createUpdate("""
+                    UPDATE user_vouchers
+                    SET is_used = :isUsed
+                    WHERE id = :id
+                    """)
+                        .bind("isUsed", entity.isUsed())
+                        .bind("id", entity.getId())
+                        .execute();
+
+                if (rows == 0) {
+                    throw new RuntimeException("Update failed: UserVoucher not found with id = " + entity.getId());
+                }
+            }
+
+            return entity;
+        });
+    }
+
+    @Override
+    public void deleteById(Integer id) {
+        jdbi.withHandle(handle -> handle.createUpdate("DELETE FROM user_vouchers WHERE id = :id")
+                .bind("id", id)
                 .execute() > 0);
     }
 
     @Override
-    public List<UserVoucher> search(String keyword) {
-        return null;
-    }
-
-    @Override
-    public boolean exists(UserVoucher entity) {
-        return findById(entity) != null;
+    public boolean existsById(Integer integer) {
+        return findById(integer).isPresent();
     }
 }
