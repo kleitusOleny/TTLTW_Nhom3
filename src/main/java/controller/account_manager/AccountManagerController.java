@@ -14,10 +14,10 @@ public class AccountManagerController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         UserDAO userDAO = new UserDAO();
-        List<User> userList = userDAO.getAll();
+        List<User> userList = userDAO.findAll();
         if (userList != null) {
             request.setAttribute("listAccount", userList);
-            request.getRequestDispatcher("AdminPages/manage_accounts.jsp").forward(request, response);
+            request.getRequestDispatcher("admin/manage_accounts.jsp").forward(request, response);
         } else {
             response.sendRedirect(request.getContextPath() + "/accountmanage" + "?fetchDataError");
         }
