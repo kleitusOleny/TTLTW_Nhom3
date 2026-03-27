@@ -8,13 +8,13 @@ import java.io.IOException;
 
 @jakarta.servlet.annotation.WebFilter("/*")
 public class WebFilter implements Filter {
-//    private static final String[] PROTECTED_AUTH_URLS = {
-//            "/login",
-//            "/register",
-//            "/authentication",
-//            "/forgotpassword",
-//            "/onboarding"
-//    };
+    private static final String[] PROTECTED_AUTH_URLS = {
+            "/login",
+            "/register",
+            "/authentication",
+            "/forgotpassword",
+            "/onboarding"
+    };
     private static final String[] PROTECTED_ADMIN_URLS = {
             "/dashboard",
             "/account-manager",
@@ -40,13 +40,13 @@ public class WebFilter implements Filter {
         HttpSession session = request.getSession(false);
 
         boolean isAdminPath = false;
-//        boolean isProtected = false;
-//        for (String protectedUrl : PROTECTED_AUTH_URLS) {
-//            if (path.startsWith(protectedUrl)) {
-//                isProtected = true;
-//                break;
-//            }
-//        }
+        boolean isProtected = false;
+        for (String protectedUrl : PROTECTED_AUTH_URLS) {
+            if (path.startsWith(protectedUrl)) {
+                isProtected = true;
+                break;
+            }
+        }
 
         for (String adminUrl : PROTECTED_ADMIN_URLS) {
             if (path.startsWith(adminUrl)) {
@@ -55,12 +55,12 @@ public class WebFilter implements Filter {
             }
         }
 
-//        boolean loggedIn = (session != null && session.getAttribute("user") != null);
-//        if (loggedIn && isProtected) {
-//            // Nếu đã đăng nhập mà còn cố vào trong list PROTECTED_AUTH_URLS
-//            response.sendRedirect(request.getContextPath() + "/home");
-//            return;
-//        }
+        boolean loggedIn = (session != null && session.getAttribute("user") != null);
+        if (loggedIn && isProtected) {
+            // Nếu đã đăng nhập mà còn cố vào trong list PROTECTED_AUTH_URLS
+            response.sendRedirect(request.getContextPath() + "/home");
+            return;
+        }
         User user = (session != null) ? (User) session.getAttribute("user") : null;
         if (isAdminPath && (user == null || user.getAdministrator() == 0)) {
             response.sendRedirect(request.getContextPath() + "/home");

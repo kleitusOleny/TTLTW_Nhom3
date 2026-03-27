@@ -17,6 +17,7 @@
           integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/index_style.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <style>
     #topFavoritesGrid::-webkit-scrollbar {
@@ -834,12 +835,25 @@
 </script>
 <script>
     const urlParams = new URLSearchParams(window.location.search);
+    // đăng nhập thành công
     if (urlParams.has('loginSuccess')) {
-        alert("Bạn đã đăng nhập thành công!");
+        Swal.fire({
+            icon: 'success',
+            title: 'Đăng nhập thành công!',
+            text: 'Chào mừng bạn quay trở lại.',
+            timer: 3000,
+            showConfirmButton: false
+        });
         window.history.replaceState({}, document.title, window.location.pathname);
     }
+    // đăng ký thành công
     if (urlParams.has('registerSuccess')) {
-        alert("Bạn đã đăng kí thành công!");
+        Swal.fire({
+            icon: 'success',
+            title: 'Đăng ký thành công!',
+            text: 'Bạn có thể đăng nhập ngay bây giờ.',
+            confirmButtonColor: '#3085d6'
+        });
         window.history.replaceState({}, document.title, window.location.pathname);
     }
 </script>

@@ -38,7 +38,7 @@
                     </a>
                 </c:if>
                 <c:if test="${not empty sessionScope.user}">
-                    <a href="${pageContext.request.contextPath}/infoUsers/user_sidebar.jsp"
+                    <a href="${pageContext.request.contextPath}/info_users/user_sidebar.jsp"
                        aria-label="Account" title="Thông tin tài khoản">
                         <i class="fas fa-user"></i>
                     </a>
