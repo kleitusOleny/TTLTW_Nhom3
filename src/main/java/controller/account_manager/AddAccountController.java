@@ -32,7 +32,7 @@ public class AddAccountController extends HttpServlet {
         allErrors.putAll(userValidationServices.validatePassword(plainPassword));
 
         AccountManagerServices accountManagerService = new AccountManagerServices();
-        List<User> userList = userDAO.getAll();
+        List<User> userList = userDAO.findAll();
         if (allErrors.isEmpty()) {
             boolean isSuccess = accountManagerService.addAccount(email, plainPassword);
             if (isSuccess) {

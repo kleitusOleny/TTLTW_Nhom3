@@ -46,10 +46,10 @@ public class EditAccountController extends HttpServlet {
             allErrors.putAll(userValidationServices.validatePassword(newPassword));
         }
 
-        List<User> userList = userDAO.getAll();
+        List<User> userList = userDAO.findAll();
         if (allErrors.isEmpty()) {
             try {
-                accountManagerService.updateAccount(id, email, newPassword, fullName, birth, username, phoneNumber, isActive, isAdministrator);
+                accountManagerService.updateAccount(Integer.parseInt(id), email, newPassword, fullName, birth, username, phoneNumber, isActive, isAdministrator);
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
