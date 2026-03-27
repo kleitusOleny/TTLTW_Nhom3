@@ -12,6 +12,7 @@
   <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
   <title>Register</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/auth/auth_css/register.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 <div class="register-page">
@@ -50,7 +51,14 @@
                class="${not empty emailError ? 'input-error' : ''}" required>
         <span class="error-msg">${emailError}</span>
         <span class="error-msg">${emailError2}</span>
+        <div class="reminder">
+          <div class="remind-item username-remind">
+            <input type="checkbox" id="remind-email" name="remind-email" disabled>
+            <label for="remind-email">Email phải đúng định dạng abc@domain</label>
+          </div>
+        </div>
       </div>
+
       <div class="username-class form-group">
         <label for="username">Tên Đăng Nhập</label>
         <input type="text" id="username" name="username"
@@ -74,7 +82,6 @@
              class="${not empty passwordError ? 'input-error' : ''}" required>
       <span class="error-msg">${passwordError}</span>
     </div>
-
     <div class="reminder">
       <div class="remind-item">
         <input type="checkbox" id="remind-words" name="remind-words" disabled>
@@ -97,13 +104,13 @@
              class="${not empty confirmedPasswordError ? 'input-error' : ''}" required>
       <span class="error-msg">${confirmedPasswordError}</span>
     </div>
-
     <div class="reminder confirm">
       <div class="remind-item">
         <input type="checkbox" id="remind-confirm" name="remind-lowercase" disabled>
         <label for="remind-confirm">Mật khẩu nhập trùng khớp</label>
       </div>
     </div>
+
     <div class="phone-number form-group">
       <label for="phone-number">Số Điện Thoại *</label>
       <input type="tel" id="phone-number" name="phone-number"
@@ -112,6 +119,13 @@
              class="${not empty phoneNumberError ? 'input-error' : ''}" required>
       <span class="error-msg">${phoneNumberError}</span>
     </div>
+    <div class="reminder">
+      <div class="remind-item">
+        <input type="checkbox" id="remind-phone" name="remind-phone" disabled>
+        <label for="remind-phone">Số điện thoại phải bắt đầu bằng số 0 và có 10-11 chữ số</label>
+      </div>
+    </div>
+
     <div class="birth form-group">
       <label for="birth">Chọn Ngày Sinh *</label>
       <input type="date" id="birth" name="birth" lang="vi"
@@ -120,6 +134,13 @@
       <span class="error-msg-birth">${birthError}</span>
       <span class="error-msg-birth">${ageError}</span>
     </div>
+    <div class="reminder">
+      <div class="remind-item">
+        <input type="checkbox" id="remind-birth" name="remind-birth" disabled>
+        <label for="remind-birth">Bạn phải đủ 18 tuổi (tính đến hôm nay)</label>
+      </div>
+    </div>
+
     <div class="group-license">
       <div class="confirm-age">
         <input type="checkbox" id="age-confirm" class="checkbox">
@@ -131,6 +152,24 @@
       </div>
     </div>
     <button type="submit">Đăng Kí</button>
+    <%--         Đăng nhập bằng google --%>
+    <div class="social-login">
+      <div id="social-remind">Chọn phương thức khác để đăng nhập:</div>
+      <div id="g_id_onload"
+           data-client_id="561993862196-rspl5j67m79f0857je2sdrv8f75m2ijs.apps.googleusercontent.com"
+           data-login_uri="${pageContext.request.contextPath}/LoginGoogle"
+           data-scope="https://www.googleapis.com/auth/user.birthday.read"
+           data-auto_prompt="false">
+      </div>
+      <div class="g_id_signin"
+           data-type="standard"
+           data-size="large"
+           data-theme="outline"
+           data-text="sign_in_with"
+           data-shape="rectangular"
+           data-logo_alignment="left">
+      </div>
+    </div>
     <a href="login" id="backward">Quay Lại Trang Trước</a>
   </form>
 </div>
@@ -139,6 +178,9 @@
   const passwordInput = document.getElementById('password');
   const confirmInput = document.getElementById('confirm-password');
   const usernameInput = document.getElementById('username');
+  const emailInput = document.getElementById('email');
+  const phoneInput = document.getElementById('phone-number');
+  const birthInput = document.getElementById('birth');
 
   // Các checkbox hiển thị trạng thái
   const remindWords = document.getElementById('remind-words');
@@ -146,9 +188,37 @@
   const remindSpecial = document.getElementById('remind-special');
   const remindUsernameLength = document.getElementById('remind-username');
   const remindConfirm = document.getElementById('remind-confirm');
+  const remindEmail = document.getElementById('remind-email');
+  const remindPhoneNumber = document.getElementById('remind-phone');
+  const remindBirth = document.getElementById('remind-birth');
 
   const listFields = ['#email, #username, #password, #confirm-password, #phone-number, #birth'];
   preventspace(listFields)
+
+  function validateBirth() {
+    const birthValue = birthInput.value;
+    const birthDate = new Date(birthValue);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const dayDiff = today.getDate() - birthDate.getDate();
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--;
+    }
+    remindBirth.checked = age >= 18;
+  }
+
+  function validatePhoneNumber() {
+    const phonePattern = /^0\d{9,10}$/;
+    const phoneValue = phoneInput.value;
+    remindPhoneNumber.checked = phonePattern.test(phoneValue);
+  }
+
+  function validateEmail() {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailValue = emailInput.value;
+    remindEmail.checked = emailPattern.test(emailValue);
+  }
 
   function validatePassword() {
     const value = passwordInput.value;
@@ -175,16 +245,29 @@
   passwordInput.addEventListener('input', validatePassword);
   confirmInput.addEventListener('input', validateConfirm);
   usernameInput.addEventListener('input', validateUsername);
+  emailInput.addEventListener('input', validateEmail);
+  phoneInput.addEventListener('input', validatePhoneNumber);
+  birthInput.addEventListener('input', validateBirth);
 
   const registerForm = document.getElementById('register-form');
 
   registerForm.addEventListener('submit', function(event) {
     const ageChecked = document.getElementById('age-confirm').checked;
     const licenseChecked = document.getElementById('license-confirm').checked;
+    const allValid = remindEmail.checked &&
+            (usernameInput.value.length === 0 || remindUsernameLength.checked) &&
+            remindWords.checked &&
+            remindUppercase.checked &&
+            remindSpecial.checked &&
+            remindConfirm.checked &&
+            remindPhoneNumber.checked &&
+            remindBirth.checked;
 
     if (!ageChecked || !licenseChecked) {
       event.preventDefault();
       alert("Bạn phải xác nhận đủ 18 tuổi và đồng ý với chính sách để tiếp tục.");
+    } else if (!allValid) {
+      alert("Vui lòng hoàn thành đúng các yêu cầu (các ô tích) trước khi đăng ký.");
     }
   });
 </script>
