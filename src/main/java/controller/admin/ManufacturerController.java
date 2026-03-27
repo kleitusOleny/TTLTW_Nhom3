@@ -1,4 +1,4 @@
-package controller.manufacturer_manage;
+package controller.admin;
 
 import dao.ManufacturerDAO;
 import jakarta.servlet.ServletException;

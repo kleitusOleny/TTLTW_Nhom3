@@ -43,7 +43,7 @@ public class FavoritesController extends HttpServlet {
         }
         List<Map<String, Object>> favouritesList = favouriteDAO.getFavouritesWithProductsByUserID(user.getId());
         request.setAttribute("favouritesList", favouritesList);
-        request.getRequestDispatcher("/infoUsers/favorites.jsp").forward(request, response);
+        request.getRequestDispatcher("/info_users/favorites.jsp").forward(request, response);
     }
 
     @Override
