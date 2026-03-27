@@ -1,4 +1,4 @@
-package controller.product_manager;
+package controller.admin;
 
 import dao.*;
 import jakarta.servlet.ServletException;
