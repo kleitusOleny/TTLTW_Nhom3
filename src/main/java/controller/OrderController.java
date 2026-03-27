@@ -7,6 +7,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.Order;
+import model.Payment;
+import model.ShipOrder;
 import model.User;
 
 import java.io.IOException;
@@ -59,6 +62,6 @@ public class OrderController extends HttpServlet {
         request.setAttribute("orders", orders);
         request.setAttribute("shipOrderMap", shipOrderMap);
         request.setAttribute("paymentMap", paymentMap);
-        request.getRequestDispatcher("infoUsers/my_orders.jsp").forward(request, response);
+        request.getRequestDispatcher("info_users/my_orders.jsp").forward(request, response);
     }
 }

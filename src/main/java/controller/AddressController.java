@@ -43,7 +43,7 @@ public class AddressController extends HttpServlet {
             }
             List<Address> addressList = addressService.getByUserID(user.getId());
             request.setAttribute("addressList", addressList);
-            request.getRequestDispatcher("/infoUsers/addresses.jsp").forward(request, response);
+            request.getRequestDispatcher("/info_users/addresses.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
             throw new ServletException("Error loading addresses", e);
@@ -95,7 +95,7 @@ public class AddressController extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/address?view=popup");
         } else {
             response.sendRedirect(
-                    request.getContextPath() + "/infoUsers/user_sidebar.jsp#" + request.getContextPath() + "/address");
+                    request.getContextPath() + "/info_users/user_sidebar.jsp#" + request.getContextPath() + "/address");
         }
     }
 
