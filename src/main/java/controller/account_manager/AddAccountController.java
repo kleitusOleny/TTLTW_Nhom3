@@ -40,13 +40,13 @@ public class AddAccountController extends HttpServlet {
             } else {
                 request.setAttribute("emailError", "Email này đã tồn tại trong hệ thống!");
                 request.setAttribute("listAccount", userList);
-                request.getRequestDispatcher("/AdminPages/manage_accounts.jsp").forward(request, response);
+                request.getRequestDispatcher("/admin/manage_accounts.jsp").forward(request, response);
             }
         } else {
             request.setAttribute("errorSource", "add_account");
             allErrors.forEach(request::setAttribute);
             request.setAttribute("listAccount", userList);
-            request.getRequestDispatcher("/AdminPages/manage_accounts.jsp").forward(request, response);
+            request.getRequestDispatcher("/admin/manage_accounts.jsp").forward(request, response);
         }
     }
 }

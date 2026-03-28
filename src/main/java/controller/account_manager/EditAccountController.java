@@ -23,7 +23,7 @@ public class EditAccountController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String id = request.getParameter("id");
+        int id = Integer.parseInt(request.getParameter("id"));
         String email = request.getParameter("email");
         String newPassword = request.getParameter("password_");
         String fullName = request.getParameter("fullname");
@@ -60,7 +60,7 @@ public class EditAccountController extends HttpServlet {
             request.setAttribute("errorList", allErrors.values());
             allErrors.forEach(request::setAttribute);
             request.setAttribute("listAccount", userList);
-            request.getRequestDispatcher("/AdminPages/manage_accounts.jsp").forward(request, response);
+            request.getRequestDispatcher("/admin/manage_accounts.jsp").forward(request, response);
         }
     }
 }

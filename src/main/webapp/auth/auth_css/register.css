@@ -76,13 +76,6 @@ h2 {
     gap: 20px;
 }
 
-/*.address-row {*/
-/*    display: flex;*/
-/*    flex-direction: row;*/
-/*    flex-wrap: wrap;*/
-/*    gap: 20px;*/
-/*}*/
-
 .address-row .form-group {
     min-width: 200px;
 }
@@ -217,4 +210,33 @@ p {
 
 #backward:hover::before {
     transform: translateX(-5px);
+}
+
+#social-remind {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    font-size: 0.85rem;
+    color: #888;
+    text-transform: uppercase;
+}
+
+#social-remind::before,
+#social-remind::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #eee;
+}
+
+#social-remind::before {
+    margin-right: 15px;
+}
+
+#social-remind::after {
+    margin-left: 15px;
+}
+
+.g_id_signin {
+    margin-top: 10px;
 }
