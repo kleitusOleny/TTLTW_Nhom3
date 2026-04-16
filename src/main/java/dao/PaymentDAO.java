@@ -1,18 +1,17 @@
 package dao;
 
 import model.Payment;
+
 import java.util.List;
 
-public class PaymentDAO extends ADAO implements IDAO<Payment> {
+public class PaymentDAO extends ADAO {
 
-    @Override
     public List<Payment> getAll() {
         return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM payments")
                 .mapToBean(Payment.class)
                 .list());
     }
 
-    @Override
     public Payment findById(Payment id) {
         return null;
     }
@@ -33,7 +32,6 @@ public class PaymentDAO extends ADAO implements IDAO<Payment> {
                 .orElse(null));
     }
 
-    @Override
     public boolean create(Payment entity) {
         return jdbi.withHandle(handle -> handle.createUpdate("""
                 INSERT INTO payments (order_id, pay_strategy, status, amount, paid_at)
@@ -47,7 +45,6 @@ public class PaymentDAO extends ADAO implements IDAO<Payment> {
                 .execute() > 0);
     }
 
-    @Override
     public boolean update(Payment entity) {
         return jdbi.withHandle(handle -> handle.createUpdate("""
                 UPDATE payments SET
@@ -67,19 +64,16 @@ public class PaymentDAO extends ADAO implements IDAO<Payment> {
                 .execute() > 0);
     }
 
-    @Override
     public boolean delete(Payment entity) {
         return jdbi.withHandle(handle -> handle.createUpdate("DELETE FROM payments WHERE id = :id")
                 .bind("id", entity.getId())
                 .execute() > 0);
     }
 
-    @Override
     public List<Payment> search(String keyword) {
         return null;
     }
 
-    @Override
     public boolean exists(Payment entity) {
         return findById(entity.getId()) != null;
     }

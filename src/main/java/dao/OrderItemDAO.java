@@ -4,9 +4,9 @@ import model.OrderItem;
 
 import java.util.List;
 
-public class OrderItemDAO extends ADAO implements IDAO<OrderItem> {
+public class OrderItemDAO extends ADAO  {
 
-    @Override
+    
     public List<OrderItem> getAll() {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT * FROM order_items")
@@ -15,7 +15,6 @@ public class OrderItemDAO extends ADAO implements IDAO<OrderItem> {
         );
     }
 
-    @Override
     public OrderItem findById(OrderItem entity) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
@@ -30,7 +29,6 @@ public class OrderItemDAO extends ADAO implements IDAO<OrderItem> {
         );
     }
 
-    @Override
     public boolean create(OrderItem entity) {
         return jdbi.withHandle(handle ->
                 handle.createUpdate("""
@@ -45,7 +43,6 @@ public class OrderItemDAO extends ADAO implements IDAO<OrderItem> {
         );
     }
 
-    @Override
     public boolean update(OrderItem entity) {
         return jdbi.withHandle(handle ->
                 handle.createUpdate("""
@@ -62,7 +59,6 @@ public class OrderItemDAO extends ADAO implements IDAO<OrderItem> {
         );
     }
 
-    @Override
     public boolean delete(OrderItem entity) {
         return jdbi.withHandle(handle ->
                 handle.createUpdate("""
@@ -75,7 +71,6 @@ public class OrderItemDAO extends ADAO implements IDAO<OrderItem> {
         );
     }
 
-    @Override
     public List<OrderItem> search(String keyword) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
@@ -88,12 +83,11 @@ public class OrderItemDAO extends ADAO implements IDAO<OrderItem> {
         );
     }
 
-    @Override
     public boolean exists(OrderItem entity) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
-                                SELECT COUNT(*) 
-                                FROM order_items 
+                                SELECT COUNT(*)
+                                FROM order_items
                                 WHERE order_id = :oid AND product_id = :pid
                                 """)
                         .bind("oid", entity.getOrderId())

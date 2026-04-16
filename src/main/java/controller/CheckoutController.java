@@ -1,8 +1,6 @@
 package controller;
 
-import dao.AddressDAO;
-import dao.ProductDAO;
-import dao.UserVoucherDAO;
+import dao.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;

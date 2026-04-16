@@ -1,15 +1,13 @@
 package controller;
 
-import dao.AddressDAO;
+import dao.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import model.Address;
-import model.Product;
-import model.User;
+import model.*;
 import services.ProductService;
 
 import java.io.IOException;

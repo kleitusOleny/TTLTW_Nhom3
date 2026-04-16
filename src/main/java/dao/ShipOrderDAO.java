@@ -4,9 +4,9 @@ import model.ShipOrder;
 
 import java.util.List;
 
-public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder> {
+public class ShipOrderDAO extends ADAO{
 
-    @Override
+    
     public List<ShipOrder> getAll() {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT * FROM ship_orders")
@@ -15,7 +15,7 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder> {
         );
     }
 
-    @Override
+    
     public ShipOrder findById(ShipOrder entity) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT * FROM ship_orders WHERE id = :id")
@@ -26,11 +26,11 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder> {
         );
     }
 
-    @Override
+    
     public boolean create(ShipOrder entity) {
         return jdbi.withHandle(handle ->
                 handle.createUpdate("""
-                                INSERT INTO ship_orders 
+                                INSERT INTO ship_orders
                                 (order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date)
                                 VALUES (:order_id, :carrier_name, :tracking_number, :shipping_fee, :status, :estimated_delivery_date)
                                 """)
@@ -44,7 +44,7 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder> {
         );
     }
 
-    @Override
+    
     public boolean update(ShipOrder entity) {
         return jdbi.withHandle(handle ->
                 handle.createUpdate("""
@@ -68,7 +68,7 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder> {
         );
     }
 
-    @Override
+    
     public boolean delete(ShipOrder entity) {
         return jdbi.withHandle(handle ->
                 handle.createUpdate("DELETE FROM ship_orders WHERE id = :id")
@@ -77,7 +77,7 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder> {
         );
     }
 
-    @Override
+    
     public List<ShipOrder> search(String keyword) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
@@ -92,7 +92,7 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder> {
         );
     }
 
-    @Override
+    
     public boolean exists(ShipOrder entity) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT COUNT(*) FROM ship_orders WHERE id = :id")

@@ -7,9 +7,8 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.List;
 
-public class OrderDAO extends ADAO implements IDAO<Order> {
-
-    @Override
+public class OrderDAO extends ADAO {
+    
     public List<Order> getAll() {
         return jdbi.withHandle(
                 handle -> handle.createQuery("SELECT * FROM orders WHERE is_delete IS NULL")
@@ -17,7 +16,6 @@ public class OrderDAO extends ADAO implements IDAO<Order> {
                         .list());
     }
 
-    @Override
     public Order findById(Order id) {
         return null;
     }
@@ -31,7 +29,6 @@ public class OrderDAO extends ADAO implements IDAO<Order> {
                 .orElse(null));
     }
 
-    @Override
     public boolean create(Order entity) {
         return jdbi.withHandle(handle -> {
             var update = handle
@@ -128,7 +125,6 @@ public class OrderDAO extends ADAO implements IDAO<Order> {
         });
     }
 
-    @Override
     public boolean update(Order entity) {
         return jdbi.withHandle(handle -> {
             var update = handle.createUpdate("""
@@ -158,7 +154,6 @@ public class OrderDAO extends ADAO implements IDAO<Order> {
         });
     }
 
-    @Override
     public boolean delete(Order entity) {
         return jdbi.withHandle(handle -> handle.createUpdate("""
                 UPDATE orders
@@ -169,7 +164,6 @@ public class OrderDAO extends ADAO implements IDAO<Order> {
                 .execute() > 0);
     }
 
-    @Override
     public List<Order> search(String keyword) {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT * FROM orders
@@ -181,7 +175,6 @@ public class OrderDAO extends ADAO implements IDAO<Order> {
                 .list());
     }
 
-    @Override
     public boolean exists(Order entity) {
         return jdbi
                 .withHandle(handle -> handle
@@ -276,21 +269,21 @@ public class OrderDAO extends ADAO implements IDAO<Order> {
 
     public java.util.Map<String, Object> getOrderInfo(int orderId) {
         return jdbi.withHandle(handle -> handle.createQuery("""
-                SELECT o.id, o.user_id, o.shipping_address_id, o.discount_id, 
+                SELECT o.id, o.user_id, o.shipping_address_id, o.discount_id,
                        o.total_price, o.create_at, o.update_at, o.is_delete,
                        COALESCE(a.full_name, u.full_name) as full_name,
                        COALESCE(a.phone_number, u.phone_number) as phone_number,
-                       CASE 
-                           WHEN o.note LIKE 'EMAIL:%' THEN 
-                               CASE 
-                                   WHEN LOCATE(' | Ghi chú: ', o.note) > 0 
+                       CASE
+                           WHEN o.note LIKE 'EMAIL:%' THEN
+                               CASE
+                                   WHEN LOCATE(' | Ghi chú: ', o.note) > 0
                                    THEN SUBSTRING(o.note, 7, LOCATE(' | Ghi chú: ', o.note) - 7)
                                    ELSE SUBSTRING(o.note, 7)
                                END
                            ELSE u.email
                        END as email,
-                       CASE 
-                           WHEN o.note LIKE 'EMAIL:%' AND LOCATE(' | Ghi chú: ', o.note) > 0 
+                       CASE
+                           WHEN o.note LIKE 'EMAIL:%' AND LOCATE(' | Ghi chú: ', o.note) > 0
                            THEN SUBSTRING(o.note, LOCATE(' | Ghi chú: ', o.note) + 13)
                            WHEN o.note NOT LIKE 'EMAIL:%' THEN o.note
                            ELSE ''

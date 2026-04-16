@@ -49,7 +49,7 @@ public class EditAccountController extends HttpServlet {
         List<User> userList = userDAO.findAll();
         if (allErrors.isEmpty()) {
             try {
-                accountManagerService.updateAccount(Integer.parseInt(id), email, newPassword, fullName, birth, username, phoneNumber, isActive, isAdministrator);
+                accountManagerService.updateAccount(id, email, newPassword, fullName, birth, username, phoneNumber, isActive, isAdministrator);
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
