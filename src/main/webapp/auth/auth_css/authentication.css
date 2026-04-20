@@ -108,7 +108,7 @@ button {
     background-color: #1f88b2;
 }
 
-input {
+#email {
     padding: 12px 15px;
     font-size: 1rem;
     border-radius: 8px;
@@ -117,7 +117,7 @@ input {
     width: 100%;
 }
 
-input:focus {
+#email:focus {
     outline: none;
     border-color: #ff0080;
     box-shadow: 0 0 0 3px rgba(255, 0, 98, 0.15);
@@ -202,4 +202,34 @@ input:focus {
     display: flex;
     flex-direction: column;
     gap: 20px;
+}
+
+ .otp-container {
+     display: flex;
+     gap: 10px;
+     margin-top: 10px;
+     justify-content: space-between;
+ }
+
+.otp-field {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    font-size: 1.2rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.otp-field:focus {
+    outline: none;
+    border-color: #ff0080;
+    box-shadow: 0 0 0 3px rgba(255, 0, 98, 0.15);
+}
+
+.otp-field::-webkit-inner-spin-button,
+.otp-field::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }

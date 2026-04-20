@@ -41,10 +41,16 @@
     </div>
     <div class="verify form-group">
       <div class="verify-title">
-        <label for="verify-code" class="label-with-icon">
-          <ion-icon name="chatbox-ellipses-outline"></ion-icon>
-          Mã xác thực</label>
-        <input type="text" id="verify-code" name="otpInput" placeholder="Nhập mã xác thực đã gửi" required>
+        <label class="label-with-icon"><ion-icon name="chatbox-ellipses-outline"></ion-icon>Mã xác thực</label>
+        <div class="otp-container" id="otp-inputs">
+          <input type="text" maxlength="1" pattern="\d*" inputmode="numeric" class="otp-field" />
+          <input type="text" maxlength="1" pattern="\d*" inputmode="numeric" class="otp-field" />
+          <input type="text" maxlength="1" pattern="\d*" inputmode="numeric" class="otp-field" />
+          <input type="text" maxlength="1" pattern="\d*" inputmode="numeric" class="otp-field" />
+          <input type="text" maxlength="1" pattern="\d*" inputmode="numeric" class="otp-field" />
+          <input type="text" maxlength="1" pattern="\d*" inputmode="numeric" class="otp-field" />
+        </div>
+        <input type="hidden" id="verify-code" name="otpInput" required>
       </div>
       <c:if test="${not empty otpError}">
         <span class="error-msg">${otpError}</span>
@@ -90,5 +96,51 @@
     border: 1px solid red;
   }
 </style>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const inputs = document.querySelectorAll(".otp-field");
+    const hiddenInput = document.querySelector("#verify-code");
+
+    inputs.forEach((input, index) => {
+      input.addEventListener("input", (e) => {
+        if (e.inputType === "deleteContentBackward") return;
+        const val = e.target.value;
+        if (!/^\d$/.test(val)) {
+          e.target.value = "";
+          return;
+        }
+        if (val && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+        updateHiddenInput();
+      });
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Backspace" && !e.target.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+      input.addEventListener("paste", (e) => {
+        e.preventDefault();
+        const data = e.clipboardData.getData("text").trim();
+        if (!/^\d{6}$/.test(data)) return;
+
+        const digits = data.split("");
+        inputs.forEach((input, i) => {
+          input.value = digits[i];
+        });
+        updateHiddenInput();
+        inputs[inputs.length - 1].focus();
+      });
+    });
+
+    function updateHiddenInput() {
+      let otpValue = "";
+      inputs.forEach(input => {
+        otpValue += input.value;
+      });
+      hiddenInput.value = otpValue;
+    }
+  });
+</script>
 </body>
 </html>
