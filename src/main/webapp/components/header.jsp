@@ -73,61 +73,30 @@
                                 <div class="mega-menu-column">
                                     <h4 class="mega-menu-title">Theo Loại Vang</h4>
                                     <ul class="mega-menu-list">
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">Rượu Vang Đỏ</a>
-                                        </li>
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">Rượu Vang
-                                            Trắng</a></li>
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">Rượu Vang
-                                            Hồng</a></li>
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">Sâm Panh / Vang
-                                            Nổ</a></li>
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">Rượu Vang
-                                            Ngọt</a></li>
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">Cognac & Rượu
-                                            Mạnh</a></li>
+                                        <c:forEach items="${applicationScope.globalListTypes}" var="type">
+                                            <li><a href="${pageContext.request.contextPath}/store?typeId=${type.id}"
+                                                   class="mega-menu-link">${type.typeName}</a></li>
+                                        </c:forEach>
                                     </ul>
                                 </div>
 
                                 <div class="mega-menu-column">
                                     <h4 class="mega-menu-title">Nhãn Hàng Nổi Bật</h4>
                                     <ul class="mega-menu-list">
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">CHÂTEAU
-                                            CORBIN</a></li>
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">TENUTA LUCE</a>
-                                        </li>
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">MAISON LOUIS
-                                            LATOUR</a></li>
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">Domaine
-                                            Faiveley</a></li>
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">BODEGAS MUGA</a>
-                                        </li>
-                                        <li><a href="${pageContext.request.contextPath}/store"
-                                               class="mega-menu-link">CHAMPAGNE
-                                            RUINART</a></li>
+                                        <c:forEach items="${applicationScope.globalListManufacturers}" var="m">
+                                            <li><a href="${pageContext.request.contextPath}/store?manuId=${m.id}"
+                                                   class="mega-menu-link">${m.manufacturerName}</a></li>
+                                        </c:forEach>
                                     </ul>
                                 </div>
 
                                 <div class="mega-menu-column">
                                     <h4 class="mega-menu-title">Theo Tag</h4>
                                     <ul class="mega-menu-list">
-                                        <li><a href="#" class="mega-menu-link">Giá Đặc Biệt
-                                            (gcc)</a></li>
-                                        <li><a href="#" class="mega-menu-link">Bộ Sưu Tập Giá
-                                            Tốt</a></li>
-                                        <li><a href="#" class="mega-menu-link">Vang Hồng Giá Tốt</a>
-                                        </li>
-                                        <li><a href="#" class="mega-menu-link">Bộ Sưu Tập</a></li>
+                                        <c:forEach items="${applicationScope.globalListTags}" var="tag">
+                                            <li><a href="${pageContext.request.contextPath}/store?tagId=${tag.id}"
+                                                   class="mega-menu-link">${tag.tagName}</a></li>
+                                        </c:forEach>
                                     </ul>
                                 </div>
 
