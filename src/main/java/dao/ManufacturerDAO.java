@@ -37,4 +37,18 @@ public class ManufacturerDAO extends ADAO{
                         .bind("location", m.getLocation())
                         .execute());
     }
+    
+    public List<Manufacturer> getTop6Manufacturers() {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("SELECT id, manufacturer_name, location FROM manufacturers WHERE is_delete = 0 LIMIT 6")
+                        .mapToBean(Manufacturer.class)
+                        .list());
+    }
+
+    public List<String> getTop6Regions() {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("SELECT DISTINCT location FROM manufacturers WHERE is_delete = 0 AND location IS NOT NULL LIMIT 6")
+                        .mapTo(String.class)
+                        .list());
+    }
 }
