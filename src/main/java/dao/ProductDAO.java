@@ -104,19 +104,22 @@ public class ProductDAO extends ADAO {
     }
 
     public List<Product> getProducts(int limit, int offset, String sort) {
-        String order = "ORDER BY price ";
+        String orderClause = "ORDER BY price ";
         switch (sort) {
             case "price-asc":
-                order += "ASC ";
+                orderClause = "ORDER BY price ASC ";
                 break;
             case "price-desc":
-                order += "DESC ";
+                orderClause = "ORDER BY price DESC ";
                 break;
             case "rating":
-                order += "DESC "; // Giả sử cột là rating
+                orderClause = "ORDER BY rating DESC ";
+                break;
+            case "latest":
+                orderClause = "ORDER BY p.create_at DESC ";
                 break;
             default:
-                order = ""; // Mặc định
+                orderClause = "ORDER BY p.create_at DESC ";
                 break;
         }
 
@@ -142,7 +145,7 @@ public class ProductDAO extends ADAO {
 //                "LEFT JOIN dis_process dp ON p.id = dp.product_id AND dp.is_delete = 0 " +
 //                "LEFT JOIN discounts d ON dp.discount_id = d.id AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to " +
                 "WHERE p.is_delete = 0 " +
-                order +
+                orderClause +
                 "LIMIT :limit OFFSET :offset";
         return jdbi.withHandle(handle -> handle.createQuery(sql)
                 .bind("limit", limit)
