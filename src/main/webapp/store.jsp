@@ -273,12 +273,20 @@
                 <div class="display-container">
                     <p>Hiển thị kết quả 1-24 trong số</p>
                     <div class="display-mode-container">
-                        <select id="view-mode">
-                            <option value="default">Thứ tự mặc định</option>
-                            <option value="price-asc">Giá: Thấp đến Cao</option>
-                            <option value="price-desc">Giá: Cao đến Thấp</option>
-                            <option value="rating">Đánh giá cao nhất</option>
-                        </select>
+                        <form action="${pageContext.request.contextPath}/filter" method="get" id="sortForm">
+                            <c:forEach items="${param}" var="p">
+                                <c:if test="${p.key != 'sort' && p.key != 'page'}">
+                                    <input type="hidden" name="${p.key}" value="${fn:escapeXml(p.value)}">
+                                </c:if>
+                            </c:forEach>
+
+                            <select id="view-mode" name="sort" onchange="this.form.submit()">
+                                <option value="default" ${currentSort == 'default' ? 'selected' : ''}>Thứ tự mặc định</option>
+                                <option value="price-asc" ${currentSort == 'price-asc' ? 'selected' : ''}>Giá: Thấp đến Cao</option>
+                                <option value="price-desc" ${currentSort == 'price-desc' ? 'selected' : ''}>Giá: Cao đến Thấp</option>
+                                <option value="rating" ${currentSort == 'rating' ? 'selected' : ''}>Đánh giá cao nhất</option>
+                            </select>
+                        </form>
                     </div>
                 </div>
             </div>
