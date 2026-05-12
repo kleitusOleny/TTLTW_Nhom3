@@ -31,7 +31,10 @@ public class AuthFilter implements Filter {
             rep.setStatus(401);
             return;
         } else {
-            rep.sendRedirect(req.getContextPath() + "/login");
+            String uri = req.getRequestURI();
+            String query = req.getQueryString();
+            String redirectUrl = uri + (query != null ? "?" + query : "");
+            rep.sendRedirect(req.getContextPath() + "/login?redirect=" + java.net.URLEncoder.encode(redirectUrl, "UTF-8"));
         }
 
     }

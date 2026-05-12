@@ -51,14 +51,18 @@ public class LoginGoogle extends HttpServlet {
                 if (user.getAdministrator() == 1) {
                     response.sendRedirect("dashboard");
                 } else if (redirect != null && !redirect.isEmpty()) {
-                    if ("checkout".equals(redirect)) {
+                    if ("checkout".equals(redirect) || redirect.endsWith("/checkout")) {
                         if ("buyNow".equals(checkoutType)) {
-                            response.sendRedirect("checkout?from=buyNow");
+                            response.sendRedirect("checkout?from=buyNow&loginSuccess=1");
                         } else {
-                            response.sendRedirect("checkout");
+                            response.sendRedirect("checkout?loginSuccess=1");
                         }
                     } else {
-                        response.sendRedirect(redirect);
+                        if (redirect.contains("?")) {
+                            response.sendRedirect(redirect + "&loginSuccess=1");
+                        } else {
+                            response.sendRedirect(redirect + "?loginSuccess=1");
+                        }
                     }
                 } else {
                     response.sendRedirect(request.getContextPath() + "/home?loginSuccess=1");

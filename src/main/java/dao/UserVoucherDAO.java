@@ -11,7 +11,7 @@ public class UserVoucherDAO extends ADAO implements IDAO<UserVoucher, Integer> {
 
     public List<UserVoucher> findByUserId(int userId) {
         return jdbi.withHandle(
-                handle -> handle.createQuery("SELECT id, user_id, discount_id, is_used, create_at FROM user_vouchers WHERE user_id = :userId AND is_used = 0")
+                handle -> handle.createQuery("SELECT id, user_id, discount_id, is_used, created_at FROM user_vouchers WHERE user_id = :userId AND is_used = 0")
                         .bind("userId", userId)
                         .mapToBean(UserVoucher.class)
                         .list());
