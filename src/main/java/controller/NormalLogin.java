@@ -5,6 +5,9 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import model.Cart;
 import model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import services.AuthServices;
 import services.UserValidationServices;
 
@@ -14,6 +17,8 @@ import java.util.Map;
 
 @WebServlet(name = "NormalLogin", value = "/login")
 public class NormalLogin extends HttpServlet {
+    private static final Logger log = LoggerFactory.getLogger(NormalLogin.class);
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
