@@ -116,16 +116,17 @@ public class UserValidationServices {
 
     public Map<String, String> validateBirth(String birth){
         Map<String, String> errors = new HashMap<>();
-        if (birth == null || birth.isEmpty() || birth.equals("")) {
-            errors.put("birthError", "Lỗi trường nhập ngày sinh");
+        if (birth == null || birth.trim().isEmpty()) {
+            errors.put("birthError", "Vui lòng chọn ngày sinh");
+            return errors;
         }
         try {
             LocalDate birthDay = LocalDate.parse(birth);
             int age = Period.between(birthDay, LocalDate.now()).getYears();
             if (age < 18) {
-                errors.put("ageError", "Ngày sinh không đủ tuổi");
+                errors.put("ageError", "Bạn phải từ 18 tuổi trở lên");
             }
-        }catch (DateTimeParseException e) {
+        } catch (DateTimeParseException e) {
             errors.put("birthError", "Định dạng ngày tháng không hợp lệ!");
         }
         return errors;
