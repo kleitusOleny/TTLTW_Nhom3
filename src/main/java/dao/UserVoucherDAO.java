@@ -3,6 +3,7 @@ package dao;
 import model.UserVoucher;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class UserVoucherDAO extends ADAO implements IDAO<UserVoucher, Integer> {
@@ -10,7 +11,7 @@ public class UserVoucherDAO extends ADAO implements IDAO<UserVoucher, Integer> {
 
     public List<UserVoucher> findByUserId(int userId) {
         return jdbi.withHandle(
-                handle -> handle.createQuery("SELECT * FROM user_vouchers WHERE user_id = :userId AND is_used = 0")
+                handle -> handle.createQuery("SELECT id, user_id, discount_id, is_used, create_at FROM user_vouchers WHERE user_id = :userId AND is_used = 0")
                         .bind("userId", userId)
                         .mapToBean(UserVoucher.class)
                         .list());
@@ -32,18 +33,17 @@ public class UserVoucherDAO extends ADAO implements IDAO<UserVoucher, Integer> {
 
     @Override
     public Optional<UserVoucher> findById(Integer id) {
-        return Optional.of(jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM user_vouchers WHERE id = :id")
+        return Optional.of(jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("SELECT * FROM user_vouchers WHERE id = :id")
                 .bind("id", id)
                 .mapToBean(UserVoucher.class)
                 .findFirst()
-                .orElse(null)));
+                .orElse(null))));
     }
 
     @Override
     public UserVoucher save(UserVoucher entity) {
         return jdbi.withHandle(handle -> {
             if (entity.getId() == null) {
-
                 Integer id = handle.createUpdate("""
                     INSERT INTO user_vouchers
                     (user_id, discount_id, is_used, created_at)
@@ -76,10 +76,11 @@ public class UserVoucherDAO extends ADAO implements IDAO<UserVoucher, Integer> {
     }
 
     @Override
-    public void deleteById(Integer id) {
+    public boolean deleteById(Integer id) {
         jdbi.withHandle(handle -> handle.createUpdate("DELETE FROM user_vouchers WHERE id = :id")
                 .bind("id", id)
                 .execute() > 0);
+        return false;
     }
 
     @Override
