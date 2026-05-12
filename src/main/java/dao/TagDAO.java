@@ -11,4 +11,11 @@ public class TagDAO extends ADAO{
                         .mapToBean(Tag.class)
                         .list());
     }
+    
+    public List<Tag> getTop6Tags() {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("SELECT id, tag_name AS tagName FROM tags WHERE is_delete = 0 LIMIT 6")
+                        .mapToBean(Tag.class)
+                        .list());
+    }
 }
