@@ -11,7 +11,7 @@ public interface IDAO<T, ID> {
 
     T save(T entity);
 
-    void deleteById(ID id);
+    boolean deleteById(ID id);
 
     boolean existsById(ID id);
 }

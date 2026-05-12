@@ -52,5 +52,28 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('loginSuccess')) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đăng nhập thành công!',
+                text: 'Chào mừng bạn quay trở lại.',
+                timer: 3000,
+                showConfirmButton: false
+            });
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        if (urlParams.has('registerSuccess')) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đăng ký thành công!',
+                text: 'Bạn có thể đăng nhập ngay bây giờ.',
+                confirmButtonColor: '#3085d6'
+            });
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
 </script>

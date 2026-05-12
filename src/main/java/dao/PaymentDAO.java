@@ -3,78 +3,96 @@ package dao;
 import model.Payment;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
-public class PaymentDAO extends ADAO {
+public class PaymentDAO extends ADAO implements IDAO<Payment, Integer> {
 
-    public List<Payment> getAll() {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM payments")
+
+    public Payment findByOrderId(int orderId) {
+        return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("SELECT id, order_id, pay_strategy, status, amount, paid_at FROM payments WHERE order_id = :orderId")
+                .bind("orderId", orderId)
+                .mapToBean(Payment.class)
+                .findFirst()
+                .orElse(null)));
+    }
+
+    @Override
+    public List<Payment> findAll() {
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT id, order_id, pay_strategy, status, amount, paid_at FROM payments")
                 .mapToBean(Payment.class)
                 .list());
     }
 
-    public Payment findById(Payment id) {
-        return null;
-    }
-
-    public Payment findById(int id) {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM payments WHERE id = :id")
-                .bind("id", id)
+    @Override
+    public Optional<Payment> findById(Integer integer) {
+        return Optional.of(jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("SELECT id, order_id, pay_strategy, status, amount, paid_at FROM payments WHERE id = :id")
+                .bind("id", integer)
                 .mapToBean(Payment.class)
                 .findFirst()
-                .orElse(null));
-    }
-    
-    public Payment findByOrderId(int orderId) {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM payments WHERE order_id = :orderId")
-                .bind("orderId", orderId)
-                .mapToBean(Payment.class)
-                .findFirst()
-                .orElse(null));
+                .orElse(null))));
     }
 
-    public boolean create(Payment entity) {
-        return jdbi.withHandle(handle -> handle.createUpdate("""
-                INSERT INTO payments (order_id, pay_strategy, status, amount, paid_at)
-                VALUES (:orderId, :payStrategy, :status, :amount, :paidAt)
-                """)
-                .bind("orderId", entity.getOrderId())
-                .bind("payStrategy", entity.getPayStrategy())
-                .bind("status", entity.getStatus())
-                .bind("amount", entity.getAmount())
-                .bind("paidAt", entity.getPaidAt())
+    @Override
+    public Payment save(Payment entity) {
+        return jdbi.withHandle(handle -> {
+            boolean exists = this.existsById(entity.getId());
+            String sql = exists
+                    ? """
+                      UPDATE payments SET
+                          order_id = :orderId,
+                          pay_strategy = :payStrategy,
+                          status = :status,
+                          amount = :amount,
+                          paid_at = :paidAt
+                      WHERE id = :id
+                    """
+                    : """
+                      INSERT INTO payments
+                      (
+                          order_id,
+                          pay_strategy,
+                          status,
+                          amount,
+                          paid_at
+                      )
+                      VALUES
+                      (
+                          :orderId,
+                          :payStrategy,
+                          :status,
+                          :amount,
+                          :paidAt
+                      )
+                    """;
+
+            var update = handle.createUpdate(sql)
+                    .bind("orderId", entity.getOrderId())
+                    .bind("payStrategy", entity.getPayStrategy())
+                    .bind("status", entity.getStatus())
+                    .bind("amount", entity.getAmount())
+                    .bind("paidAt", entity.getPaidAt());
+
+            if (exists) {
+                update.bind("id", entity.getId());
+            }
+
+            int affectedRows = update.execute();
+
+            return affectedRows > 0 ? entity : null;
+        });
+    }
+
+    @Override
+    public boolean deleteById(Integer integer) {
+        jdbi.withHandle(handle -> handle.createUpdate("DELETE FROM payments WHERE id = :id")
+                .bind("id", integer)
                 .execute() > 0);
+        return false;
     }
 
-    public boolean update(Payment entity) {
-        return jdbi.withHandle(handle -> handle.createUpdate("""
-                UPDATE payments SET
-                    order_id = :orderId,
-                    pay_strategy = :payStrategy,
-                    status = :status,
-                    amount = :amount,
-                    paid_at = :paidAt
-                WHERE id = :id
-                """)
-                .bind("id", entity.getId())
-                .bind("orderId", entity.getOrderId())
-                .bind("payStrategy", entity.getPayStrategy())
-                .bind("status", entity.getStatus())
-                .bind("amount", entity.getAmount())
-                .bind("paidAt", entity.getPaidAt())
-                .execute() > 0);
-    }
-
-    public boolean delete(Payment entity) {
-        return jdbi.withHandle(handle -> handle.createUpdate("DELETE FROM payments WHERE id = :id")
-                .bind("id", entity.getId())
-                .execute() > 0);
-    }
-
-    public List<Payment> search(String keyword) {
-        return null;
-    }
-
-    public boolean exists(Payment entity) {
-        return findById(entity.getId()) != null;
+    @Override
+    public boolean existsById(Integer integer) {
+        return findById(integer).isPresent();
     }
 }

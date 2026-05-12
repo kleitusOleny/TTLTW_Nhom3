@@ -32,80 +32,68 @@ public class NormalLogin extends HttpServlet {
         String pass = request.getParameter("password");
         UserValidationServices userValidationServices = new UserValidationServices();
 
-        // Lấy IP của client
-        String clientIp = request.getHeader("X-Forwarded-For");
-        if (clientIp == null || clientIp.isEmpty()) {
-            clientIp = request.getRemoteAddr(); // Lấy IP trực tiếp nếu không qua Proxy
-        }
-        MDC.put("client_ip", clientIp);
-        MDC.put("auth_email", username);
+        Map<String, String> allErrors = new HashMap<>(
+                userValidationServices.validateBothUsernameAndEmail(username, pass));
 
-        try {
-            Map<String, String> allErrors = new HashMap<>(
-                    userValidationServices.validateBothUsernameAndEmail(username, pass));
+        User account;
+        AuthServices authService = new AuthServices();
+        if (allErrors.isEmpty()) {
+            account = authService.login(username, pass);
+            if (account != null) {
+                if (account.getActive() == 1) {
+                    HttpSession oldSession = request.getSession(false);
+                    Cart cart = null;
+                    Cart buyNowCart = null;
+                    String checkoutType = null;
 
-            User account;
-            AuthServices authService = new AuthServices();
-            if (allErrors.isEmpty()) {
-                account = authService.login(username, pass);
-                if (account != null) {
-                    if (account.getActive() == 1) {
-                        HttpSession oldSession = request.getSession(false);
-                        Cart cart = null;
-                        Cart buyNowCart = null;
-                        String checkoutType = null;
+                    if (oldSession != null) {
+                        cart = (Cart) oldSession.getAttribute("cart");
+                        buyNowCart = (Cart) oldSession.getAttribute("buyNowCart");
+                        checkoutType = (String) oldSession.getAttribute("checkoutType");
+                        oldSession.invalidate();
+                    }
+                    HttpSession session = request.getSession(true);
+                    session.setAttribute("user", account);
 
-                        if (oldSession != null) {
-                            cart = (Cart) oldSession.getAttribute("cart");
-                            buyNowCart = (Cart) oldSession.getAttribute("buyNowCart");
-                            checkoutType = (String) oldSession.getAttribute("checkoutType");
-                            oldSession.invalidate();
-                        }
-                        HttpSession session = request.getSession(true);
-                        session.setAttribute("user", account);
+                    if (cart != null)
+                        session.setAttribute("cart", cart);
+                    if (buyNowCart != null)
+                        session.setAttribute("buyNowCart", buyNowCart);
+                    if (checkoutType != null)
+                        session.setAttribute("checkoutType", checkoutType);
 
-                        if (cart != null)
-                            session.setAttribute("cart", cart);
-                        if (buyNowCart != null)
-                            session.setAttribute("buyNowCart", buyNowCart);
-                        if (checkoutType != null)
-                            session.setAttribute("checkoutType", checkoutType);
-
-                        String redirect = request.getParameter("redirect");
-                        if (account.getAdministrator() == 1) {
-                            response.sendRedirect("dashboard");
-                        } else if (redirect != null && !redirect.isEmpty()) {
-                            if ("checkout".equals(redirect)) {
-                                if ("buyNow".equals(checkoutType)) {
-                                    response.sendRedirect("checkout?from=buyNow");
-                                } else {
-                                    response.sendRedirect("checkout");
-                                }
+                    String redirect = request.getParameter("redirect");
+                    if (account.getAdministrator() == 1) {
+                        response.sendRedirect("dashboard");
+                    } else if (redirect != null && !redirect.isEmpty()) {
+                        if ("checkout".equals(redirect) || redirect.endsWith("/checkout")) {
+                            if ("buyNow".equals(checkoutType)) {
+                                response.sendRedirect("checkout?from=buyNow&loginSuccess=1");
                             } else {
-                                response.sendRedirect(redirect);
+                                response.sendRedirect("checkout?loginSuccess=1");
                             }
                         } else {
-                            log.info("Tài khoản {} đăng nhập thành công", username);
-                            response.sendRedirect(request.getContextPath() + "/home?loginSuccess=1");
+                            if (redirect.contains("?")) {
+                                response.sendRedirect(redirect + "&loginSuccess=1");
+                            } else {
+                                response.sendRedirect(redirect + "?loginSuccess=1");
+                            }
                         }
                     } else {
-                        log.warn("Tài khoản {} bị khoá", username);
-                        request.setAttribute("loginError",
-                                "Tài khoản của bạn đã bị khoá, vui lòng liên hệ Admin để giải quyết");
-                        request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
+                        response.sendRedirect(request.getContextPath() + "/home?loginSuccess=1");
                     }
                 } else {
-                    log.warn("Tài khoản {} nhập sai thông tin đăng nhập", username);
-                    request.setAttribute("loginError", "Bạn đã nhập sai tên tài khoản hoặc mật khẩu");
+                    request.setAttribute("loginError",
+                            "Tài khoản của bạn đã bị khoá, vui lòng liên hệ Admin để giải quyết");
                     request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
                 }
             } else {
-                allErrors.forEach(request::setAttribute);
+                request.setAttribute("loginError", "Bạn đã nhập sai tên tài khoản hoặc mật khẩu");
                 request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
             }
-        } finally {
-            MDC.remove("client_ip");
-            MDC.remove("auth_email");
+        } else {
+            allErrors.forEach(request::setAttribute);
+            request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
         }
     }
 }

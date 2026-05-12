@@ -3,6 +3,7 @@ package dao;
 import model.User;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class UserDAO extends ADAO implements IDAO<User, Integer> {
@@ -30,7 +31,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
     @Override
     public Optional<User> findById(Integer id) {
         return Optional.of(jdbi.withHandle(handle ->
-                handle.createQuery("""
+                Objects.requireNonNull(handle.createQuery("""
                                     SELECT id, email, username,
                                            password_hash,
                                            phone_number,
@@ -46,7 +47,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                         .bind("id", id)
                         .mapToBean(User.class)
                         .findFirst()
-                        .orElse(null)
+                        .orElse(null))
         ));
     }
 
@@ -117,7 +118,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
     }
 
     @Override
-    public void deleteById(Integer id) {
+    public boolean deleteById(Integer id) {
         jdbi.withHandle(handle -> handle.createUpdate("""
                             UPDATE users 
                             SET active:= 0
@@ -125,6 +126,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                         """)
                 .bind("id", id)
                 .execute() > 0);
+        return false;
     }
 
     @Override
@@ -144,7 +146,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
     }
 
     public User findByEmail(String email) {
-        return jdbi.withHandle(handle -> handle.createQuery("""
+        return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("""
                         SELECT
                             id,
                             email,
@@ -163,11 +165,11 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 .bind("email", email)
                 .mapToBean(User.class)
                 .findFirst()
-                .orElse(null));
+                .orElse(null)));
     }
 
     public User findByUsername(String username) {
-        return jdbi.withHandle(handle -> handle.createQuery("""
+        return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("""
                         SELECT
                             id,
                             email,
@@ -186,7 +188,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 .bind("username", username)
                 .mapToBean(User.class)
                 .findFirst()
-                .orElse(null));
+                .orElse(null)));
     }
 
     public boolean updatePassword(String email, String newPasswordHashed) {
