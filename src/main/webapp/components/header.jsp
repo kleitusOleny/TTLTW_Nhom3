@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+                                 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
@@ -33,7 +33,36 @@
                     </c:if>
                 </c:if>
                 <c:if test="${empty sessionScope.user}">
-                    <a href="${pageContext.request.contextPath}/login" aria-label="Login">
+                    <c:set var="reqUri" value="${requestScope['jakarta.servlet.forward.request_uri']}"/>
+                    <c:if test="${empty reqUri}">
+                        <c:set var="reqUri" value="${pageContext.request.requestURI}"/>
+                    </c:if>
+                    <c:set var="queryString" value="${pageContext.request.queryString}"/>
+                    <c:set var="fullRedirectUrl" value="${reqUri}${not empty queryString ? '?' : ''}${queryString}"/>
+                    
+                    <%-- Remove loginSuccess/registerSuccess from queryString if present --%>
+                    <c:if test="${fn:contains(fullRedirectUrl, 'loginSuccess') or fn:contains(fullRedirectUrl, 'registerSuccess')}">
+                        <c:url var="fullRedirectUrl" value="${reqUri}">
+                            <c:forEach items="${param}" var="p">
+                                <c:if test="${p.key != 'loginSuccess' and p.key != 'registerSuccess'}">
+                                    <c:param name="${p.key}" value="${p.value}"/>
+                                </c:if>
+                            </c:forEach>
+                        </c:url>
+                    </c:if>
+
+                    <%
+                        String fullRedirectUrl = (String) pageContext.getAttribute("fullRedirectUrl");
+                        if (fullRedirectUrl != null) {
+                            // Ensure context path isn't doubled if c:url was used
+                            String contextPath = request.getContextPath();
+                            if (fullRedirectUrl.startsWith(contextPath + contextPath)) {
+                                fullRedirectUrl = fullRedirectUrl.substring(contextPath.length());
+                            }
+                            pageContext.setAttribute("encodedRedirectUrl", java.net.URLEncoder.encode(fullRedirectUrl, "UTF-8"));
+                        }
+                    %>
+                    <a href="${pageContext.request.contextPath}/login?redirect=${encodedRedirectUrl}" aria-label="Login">
                         <span style="text-decoration-color: red">Đăng nhập</span>
                     </a>
                 </c:if>

@@ -6,6 +6,7 @@
   To change this template use File | Settings | File Templates.
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -14,6 +15,7 @@
     <title>Login</title>
     <script src='${pageContext.request.contextPath}/popup.js'></script>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/auth/auth_css/login.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -26,6 +28,7 @@
     <div class="login-page">
         <h2>Đăng Nhập</h2>
         <form id="login-form" action="${pageContext.request.contextPath}/login" method="POST">
+            <input type="hidden" name="redirect" value="${fn:escapeXml(param.redirect)}">
             <div class="username-input">
                 <label for="username" class="label-with-icon">
                     <ion-icon name="person-outline"></ion-icon>
@@ -78,7 +81,7 @@
                 <div id="social-remind">Chọn phương thức khác để đăng nhập:</div>
                 <div id="g_id_onload"
                      data-client_id="561993862196-rspl5j67m79f0857je2sdrv8f75m2ijs.apps.googleusercontent.com"
-                     data-login_uri="${pageContext.request.contextPath}/LoginGoogle"
+                     data-login_uri="${pageContext.request.contextPath}/LoginGoogle?redirect=${param.redirect}"
                      data-scope="https://www.googleapis.com/auth/user.birthday.read"
                      data-auto_prompt="false">
                 </div>
@@ -91,7 +94,7 @@
                      data-logo_alignment="left">
                 </div>
             </div>
-            <a href="index.jsp" id="backward">Quay Lại Trang Trước</a>
+            <a href="${not empty param.redirect ? param.redirect : (not empty header.referer ? header.referer : 'index.jsp')}" id="backward">Quay Lại Trang Trước</a>
         </form>
     </div>
 </div>
@@ -137,7 +140,12 @@
         '1': "Đăng nhập Google thất bại",
     }
     if (errorCode && errorMessages[errorCode]) {
-        alert(errorMessages[errorCode])
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi đăng nhập',
+            text: errorMessages[errorCode],
+            confirmButtonColor: '#3085d6'
+        });
         window.history.replaceState(null, '', window.location.pathname);
     }
     const listFields = ['#username', '#password']

@@ -6,6 +6,7 @@ import model.Address;
 import model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public class AddressService {
     private AddressDAO addressDAO;
@@ -19,29 +20,29 @@ public class AddressService {
     private static final String VN_PHONE_REGEX = "^(0[3|5|7|8|9][0-9]{8}|\\+84[3|5|7|8|9][0-9]{8})$";
 
     public List<Address> getAll() {
-        return addressDAO.getAll();
+        return addressDAO.findAll();
     }
 
     public List<Address> getByUserID(int id) {
         return addressDAO.getByUserID(id);
     }
 
-    public boolean addAddress(Address address) {
+    public Address addAddress(Address address) {
         String error = validateAddress(address);
         if (error != null) {
             throw new IllegalArgumentException(error);
         }
-        return addressDAO.create(address);
+        return addressDAO.save(address);
     }
 
-    public boolean updateAddress(Address address, int userId) {
+    public Address updateAddress(Address address, int userId) {
 
         if (address == null || address.getId() <= 0) {
             throw new IllegalArgumentException("Địa chỉ không hợp lệ");
         }
 
-        Address old = addressDAO.findById(address);
-        if (old == null || old.getUserId() != userId) {
+        Optional<Address> old = addressDAO.findById(address.getId());
+        if (old.isEmpty() || old.get().getUserId() != userId) {
             throw new SecurityException("Không có quyền cập nhật địa chỉ này");
         }
 
@@ -49,37 +50,27 @@ public class AddressService {
         if (error != null) {
             throw new IllegalArgumentException(error);
         }
-        return addressDAO.update(address);
+        return addressDAO.save(address);
     }
 
-    public boolean deleteAddress(int id, int userId) {
+    public boolean deleteAddress(int id) {
 
         if (id <= 0) {
             throw new IllegalArgumentException("ID địa chỉ không hợp lệ");
         }
 
-        Address address = new Address();
-        address.setId(id);
-        address.setUserId(userId);
-
-        Address existing = addressDAO.findById(address);
+        Optional<Address> existing = addressDAO.findById(id);
         if (existing == null) {
             throw new IllegalArgumentException("Địa chỉ không tồn tại");
         }
 
-        if (existing.getUserId() != userId) {
-            throw new SecurityException("Không có quyền xóa địa chỉ này");
-        }
-
-        return addressDAO.delete(existing);
+        return addressDAO.deleteById(id);
     }
 
     private String validateAddress(Address address) {
 
         if (address == null)
             return "Dữ liệu không hợp lệ";
-        System.out.println(address);
-
         String name = address.getFullName();
         String phone = address.getPhoneNumber();
         String city = address.getCity();
@@ -142,7 +133,7 @@ public class AddressService {
 
     public void handleDelete(HttpServletRequest req, User user) {
         int id = Integer.parseInt(req.getParameter("id"));
-        this.deleteAddress(id, user.getId());
+        this.deleteAddress(id);
     }
 
     public void handleSetDefault(HttpServletRequest req, User user) {

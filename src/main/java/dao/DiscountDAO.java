@@ -10,7 +10,7 @@ public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
 
     @Override
     public List<Discount> findAll() {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM discounts WHERE is_delete = 0")
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts WHERE is_delete = 0")
                 .mapToBean(Discount.class)
                 .list());
     }
@@ -19,7 +19,7 @@ public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
     public Optional<Discount> findById(Integer id) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
-                                    SELECT * FROM discounts
+                                    SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts
                                     WHERE id = :id AND is_delete = 0
                                 """)
                         .bind("id", id)
@@ -88,8 +88,8 @@ public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
     }
 
     @Override
-    public void deleteById(Integer id) {
-        jdbi.withHandle(handle -> handle.createUpdate("""
+    public boolean deleteById(Integer id) {
+        return jdbi.withHandle(handle -> handle.createUpdate("""
                         UPDATE discounts
                         SET is_delete = 1, update_at = NOW()
                         WHERE id = :id
@@ -100,13 +100,7 @@ public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
 
     @Override
     public boolean existsById(Integer id) {
-        return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT COUNT(*) FROM discounts
-                        WHERE id = :id AND is_delete = 0
-                        """)
-                .bind("id", id)
-                .mapTo(Integer.class)
-                .findFirst().isPresent());
+        return this.findById(id).isPresent();
     }
 
     public List<Discount> search(String keyword) {
@@ -120,8 +114,8 @@ public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
     }
 
     public Discount findActiveByCode(String code) {
-        return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT * FROM discounts
+        return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("""
+                        SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts
                         WHERE discount_code = :code
                           AND is_delete = 0
                           AND is_active = 1
@@ -130,12 +124,12 @@ public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
                 .bind("code", code)
                 .mapToBean(Discount.class)
                 .findFirst()
-                .orElse(null));
+                .orElse(null)));
     }
 
     public List<Discount> findShippingDiscounts() {
         return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT * FROM discounts
+                        SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts
                         WHERE is_active = 1 AND is_delete = 0
                         AND NOW() BETWEEN discount_from AND discount_to
                         AND apply_type = 'shipping'
@@ -157,7 +151,7 @@ public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
 
     public List<Discount> findCollectableDiscounts(int userId) {
         return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT * FROM discounts d
+                        SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts d
                         WHERE d.is_active = 1
                           AND d.is_delete = 0
                           AND NOW() BETWEEN d.discount_from AND d.discount_to
@@ -171,7 +165,7 @@ public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
 
     public List<Discount> findPublicDiscounts() {
         return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT * FROM discounts d
+                        SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts d
                         WHERE d.is_active = 1
                           AND d.is_delete = 0
                           AND NOW() BETWEEN d.discount_from AND d.discount_to

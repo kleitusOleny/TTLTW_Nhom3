@@ -1,8 +1,6 @@
 package controller;
 
-import dao.AddressDAO;
-import dao.ProductDAO;
-import dao.UserVoucherDAO;
+import dao.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -207,7 +205,7 @@ public class CheckoutController extends HttpServlet {
 
             for (OrderItem item : order.getItems()) {
                 item.setOrderId(orderId);
-                orderItemDAO.create(item);
+                orderItemDAO.save(item);
 
                 int currentStock = productDAO.getQuantity(item.getProductId());
                 productDAO.updateQuantity(item.getProductId(), currentStock - item.getQuantity());
@@ -225,7 +223,7 @@ public class CheckoutController extends HttpServlet {
             if ("ewallet".equals(paymentMethod)) {
                 payment.setPayStrategy("VNPay");
                 payment.setStatus("Pending");
-                paymentDAO.create(payment);
+                paymentDAO.save(payment);
 
                 if ("buyNow".equals(checkoutType)) {
                     session.removeAttribute("buyNowCart");
@@ -255,7 +253,7 @@ public class CheckoutController extends HttpServlet {
             } else {
                 payment.setPayStrategy("COD");
                 payment.setStatus("Pending");
-                paymentDAO.create(payment);
+                paymentDAO.save(payment);
 
                 ShipOrderDAO shipOrderDAO = new ShipOrderDAO();
                 ShipOrder shipOrder = new ShipOrder();
@@ -265,7 +263,7 @@ public class CheckoutController extends HttpServlet {
                 shipOrder.setShippingFee(0.0);
                 shipOrder.setStatus("Chuẩn bị đơn hàng");
                 shipOrder.setEstimatedDeliveryDate(new Timestamp(System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000));
-                shipOrderDAO.create(shipOrder);
+                shipOrderDAO.save(shipOrder);
 
                 if ("buyNow".equals(checkoutType)) {
                     session.removeAttribute("buyNowCart");

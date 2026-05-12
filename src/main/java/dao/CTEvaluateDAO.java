@@ -3,6 +3,7 @@ package dao;
 import model.CTEvaluates;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class CTEvaluateDAO extends ADAO implements IDAO<CTEvaluates, Integer> {
@@ -26,7 +27,7 @@ public class CTEvaluateDAO extends ADAO implements IDAO<CTEvaluates, Integer> {
 
     public List<CTEvaluates> getByStar(double star) {
         return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT * FROM ct_evaluates
+                        SELECT id, content, star, create_at, update_at, is_delete FROM ct_evaluates
                         WHERE star = :star AND is_delete IS NULL
                         """)
                 .bind("star", star)
@@ -34,20 +35,9 @@ public class CTEvaluateDAO extends ADAO implements IDAO<CTEvaluates, Integer> {
                 .list());
     }
 
-    public CTEvaluates getLatest() {
-        return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT * FROM ct_evaluates
-                        WHERE is_delete IS NULL
-                        ORDER BY create_at DESC
-                        LIMIT 1
-                        """)
-                .mapToBean(CTEvaluates.class)
-                .findOnly());
-    }
-
     @Override
     public List<CTEvaluates> findAll() {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM ct_evaluates WHERE is_delete IS NULL")
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT id, content, star, create_at, update_at, is_delete FROM ct_evaluates WHERE is_delete IS NULL")
                 .mapToBean(CTEvaluates.class)
                 .list());
     }
@@ -55,11 +45,11 @@ public class CTEvaluateDAO extends ADAO implements IDAO<CTEvaluates, Integer> {
     @Override
     public Optional<CTEvaluates> findById(Integer id) {
         return Optional.of(jdbi.withHandle(
-                handle -> handle.createQuery("SELECT * FROM ct_evaluates WHERE id = :id AND is_delete IS NULL")
+                handle -> Objects.requireNonNull(handle.createQuery("SELECT id, content, star, create_at, update_at, is_delete FROM ct_evaluates WHERE id = :id AND is_delete IS NULL")
                         .bind("id", id)
                         .mapToBean(CTEvaluates.class)
                         .findFirst()
-                        .orElse(null)));
+                        .orElse(null))));
     }
 
     @Override
@@ -94,8 +84,8 @@ public class CTEvaluateDAO extends ADAO implements IDAO<CTEvaluates, Integer> {
     }
 
     @Override
-    public void deleteById(Integer id) {
-        jdbi.withHandle(handle -> handle.createUpdate("""
+    public boolean deleteById(Integer id) {
+        return jdbi.withHandle(handle -> handle.createUpdate("""
                         UPDATE ct_evaluates
                         SET is_delete = NOW(), update_at = NOW()
                         WHERE id = :id
@@ -106,6 +96,6 @@ public class CTEvaluateDAO extends ADAO implements IDAO<CTEvaluates, Integer> {
 
     @Override
     public boolean existsById(Integer id) {
-        return findById(id)!=null;
+        return findById(id).isPresent();
     }
 }

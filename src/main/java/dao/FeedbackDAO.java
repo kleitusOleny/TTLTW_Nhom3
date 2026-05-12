@@ -1,20 +1,19 @@
 package dao;
 
 import model.Feedback;
-import model.User;
 
 import java.util.List;
 import java.util.Optional;
 
 public class FeedbackDAO extends ADAO implements IDAO<Feedback, Integer> {
     public List<Feedback> getPendingFeedbacks() {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM feedback where status = 0 AND is_delete = 0 ORDER BY create_at DESC")
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT id, user_id, title, content, create_at, update_at, is_delete FROM feedback where status = 0 AND is_delete = 0 ORDER BY create_at DESC")
                 .mapToBean(Feedback.class)
                 .list());
     }
 
     public List<Feedback> getCompletedFeedbacks() {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT * FROM feedback where status = 1 AND is_delete = 0 ORDER BY create_at DESC")
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT id, user_id, title, content, create_at, update_at, is_delete FROM feedback where status = 1 AND is_delete = 0 ORDER BY create_at DESC")
                 .mapToBean(Feedback.class)
                 .list());
     }
@@ -29,7 +28,7 @@ public class FeedbackDAO extends ADAO implements IDAO<Feedback, Integer> {
     public Optional<Feedback> findById(Integer id) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
-                                    SELECT * FROM feedback
+                                    SELECT id, user_id, title, content, create_at, update_at, is_delete FROM feedback
                                     WHERE id = :id AND is_delete = 0
                                 """)
                         .bind("id", id)
@@ -77,8 +76,8 @@ public class FeedbackDAO extends ADAO implements IDAO<Feedback, Integer> {
     }
 
     @Override
-    public void deleteById(Integer id) {
-        jdbi.withHandle(handle -> handle.createUpdate("UPDATE feedback SET is_delete = 1 WHERE id =:id")
+    public boolean deleteById(Integer id) {
+        return jdbi.withHandle(handle -> handle.createUpdate("UPDATE feedback SET is_delete = 1 WHERE id =:id")
                 .bind("id", id)
                 .execute() > 0);
     }
@@ -86,7 +85,7 @@ public class FeedbackDAO extends ADAO implements IDAO<Feedback, Integer> {
     @Override
     public boolean existsById(Integer id) {
 
-        return findById(id)!=null;
+        return findById(id).isPresent();
     }
 
 }
