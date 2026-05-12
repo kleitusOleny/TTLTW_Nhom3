@@ -11,4 +11,11 @@ public class TypeDAO extends ADAO{
                         .mapToBean(ProductType.class)
                         .list());
     }
+    
+    public List<ProductType> getTop6Types() {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("SELECT id, type_name AS typeName FROM product_types WHERE is_delete = 0 LIMIT 6")
+                        .mapToBean(ProductType.class)
+                        .list());
+    }
 }

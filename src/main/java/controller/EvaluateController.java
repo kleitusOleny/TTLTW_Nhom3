@@ -58,7 +58,7 @@ public class EvaluateController extends HttpServlet {
             request.setAttribute("order", order);
             request.setAttribute("items", items);
             request.setAttribute("productMap", productMap);
-            request.getRequestDispatcher("infoUsers/evaluate.jsp").forward(request, response);
+            request.getRequestDispatcher("info_users/evaluate.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
             response.sendRedirect("orders");
@@ -100,7 +100,7 @@ public class EvaluateController extends HttpServlet {
                 evaluates.setUserId(user.getId());
                 evaluates.setEvaluatesId(evaluateId);
 
-                evaluateDAO.create(evaluates);
+//                evaluateDAO.create(evaluates);
 
             } catch (Exception e) {
                 e.printStackTrace();
