@@ -22,6 +22,8 @@ public class Address {
 
     @ColumnName("city")
     private String city;
+    @ColumnName("district")
+    private String district;
 
     @ColumnName("ward")
     private String ward;
@@ -47,6 +49,14 @@ public class Address {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getDistrict() {
+        return district;
+    }
+
+    public void setDistrict(String district) {
+        this.district = district;
     }
 
     public int getUserId() {
@@ -146,6 +156,7 @@ public class Address {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", addressLine='" + addressLine + '\'' +
                 ", city='" + city + '\'' +
+                ", district='" + district + '\'' +
                 ", ward='" + ward + '\'' +
                 ", isDefault=" + isDefault +
                 ", createdAt=" + createdAt +

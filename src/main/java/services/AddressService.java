@@ -15,9 +15,8 @@ public class AddressService {
         addressDAO = new AddressDAO();
     }
 
-    private static final String VN_TEXT_REGEX = "^[a-zA-ZÀ-Ỹà-ỹĐđ\\s]{2,50}$";
-
-    private static final String VN_PHONE_REGEX = "^(0[3|5|7|8|9][0-9]{8}|\\+84[3|5|7|8|9][0-9]{8})$";
+    private static final String VN_TEXT_REGEX = "^[^0-9\\!\\@\\#\\$\\^\\&\\*\\(\\)\\_\\+\\=\\{\\}\\[\\]\\|\\\\\\:\\;\\\"\\'\\<\\>\\?\\.\\,\\/\\~\\`\\-]+$";
+    private static final String VN_PHONE_REGEX = "^0[0-9]{9,10}$";
 
     public List<Address> getAll() {
         return addressDAO.findAll();
@@ -78,23 +77,23 @@ public class AddressService {
         String addressLine = address.getAddressLine();
 
         if (name == null || !name.matches(VN_TEXT_REGEX)) {
-            return "Họ tên không hợp lệ";
+            return "Họ tên không hợp lệ (không được chứa số hoặc ký tự đặc biệt)";
         }
 
         if (phone == null || !phone.matches(VN_PHONE_REGEX)) {
-            return "Số điện thoại không hợp lệ";
+            return "Số điện thoại không hợp lệ (phải từ 10-11 số và đúng đầu số mạng VN)";
         }
 
-        if (city == null || !city.matches(VN_TEXT_REGEX)) {
-            return "Thành phố/Tỉnh không hợp lệ";
+        if (city == null || city.trim().isEmpty()) {
+            return "Vui lòng chọn Thành phố/Tỉnh";
         }
 
-        if (ward == null || !ward.matches(VN_TEXT_REGEX)) {
-            return "Phường/Xã không hợp lệ";
+        if (ward == null || ward.trim().isEmpty()) {
+            return "Vui lòng chọn Phường/Xã/Quận/Huyện";
         }
 
         if (addressLine == null || addressLine.trim().length() < 5) {
-            return "Địa chỉ cụ thể quá ngắn";
+            return "Địa chỉ cụ thể phải từ 5 ký tự trở lên";
         }
 
         return null;
@@ -146,7 +145,9 @@ public class AddressService {
 
         address.setFullName(req.getParameter("fullName"));
         address.setPhoneNumber(req.getParameter("phone"));
+
         address.setWard(req.getParameter("ward"));
+        address.setDistrict(req.getParameter("district"));
         address.setCity(req.getParameter("city"));
         address.setAddressLine(req.getParameter("addressLine"));
 

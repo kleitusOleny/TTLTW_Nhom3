@@ -145,7 +145,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
     }
 
     public User findByEmail(String email) {
-        return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("""
+        return jdbi.withHandle(handle -> handle.createQuery("""
                         SELECT
                             id,
                             email,
@@ -164,11 +164,11 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 .bind("email", email)
                 .mapToBean(User.class)
                 .findFirst()
-                .orElse(null)));
+                .orElse(null));
     }
 
     public User findByUsername(String username) {
-        return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("""
+        return jdbi.withHandle(handle -> handle.createQuery("""
                         SELECT
                             id,
                             email,
@@ -187,7 +187,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 .bind("username", username)
                 .mapToBean(User.class)
                 .findFirst()
-                .orElse(null)));
+                .orElse(null));
     }
 
     public boolean updatePassword(String email, String newPasswordHashed) {
