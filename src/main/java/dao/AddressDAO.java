@@ -10,7 +10,7 @@ public class AddressDAO extends ADAO implements IDAO<Address, Integer> {
     public List<Address> getByUserID(int id) {
         return jdbi.withHandle(handle -> {
             return handle.createQuery(
-                            "select id, user_id, full_name, phone_number, address_line, city, ward, is_default from addresses where user_id = :user_id")
+                            "SELECT * FROM addresses WHERE user_id = :user_id")
                     .bind("user_id", id)
                     .mapToBean(Address.class)
                     .list();
@@ -43,7 +43,7 @@ public class AddressDAO extends ADAO implements IDAO<Address, Integer> {
     @Override
     public List<Address> findAll() {
         return jdbi.withHandle(handle -> {
-            return handle.createQuery("select id, user_id, full_name, phone_number, address_line, city, ward, is_default from addresses where is_delete = 0").mapToBean(Address.class).list();
+            return handle.createQuery("SELECT * FROM addresses WHERE is_delete = 0").mapToBean(Address.class).list();
         });
     }
 
@@ -58,6 +58,7 @@ public class AddressDAO extends ADAO implements IDAO<Address, Integer> {
                                     phone_number,
                                     address_line,
                                     city,
+                                    district,                                
                                     ward,
                                     is_default
                                 FROM addresses
@@ -92,6 +93,7 @@ public class AddressDAO extends ADAO implements IDAO<Address, Integer> {
                       SET full_name = :full_name,
                           phone_number = :phone_number,
                           city = :city,
+                          district= :district,
                           ward = :ward,
                           address_line = :address_line
                       WHERE user_id = :user_id
@@ -104,6 +106,7 @@ public class AddressDAO extends ADAO implements IDAO<Address, Integer> {
                           full_name,
                           phone_number,
                           city,
+                          district,
                           ward,
                           address_line
                       )
@@ -113,6 +116,7 @@ public class AddressDAO extends ADAO implements IDAO<Address, Integer> {
                           :full_name,
                           :phone_number,
                           :city,
+                          :district,
                           :ward,
                           :address_line
                       )
@@ -123,6 +127,7 @@ public class AddressDAO extends ADAO implements IDAO<Address, Integer> {
                     .bind("full_name", entity.getFullName())
                     .bind("phone_number", entity.getPhoneNumber())
                     .bind("city", entity.getCity())
+                    .bind("district", entity.getDistrict())
                     .bind("ward", entity.getWard())
                     .bind("address_line", entity.getAddressLine());
 

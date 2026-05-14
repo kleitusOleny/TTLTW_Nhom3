@@ -1,44 +1,68 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+:root {
+    --primary-color: #8c3333;
+    --secondary-color: #c7a17a;
+    --text-dark: #2d3436;
+    --text-light: #636e72;
+    --bg-light: #f9f9f9;
+    --error-color: #d63031;
+    --success-color: #27ae60;
+    --transition-speed: 0.3s;
+    --shadow-subtle: 0 4px 15px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
 
 #address-card {
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     background: #fff;
-    border-radius: 8px;
-    padding: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    border: 1px solid #eee;
+    border-radius: 12px;
+    padding: 35px;
+    box-shadow: var(--shadow-subtle);
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
 #address-card h2 {
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
-    color: #8c3333;
-    font-size: 26px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-    margin-bottom: 25px;
+    color: var(--primary-color);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f1f1f1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#address-card h2::before {
+    content: '\f2bb';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
 }
 
 .address-list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 15px;
+    gap: 20px;
+    margin-bottom: 30px;
 }
 
 .address-card {
-    background-color: #f9f9f9;
-    border: 1px solid #eee;
-    padding: 15px;
-    border-radius: 8px;
+    background: var(--bg-light);
+    border: 1px solid #edf2f7;
+    padding: 20px;
+    border-radius: 12px;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     gap: 20px;
-    transition: all 0.3s ease;
+    transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
 .address-card:hover {
-    background-color: #f5f5f5;
+    transform: translateY(-2px);
+    background: #fff;
+    border-color: var(--secondary-color);
+    box-shadow: var(--shadow-medium);
 }
 
 .address-card-details {
@@ -46,174 +70,402 @@
 }
 
 .address-card-details p {
-    margin: 8px 0;
+    margin: 6px 0;
     font-size: 15px;
-    line-height: 1.5;
+    color: var(--text-light);
 }
 
-.address-card-details p strong {
-    color: #333;
+.address-card-details strong {
+    color: var(--text-dark);
     font-weight: 600;
-    margin-right: 4px;
 }
 
 .address-card-details .name {
-    font-weight: 600;
-    font-size: 16px;
+    font-size: 18px;
+    color: var(--text-dark);
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
+    gap: 10px;
 }
 
-.address-card-details .default-badge {
-    background-color: #c7a17a;
-    color: white;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
+.default-badge {
+    background: var(--secondary-color);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .address-card-actions {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center;
-    gap: 8px;
-    justify-content: flex-end;
-}
-
-.address-card-actions form {
-    display: inline-block;
-    margin: 0;
+    display: flex;
+    gap: 10px;
 }
 
 .address-card-actions .btn {
-    margin: 0;
-    background: none;
-    border: 1px solid #ddd;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: var(--text-light);
+    transition: all var(--transition-speed) ease;
     cursor: pointer;
-    font-size: 14px;
-    padding: 6px 12px;
-    color: #8c3333;
-    transition: all 0.3s;
-    border-radius: 4px;
 }
 
-.address-card-actions .btn:hover {
-    background-color: #8c3333;
-    color: white;
-    border-color: #8c3333;
+.address-card-actions .edit-btn:hover {
+    background: var(--secondary-color);
+    color: #fff;
+    border-color: var(--secondary-color);
+}
+
+.address-card-actions .delete-btn:hover {
+    background: var(--error-color);
+    color: #fff;
+    border-color: var(--error-color);
 }
 
 .address-card-actions .set-default-btn {
-    background-color: #8c3333;
-    color: white;
-    border-color: #8c3333;
+    width: auto;
+    padding: 0 15px;
     font-size: 13px;
-    padding: 6px 12px;
+    font-weight: 600;
+    color: var(--primary-color);
+    border-color: var(--primary-color);
 }
 
 .address-card-actions .set-default-btn:hover {
-    background-color: #6d2828;
+    background: var(--primary-color);
+    color: #fff;
 }
 
 .add-address-btn {
-    background-color: #8c3333;
+    background: var(--primary-color);
     color: #fff;
-    padding: 12px 25px;
-    border-color: #8c3333;
-    border-radius: 5px;
-    cursor: pointer;
+    padding: 14px 28px;
+    border-radius: 10px;
+    border: none;
     font-size: 16px;
-    margin-top: 30px;
-    transition: background-color 0.3s;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: fit-content;
 }
 
 .add-address-btn:hover {
-    background-color: #fff;
-    color: #8c3333;
+    transform: scale(1.02);
+    box-shadow: 0 5px 15px rgba(140, 51, 51, 0.3);
 }
 
-.add-address-btn i {
-    margin-right: 8px;
-}
-
+/* Modal Container - Fixed centering */
 .modal {
     display: none;
     position: fixed;
-    z-index: 1000;
+    z-index: 10000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
     background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    overflow-y: auto;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    animation: fadeInBackground 0.3s ease;
+}
+
+@keyframes fadeInBackground {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .modal-content {
-    background-color: #fefefe;
-    margin: 10% auto;
-    padding: 30px;
-    border: 1px solid #888;
-    width: 80%;
+    background: #fff;
+    border-radius: 24px;
+    padding: 0;
+    width: 95%;
     max-width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    border: none;
+    position: relative;
+    overflow: hidden;
+    margin: auto; /* Required for alignment in some browsers */
+    animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .modal-header {
+    background: var(--bg-light);
+    padding: 20px 30px;
+    border-bottom: 1px solid #edf2f7;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
 }
 
 .modal-header h3 {
-    margin: 0;
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--primary-color);
+    font-size: 20px;
     font-weight: 700;
-    font-size: 24px;
-    color: #8c3333;
+    margin: 0;
 }
 
 .cancel-btn {
-    color: #aaa;
     font-size: 28px;
-    font-weight: bold;
+    color: var(--text-light);
     cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
 }
 
-.cancel-btn:hover,
-.cancel-btn:focus {
-    color: black;
+.cancel-btn:hover {
+    color: var(--error-color);
 }
 
-.form-group {
-    margin-bottom: 15px;
+#addressForm {
+    padding: 30px;
 }
 
+/* Address List Improvements */
+.address-card {
+    background: #fff;
+    border: 1.5px solid #f0f0f0;
+    padding: 24px;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.address-card:hover {
+    border-color: var(--secondary-color);
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-3px);
+}
+
+.address-card-info {
+    flex: 1;
+}
+
+.info-item {
+    display: flex;
+    margin-bottom: 8px;
+    font-size: 15px;
+}
+
+.info-label {
+    width: 110px;
+    color: var(--text-dark);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.info-value {
+    color: var(--text-light);
+}
+
+.info-value strong {
+    color: var(--text-dark);
+    font-size: 16px;
+}
+
+.address-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-end;
+}
+
+.action-row {
+    display: flex;
+    gap: 8px;
+}
+
+/* Buttons */
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: var(--text-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+    transform: translateY(-2px);
+}
+
+.edit-btn:hover {
+    background: #ebf8ff;
+    color: #3182ce;
+    border-color: #3182ce;
+}
+
+.delete-btn:hover {
+    background: #fff5f5;
+    color: #e53e3e;
+    border-color: #e53e3e;
+}
+
+.btn-default {
+    background: transparent;
+    border: 1.5px solid var(--secondary-color);
+    color: var(--secondary-color);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-default:hover {
+    background: var(--secondary-color);
+    color: #fff;
+}
+
+.badge-default {
+    background: #fef3c7;
+    color: #d97706;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 1px solid #fde68a;
+}
+
+/* Form Styles Refinement */
 .form-group label {
     display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #333;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dark);
 }
 
 .form-group input,
-.form-group select,
-.form-group textarea {
+.form-group select {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    padding: 14px 16px;
+    border: 2px solid #edf2f7;
+    border-radius: 12px;
+    font-size: 15px;
+    background: #f8fafc;
+    transition: all 0.2s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
 
-.modal-footer {
-    text-align: right;
-    margin-top: 20px;
+.form-group select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234a5568'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
+.form-group select:disabled {
+    background-color: #e2e8f0;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    background: #fff;
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 4px rgba(199, 161, 122, 0.1);
+    outline: none;
+}
+
+/* Error and Success States */
+.error-msg {
+    color: var(--error-color) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    margin-top: 6px;
+    display: none; /* Hidden by default */
+    animation: fadeInError 0.3s ease;
+}
+
+@keyframes fadeInError {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.form-group.has-error .error-msg {
+    display: block !important; /* Shown only when group has error */
+}
+
+.form-group.has-error input,
+.form-group.has-error select {
+    border-color: var(--error-color) !important;
+    background-color: #fff5f5 !important;
+}
+
+.form-group.has-success input,
+.form-group.has-success select {
+    border-color: var(--success-color) !important;
+}
+
+/* Alert UX */
+.alert {
+    padding: 16px 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.alert-danger {
+    background: #fff5f5;
+    color: #c53030;
+    border: 1px solid #feb2b2;
+}
+
+.alert-success {
+    background: #f0fff4;
+    color: #2f855a;
+    border: 1px solid #9ae6b4;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 640px) {
+    .address-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .address-card-actions {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+    }
 }

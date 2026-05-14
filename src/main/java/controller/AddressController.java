@@ -27,7 +27,7 @@ public class AddressController extends HttpServlet {
         try {
             HttpSession session = request.getSession(false);
             if (session == null) {
-                response.sendRedirect(request.getContextPath() + "login");
+                response.sendRedirect(request.getContextPath() + "/login");
                 return;
             }
             User user = (User) session.getAttribute("user");
@@ -56,11 +56,21 @@ public class AddressController extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "login");
+            String requestedWith = request.getHeader("X-Requested-With");
+            if ("XMLHttpRequest".equals(requestedWith)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\": false, \"error\": \"session_expired\"}");
+                return;
+            }
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         User user = (User) session.getAttribute("user");
         String action = request.getParameter("action");
+        System.out.println("AddressController: action=" + action + ", city=" + request.getParameter("city")
+                + ", district=" + request.getParameter("district") + ", ward=" + request.getParameter("ward"));
+
         try {
             switch (action) {
                 case "add": {
@@ -87,8 +97,33 @@ public class AddressController extends HttpServlet {
                 default:
                     throw new IllegalArgumentException("Action không hợp lệ");
             }
+
+            String requestedWith = request.getHeader("X-Requested-With");
+            if ("XMLHttpRequest".equalsIgnoreCase(requestedWith)) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\": true}");
+                return;
+            }
+
         } catch (Exception e) {
+            e.printStackTrace();
+            String requestedWith = request.getHeader("X-Requested-With");
+            if ("XMLHttpRequest".equalsIgnoreCase(requestedWith)) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.setContentType("application/json;charset=UTF-8");
+                String errorMsg = (e.getMessage() != null) ? e.getMessage().replace("\"", "'") : "Lỗi hệ thống";
+                response.getWriter().write("{\"success\": false, \"error\": \"" + errorMsg + "\"}");
+                return;
+            }
             session.setAttribute("error", e.getMessage());
+        }
+
+        // Final check for AJAX before redirecting
+        String requestedWith = request.getHeader("X-Requested-With");
+        if ("XMLHttpRequest".equalsIgnoreCase(requestedWith)) {
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"success\": true}");
+            return;
         }
         String view = request.getParameter("view");
         if ("popup".equals(view)) {
