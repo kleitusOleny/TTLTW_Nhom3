@@ -111,8 +111,8 @@ public class AddressController extends HttpServlet {
             if ("XMLHttpRequest".equalsIgnoreCase(requestedWith)) {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.setContentType("application/json;charset=UTF-8");
-                String errorMsg = (e.getMessage() != null) ? e.getMessage().replace("\"", "'") : "Lỗi hệ thống";
-                response.getWriter().write("{\"success\": false, \"error\": \"" + errorMsg + "\"}");
+                String detailedMsg = e.getClass().getSimpleName() + ": " + ((e.getMessage() != null) ? e.getMessage().replace("\"", "'") : "No message");
+                response.getWriter().write("{\"success\": false, \"error\": \"" + detailedMsg + "\"}");
                 return;
             }
             session.setAttribute("error", e.getMessage());
