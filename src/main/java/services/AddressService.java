@@ -10,9 +10,15 @@ import java.util.Optional;
 
 public class AddressService {
     private AddressDAO addressDAO;
+    private ProvinceService provinceService;
+    private DistrictService districtService;
+    private WardService wardService;
 
     public AddressService() {
         addressDAO = new AddressDAO();
+        provinceService = new ProvinceService();
+        districtService = new DistrictService();
+        wardService = new WardService();
     }
 
     private static final String VN_TEXT_REGEX = "^[^0-9\\!\\@\\#\\$\\^\\&\\*\\(\\)\\_\\+\\=\\{\\}\\[\\]\\|\\\\\\:\\;\\\"\\'\\<\\>\\?\\.\\,\\/\\~\\`\\-]+$";
@@ -67,12 +73,14 @@ public class AddressService {
     }
 
     private String validateAddress(Address address) {
+        System.out.println(address);
 
         if (address == null)
             return "Dữ liệu không hợp lệ";
         String name = address.getFullName();
         String phone = address.getPhoneNumber();
         String city = address.getCity();
+        String district = address.getDistrict();
         String ward = address.getWard();
         String addressLine = address.getAddressLine();
 
@@ -88,8 +96,12 @@ public class AddressService {
             return "Vui lòng chọn Thành phố/Tỉnh";
         }
 
+        if (district == null || district.trim().isEmpty()) {
+            return "Vui lòng chọn Quận/Huyện";
+        }
+
         if (ward == null || ward.trim().isEmpty()) {
-            return "Vui lòng chọn Phường/Xã/Quận/Huyện";
+            return "Vui lòng chọn Phường/Xã";
         }
 
         if (addressLine == null || addressLine.trim().length() < 5) {
@@ -146,9 +158,25 @@ public class AddressService {
         address.setFullName(req.getParameter("fullName"));
         address.setPhoneNumber(req.getParameter("phone"));
 
-        address.setWard(req.getParameter("ward"));
-        address.setDistrict(req.getParameter("district"));
-        address.setCity(req.getParameter("city"));
+        String provinceId = req.getParameter("provinceId");
+        String districtId = req.getParameter("districtId");
+        String wardId = req.getParameter("wardId");
+
+        if (provinceId != null && !provinceId.isEmpty()) {
+            var p = provinceService.getProvinceById(provinceId);
+            if (p != null) address.setCity(p.getProvinceName());
+        }
+
+        if (districtId != null && !districtId.isEmpty()) {
+            var d = districtService.getDistrictById(districtId);
+            if (d != null) address.setDistrict(d.getDistrictName());
+        }
+
+        if (wardId != null && !wardId.isEmpty()) {
+            var w = wardService.getWardById(wardId);
+            if (w != null) address.setWard(w.getWardName());
+        }
+
         address.setAddressLine(req.getParameter("addressLine"));
 
         return address;
