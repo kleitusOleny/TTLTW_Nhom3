@@ -10,7 +10,7 @@ public class AddressDAO extends ADAO implements IDAO<Address, Integer> {
     public List<Address> getByUserID(int id) {
         return jdbi.withHandle(handle -> {
             return handle.createQuery(
-                            "SELECT * FROM addresses WHERE user_id = :user_id")
+                            "SELECT * FROM addresses WHERE user_id = :user_id AND is_delete = 0")
                     .bind("user_id", id)
                     .mapToBean(Address.class)
                     .list();
@@ -145,7 +145,8 @@ public class AddressDAO extends ADAO implements IDAO<Address, Integer> {
     public boolean deleteById(Integer id) {
         return jdbi.withHandle(handle ->
                 handle.createUpdate("""
-                    DELETE FROM addresses
+                    UPDATE addresses 
+                    SET is_delete = 1
                     WHERE id = :id
                     """)
                         .bind("id", id)

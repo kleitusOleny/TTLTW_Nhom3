@@ -104,6 +104,70 @@
                 font-weight: 700 !important;
                 color: #2d3436 !important;
             }
+            /* Modal & Toast Premium Styles */
+            .modal-confirm {
+                max-width: 400px !important;
+                border-radius: 20px !important;
+                text-align: center;
+                padding: 30px !important;
+            }
+            .modal-confirm i {
+                font-size: 50px;
+                color: #d63031;
+                margin-bottom: 20px;
+                display: block;
+            }
+            .modal-confirm h3 {
+                color: #2d3436 !important;
+                margin-bottom: 10px !important;
+            }
+            .modal-confirm p {
+                color: #636e72;
+                margin-bottom: 25px;
+            }
+            .confirm-actions {
+                display: flex;
+                gap: 15px;
+                justify-content: center;
+            }
+            .btn-confirm {
+                padding: 10px 25px;
+                border-radius: 10px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+                border: none;
+            }
+            .btn-yes { background: #d63031; color: white; }
+            .btn-no { background: #f1f2f6; color: #2d3436; }
+            .btn-yes:hover { background: #c0392b; transform: scale(1.05); }
+            .btn-no:hover { background: #dfe4ea; }
+
+            #toast-container {
+                position: fixed;
+                top: 30px;
+                right: 30px;
+                z-index: 10000;
+            }
+            .toast {
+                background: white;
+                padding: 15px 25px;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 10px;
+                transform: translateX(120%);
+                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                border-left: 5px solid #3498db;
+            }
+            .toast.show { transform: translateX(0); }
+            .toast.success { border-left-color: #27ae60; }
+            .toast.error { border-left-color: #d63031; }
+            .toast i { font-size: 18px; }
+            .toast.success i { color: #27ae60; }
+            .toast.error i { color: #d63031; }
         </style>
         <div id="address-card">
             <h2>Địa chỉ của tôi</h2>
@@ -159,11 +223,10 @@
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </button>
                                 <form action="${pageContext.request.contextPath}/address" method="post"
-                                    style="display:inline;"
-                                    onsubmit="return confirm('Bạn có chắc chắn muốn xóa địa chỉ này?');">
+                                    style="display:inline;" class="delete-form">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="${addr.id}">
-                                    <button type="submit" class="btn-icon delete-btn" title="Xóa">
+                                    <button type="button" class="btn-icon delete-btn trigger-delete" title="Xóa">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -257,6 +320,22 @@
                 </form>
             </div>
         </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteConfirmModal" class="modal">
+            <div class="modal-content modal-confirm">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <h3>Xác nhận xóa?</h3>
+                <p>Bạn có chắc chắn muốn xóa địa chỉ này? Thao tác này không thể hoàn tác.</p>
+                <div class="confirm-actions">
+                    <button class="btn-confirm btn-no" id="cancelDelete">Hủy bỏ</button>
+                    <button class="btn-confirm btn-yes" id="confirmDelete">Đúng, xóa nó</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div id="toast-container"></div>
 
         <script src="<%= request.getContextPath() %>/preventspace.js"></script>
         <script>
@@ -545,6 +624,59 @@
                     }
                     submitText.textContent = 'Đang xử lý...';
                 };
+
+                // Toast System
+                const showToast = (message, type = 'success') => {
+                    const container = document.getElementById('toast-container');
+                    const toast = document.createElement('div');
+                    toast.className = `toast \${type}`;
+                    const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark';
+                    toast.innerHTML = `<i class="fa-solid \${icon}"></i> <span>\${message}</span>`;
+                    container.appendChild(toast);
+                    setTimeout(() => toast.classList.add('show'), 100);
+                    setTimeout(() => {
+                        toast.classList.remove('show');
+                        setTimeout(() => toast.remove(), 400);
+                    }, 4000);
+                };
+
+                // Handle Success/Error from JSP
+                <c:if test="${not empty sessionScope.success}">
+                    showToast('${sessionScope.success}', 'success');
+                    <c:remove var="success" scope="session" />
+                </c:if>
+                <c:if test="${not empty sessionScope.error}">
+                    showToast('${sessionScope.error}', 'error');
+                    <c:remove var="error" scope="session" />
+                </c:if>
+
+                // Delete Confirmation logic
+                let formToDelete = null;
+                const deleteModal = document.getElementById('deleteConfirmModal');
+                
+                document.addEventListener('click', (e) => {
+                    const trigger = e.target.closest('.trigger-delete');
+                    if (trigger) {
+                        formToDelete = trigger.closest('form');
+                        deleteModal.style.display = 'flex';
+                    }
+                });
+
+                document.getElementById('cancelDelete').onclick = () => {
+                    deleteModal.style.display = 'none';
+                    formToDelete = null;
+                };
+
+                document.getElementById('confirmDelete').onclick = () => {
+                    if (formToDelete) formToDelete.submit();
+                };
+
+                window.addEventListener('click', e => { 
+                    if (e.target === deleteModal) {
+                        deleteModal.style.display = 'none';
+                        formToDelete = null;
+                    }
+                });
 
                 addBtn.addEventListener('click', () => open(false));
                 if (closeBtn) closeBtn.addEventListener('click', close);
