@@ -93,7 +93,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 sql.append("phone_number = :phone_number, ");
                 sql.append("birth_day = :birth_day, ");
                 sql.append("active = :active, ");
-                sql.append("update_at = :update_at, ");
+                sql.append("update_at = NOW(), ");
                 sql.append("administrator = :administrator ");
                 sql.append("WHERE id = :id");
 
@@ -106,7 +106,6 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                         .bind("birth_day", entity.getBirthDay())
                         .bind("active", entity.getActive())
                         .bind("administrator", entity.getAdministrator())
-                        .bind("update_at", entity.getUpdateAt())
                         .bind("password_hash", hasPassword ? entity.getPasswordHash() : null)
                         .execute();
                 if (rows == 0) {
@@ -151,14 +150,14 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                             id,
                             email,
                             username,
-                            password_hash AS passwordHash,
-                            phone_number AS phoneNumber,
-                            full_name AS fullName,
-                            birth_day AS birthDay,
+                            password_hash,
+                            phone_number,
+                            full_name,
+                            birth_day,
                             administrator,
                             active,
-                            created_at AS createdAt,
-                            update_at AS updateAt
+                            created_at,
+                            update_at
                         FROM users
                         WHERE email=:email
                         """)
@@ -174,14 +173,14 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                             id,
                             email,
                             username,
-                            password_hash AS passwordHash,
-                            phone_number AS phoneNumber,
-                            full_name AS fullName,
-                            birth_day AS birthDay,
+                            password_hash,
+                            phone_number,
+                            full_name,
+                            birth_day,
                             administrator,
                             active,
-                            created_at AS createdAt,
-                            update_at AS updateAt
+                            created_at,
+                            update_at
                         FROM users
                         WHERE username=:username
                         """)

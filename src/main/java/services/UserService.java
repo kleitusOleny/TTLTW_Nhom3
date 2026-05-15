@@ -93,7 +93,7 @@ public class UserService {
                     if (!BCrypt.checkpw(oldPassword, user.getPasswordHash())) {
                         request.setAttribute("errorPass", "Mật khẩu cũ không chính xác");
                         request.setAttribute("user", user);
-                        request.getRequestDispatcher(request.getContextPath() + "user_sidebar.jsp").forward(request,
+                        request.getRequestDispatcher("/info_users/user_sidebar.jsp").forward(request,
                                 response);
                         return;
                     }
