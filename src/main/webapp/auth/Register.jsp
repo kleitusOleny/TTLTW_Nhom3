@@ -51,6 +51,7 @@
                class="${not empty emailError ? 'input-error' : ''}" required>
         <span class="error-msg">${emailError}</span>
         <span class="error-msg">${emailError2}</span>
+        <span class="error-msg">${emailExistError}</span>
         <div class="reminder">
           <div class="remind-item username-remind">
             <input type="checkbox" id="remind-email" name="remind-email" disabled>
@@ -66,6 +67,7 @@
                value="${param.username}"
                class="${not empty usernameError ? 'input-error' : ''}">
         <span class="error-msg">${usernameError}</span>
+        <span class="error-msg">${usernameExistError}</span>
         <div class="reminder">
           <div class="remind-item username-remind">
             <input type="checkbox" id="remind-username" name="remind-username" disabled>
@@ -118,6 +120,7 @@
              value="${param['phone-number']}"
              class="${not empty phoneNumberError ? 'input-error' : ''}" required>
       <span class="error-msg">${phoneNumberError}</span>
+      <span class="error-msg">${phoneNumExistError}</span>
     </div>
     <div class="reminder">
       <div class="remind-item">
@@ -341,6 +344,15 @@
     } else if (!allValid) {
       alert("Vui lòng hoàn thành đúng các yêu cầu (các ô tích) trước khi đăng ký.");
     }
+  });
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    if (emailInput.value) validateEmail();
+    if (usernameInput.value) validateUsername();
+    if (phoneInput.value) validatePhoneNumber();
+    if (birthInput.value) validateBirth();
+    if (passwordInput.value) validatePassword();
   });
 </script>
 <style>

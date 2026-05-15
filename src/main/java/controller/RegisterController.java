@@ -1,5 +1,6 @@
 package controller;
 
+import dao.UserDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -14,6 +15,7 @@ import java.util.Map;
 
 @WebServlet(name = "RegisterController", value = "/register")
 public class RegisterController extends HttpServlet {
+    UserDAO userDAO = new UserDAO();
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.getRequestDispatcher("/auth/Register.jsp").forward(request, response);
@@ -34,10 +36,19 @@ public class RegisterController extends HttpServlet {
         Map<String, String> allErrors = new HashMap<>();
         UserValidationServices userValidationServices = new UserValidationServices();
         allErrors.putAll(userValidationServices.validateEmail(email));
+        if (userDAO.isEmailExist(email)) {
+            allErrors.put("emailExistError", "Email này đã được dùng. Vui lòng chọn email khác");
+        }
         allErrors.putAll(userValidationServices.validateFirstAndLastName(lastname, firstname));
         allErrors.putAll(userValidationServices.validateUsername(username));
+        if (userDAO.isUsernameExist(username)) {
+            allErrors.put("usernameExistError", "Tên tài khoản này đã được dùng. Vui lòng chọn tên tài khoản khác");
+        }
         allErrors.putAll(userValidationServices.validatePassword(plainPassword));
         allErrors.putAll(userValidationServices.validatePhoneNumber(phoneNumber));
+        if (userDAO.isPhoneNumExist(phoneNumber)) {
+            allErrors.put("phoneNumExistError", "SĐT này đã được sử dụng. Vui lòng chọn sđt khác");
+        }
         allErrors.putAll(userValidationServices.validateBirth(birth));
         allErrors.putAll(userValidationServices.isPasswordEqualConfirmed(plainPassword, confirmPassword));
 

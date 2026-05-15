@@ -146,7 +146,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
     }
 
     public User findByEmail(String email) {
-        return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("""
+        return jdbi.withHandle(handle -> handle.createQuery("""
                         SELECT
                             id,
                             email,
@@ -165,11 +165,11 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 .bind("email", email)
                 .mapToBean(User.class)
                 .findFirst()
-                .orElse(null)));
+                .orElse(null));
     }
 
     public User findByUsername(String username) {
-        return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("""
+        return jdbi.withHandle(handle -> handle.createQuery("""
                         SELECT
                             id,
                             email,
@@ -188,7 +188,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 .bind("username", username)
                 .mapToBean(User.class)
                 .findFirst()
-                .orElse(null)));
+                .orElse(null));
     }
 
     public boolean updatePassword(String email, String newPasswordHashed) {
@@ -218,5 +218,18 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                         "select COUNT(id) from users where created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)")
                 .mapTo(Integer.class)
                 .findOnly());
+    }
+
+    public boolean isEmailExist(String email){
+        return jdbi.withHandle(handle -> handle.createQuery("select exists (select 1 from users where email =:email)")
+                .bind("email", email).mapTo(Boolean.class).one());
+    }
+    public boolean isUsernameExist(String username){
+        return jdbi.withHandle(handle -> handle.createQuery("select exists (select 1 from users where username =:username)")
+                .bind("username", username).mapTo(Boolean.class).one());
+    }
+    public boolean isPhoneNumExist(String phoneNumber){
+        return jdbi.withHandle(handle -> handle.createQuery("select exists (select 1 from users where phone_number =:phoneNumber)")
+                .bind("phoneNumber", phoneNumber).mapTo(Boolean.class).one());
     }
 }
