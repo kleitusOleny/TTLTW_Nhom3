@@ -106,6 +106,9 @@
                 <c:if test="${not empty searchKeyword}">
                     <input type="hidden" name="search" value="${searchKeyword}">
                 </c:if>
+                <c:if test="${not empty param.search}">
+                    <input type="hidden" name="search" value="${param.search}">
+                </c:if>
                 <%-- 1. LỌC GIÁ --%>
                 <fmt:formatNumber var="maxPriceInt" value="${maxPrice}"
                                   maxFractionDigits="0" groupingUsed="false"/>
@@ -157,9 +160,7 @@
                         <c:forEach var="c" items="${categories}">
                             <c:set var="cid" value="${c.id}"/>
                             <li>
-                                <input type="checkbox" id="cat-${c.id}" name="category"
-                                       value="${c.id}" ${fn:contains(selectedCategories,
-                                        String.valueOf(cid)) ? 'checked' : '' }>
+                                <input type="checkbox" id="cat-${c.id}" name="category" value="${c.id}" ${fn:contains(selectedCategories,String.valueOf(cid)) ? 'checked' : '' }>
                                 <label for="cat-${c.id}">${c.categoryName}</label>
                             </li>
                         </c:forEach>
@@ -173,9 +174,7 @@
                         <c:forEach var="t" items="${types}">
                             <c:set var="tid" value="${t.id}"/>
                             <li>
-                                <input type="checkbox" id="type-${t.id}" name="type"
-                                       value="${t.id}" ${fn:contains(selectedTypes,
-                                        String.valueOf(tid)) ? 'checked' : '' }>
+                                <input type="checkbox" id="type-${t.id}" name="type" value="${t.id}" ${fn:contains(selectedTypes,String.valueOf(tid)) ? 'checked' : '' }>
                                 <label for="type-${t.id}">${t.typeName}</label>
                             </li>
                         </c:forEach>
@@ -190,8 +189,7 @@
                             <li>
                                 <input type="checkbox" id="origin-${loop.index}"
                                        name="origin" value="${o}"
-                                    ${fn:contains(selectedOrigins, o)
-                                            ? 'checked' : '' }>
+                                    ${fn:contains(selectedOrigins, o) ? 'checked' : '' }>
                                 <label for="origin-${loop.index}">${o}</label>
                             </li>
                         </c:forEach>
@@ -207,10 +205,8 @@
                             <li>
                                 <input type="checkbox" id="manu-${m.id}"
                                        name="manufacturer" value="${m.id}"
-                                    ${fn:contains(selectedManufacturers,
-                                            String.valueOf(mid)) ? 'checked' : '' }>
-                                <label
-                                        for="manu-${m.id}">${m.manufacturerName}</label>
+                                    ${fn:contains(selectedManufacturers,String.valueOf(mid)) ? 'checked' : '' }>
+                                <label for="manu-${m.id}">${m.manufacturerName}</label>
                             </li>
                         </c:forEach>
                     </ul>
@@ -220,17 +216,14 @@
                 <div class="filter-widget">
                     <h4 class="widget-title">Dung tích</h4>
                     <ul class="filter-list">
-                        <c:forEach var="cap" items="${capacities}"
-                                   varStatus="loop">
+                        <c:forEach var="cap" items="${capacities}" varStatus="loop">
                             <li>
                                 <input type="checkbox"
                                        id="cap-${loop.index}"
                                        name="capacity" value="${cap}"
-                                    ${fn:contains(selectedCapacities,
-                                            cap) ? 'checked' : '' }>
+                                    ${fn:contains(selectedCapacities, cap) ? 'checked' : '' }>
 
-                                <label
-                                        for="cap-${loop.index}">${cap}</label>
+                                <label for="cap-${loop.index}">${cap}</label>
                             </li>
                         </c:forEach>
                     </ul>
@@ -251,8 +244,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary"
-                        style="width: 100%; margin-top: 10px; border: #000000 2px solid ;">Áp
-                    dụng bộ lọc
+                        style="width: 100%; margin-top: 10px; border: #000000 2px solid ;">Áp dụng bộ lọc
                 </button>
 
             </form>
@@ -274,6 +266,7 @@
                     <p>Hiển thị kết quả 1-24 trong số</p>
                     <div class="display-mode-container">
                         <form action="${pageContext.request.contextPath}/filter" method="get" id="sortForm">
+
                             <c:forEach items="${param}" var="p">
                                 <c:if test="${p.key != 'sort' && p.key != 'page'}">
                                     <input type="hidden" name="${p.key}" value="${fn:escapeXml(p.value)}">
