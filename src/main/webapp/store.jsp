@@ -291,28 +291,22 @@
                 <c:forEach var="p" items="${products}">
                     <div class="product-card">
                         <div class="product-image" style="position: relative;">
-<%--                            <form action="favorites" method="post" class="wishlist-form"--%>
-<%--                                  onsubmit="toggleFavorite(event, this)">--%>
-<%--                                <c:choose>--%>
-<%--                                    <c:when--%>
-<%--                                            test="${not empty favouriteProductMap and favouriteProductMap[p.id]}">--%>
-<%--                                        <input type="hidden" name="action" value="remove">--%>
-<%--                                        <input type="hidden" name="productId" value="${p.id}">--%>
-<%--                                        <button type="submit" class="wishlist-btn active"--%>
-<%--                                                aria-label="Xóa khỏi yêu thích">--%>
-<%--                                            <i class="fa-solid fa-heart"></i>--%>
-<%--                                        </button>--%>
-<%--                                    </c:when>--%>
-<%--                                    <c:otherwise>--%>
-<%--                                        <input type="hidden" name="action" value="add">--%>
-<%--                                        <input type="hidden" name="productId" value="${p.id}">--%>
-<%--                                        <button type="submit" class="wishlist-btn"--%>
-<%--                                                aria-label="Thêm vào yêu thích">--%>
-<%--                                            <i class="fa-regular fa-heart"></i>--%>
-<%--                                        </button>--%>
-<%--                                    </c:otherwise>--%>
-<%--                                </c:choose>--%>
-<%--                            </form>--%>
+                            <c:set var="isFavorited" value="false" />
+                            <c:if test="${not empty userFavouritesList}">
+                                <c:forEach var="item" items="${userFavouritesList}">
+                                    <c:if test="${item.product_id == p.id}">
+                                        <c:set var="isFavorited" value="true" />
+                                    </c:if>
+                                </c:forEach>
+                            </c:if>
+                            <form action="${pageContext.request.contextPath}/favorites" method="post" class="wishlist-form" onsubmit="toggleFavorite(event, this)">
+                                <input type="hidden" name="action" value="${isFavorited ? 'remove' : 'add'}">
+                                <input type="hidden" name="productId" value="${p.id}">
+                                <button type="submit" class="wishlist-btn ${isFavorited ? 'active' : ''}"
+                                        aria-label="${isFavorited ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}">
+                                    <i class="fa-${isFavorited ? 'solid' : 'regular'} fa-heart"></i>
+                                </button>
+                            </form>
 
                             <a href="detail?id=${p.id}" class="product-link">
                                 <c:choose>
@@ -558,69 +552,164 @@
             icon.classList.add('fa-regular');
         }
 
-        if (!isLoggedIn) {
-            let guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];
-
-            if (wasActive) {
-                // Remove
-                guestFavorites = guestFavorites.filter(id => id !== productId);
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function showNotification(message, icon = 'info', requireLogin = false) {
+            if (requireLogin) {
+                Swal.fire({
+                    title: 'Yêu cầu đăng nhập',
+                    text: message,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#8c3333',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Đăng nhập ngay',
+                    cancelButtonText: 'Để sau'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '${pageContext.request.contextPath}/login';
+                    }
+                });
             } else {
-                // Add
-                if (!guestFavorites.includes(productId)) {
-                    guestFavorites.push(productId);
-                }
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: icon,
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true
+                });
             }
-
-            localStorage.setItem('guestFavorites', JSON.stringify(guestFavorites));
-            console.log('Guest favorites updated:', guestFavorites);
-            return; // Stop here, don't call server
         }
 
-        // Handle Logged In Mode (Server)
-        const url = form.getAttribute('action');
-        fetch(url, {
-            method: 'POST',
-            body: new URLSearchParams(formData),
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        })
-            .then(response => {
-                if (response.status === 401) {
-                    // Should not happen if isLoggedIn check works, but just in case
-                    window.location.href = '${pageContext.request.contextPath}/AuthPages/Login.jsp';
-                    return;
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data && data.status === 'success') {
-                    // Success
+        function toggleFavorite(event, form) {
+            event.preventDefault();
+
+            const isLoggedIn = "${not empty sessionScope.user}" === "true";
+            const formData = new FormData(form);
+            const productId = formData.get('productId');
+            const url = form.getAttribute('action');
+            const button = form.querySelector('button');
+            const icon = button.querySelector('i');
+            const wasActive = button.classList.contains('active');
+
+            // Handle Guest Mode (localStorage)
+            if (!isLoggedIn) {
+                let guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];
+                const actionInput = form.querySelector('input[name="action"]');
+                if (wasActive) {
+                    guestFavorites = guestFavorites.filter(id => id !== productId);
+                    button.classList.remove('active');
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                    if (actionInput) actionInput.value = 'add';
                 } else {
-                    // Revert UI
-                    console.error('Action failed, reverting UI');
-                    revertUI(button, icon, wasActive);
+                    if (!guestFavorites.includes(productId)) {
+                        guestFavorites.push(productId);
+                    }
+                    button.classList.add('active');
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    if (actionInput) actionInput.value = 'remove';
+                }
+                localStorage.setItem('guestFavorites', JSON.stringify(guestFavorites));
+                showNotification(wasActive ? 'Đã xóa khỏi danh sách yêu thích' : 'Đã thêm vào danh sách yêu thích', 'success');
+                return;
+            }
+
+            // Handle Logged In Mode
+            const actionToSend = wasActive ? 'remove' : 'add';
+            formData.set('action', actionToSend);
+
+            button.classList.toggle('active');
+            if (button.classList.contains('active')) {
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+            } else {
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+            }
+
+            fetch(url, {
+                method: 'POST',
+                body: new URLSearchParams(formData),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                revertUI(button, icon, wasActive);
-            });
-    }
-
-    function revertUI(button, icon, wasActive) {
-        if (wasActive) {
-            button.classList.add('active');
-            icon.classList.remove('fa-regular');
-            icon.classList.add('fa-solid');
-        } else {
-            button.classList.remove('active');
-            icon.classList.remove('fa-solid');
-            icon.classList.add('fa-regular');
+                .then(response => {
+                    if (response.status === 401) {
+                        showNotification('Vui lòng đăng nhập để thực hiện', 'warning', true);
+                        return null;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data && data.status === 'success') {
+                        const actionInput = form.querySelector('input[name="action"]');
+                        if (actionInput) actionInput.value = (actionToSend === 'add' ? 'remove' : 'add');
+                        showNotification(data.message || (actionToSend === 'remove' ? 'Đã xóa khỏi yêu thích' : 'Đã thêm vào yêu thích'), 'success');
+                    } else if (data) {
+                        // Revert UI on failure
+                        button.classList.toggle('active');
+                        if (button.classList.contains('active')) {
+                            icon.classList.remove('fa-regular');
+                            icon.classList.add('fa-solid');
+                        } else {
+                            icon.classList.remove('fa-solid');
+                            icon.classList.add('fa-regular');
+                        }
+                        showNotification(data.message || 'Có lỗi xảy ra', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    button.classList.toggle('active');
+                    showNotification('Lỗi kết nối máy chủ', 'error');
+                });
         }
-    }
-</script>
+
+        function syncGuestFavorites() {
+            const isLoggedIn = "${not empty sessionScope.user}" === "true";
+            if (isLoggedIn) {
+                const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];
+                if (guestFavorites.length > 0) {
+                    fetch('${pageContext.request.contextPath}/favorites', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: new URLSearchParams({ action: 'sync', productIds: guestFavorites.join(',') })
+                    })
+                    .then(r => r.json())
+                    .then(data => { if (data.status === 'success') localStorage.removeItem('guestFavorites'); })
+                    .catch(err => console.error('Sync failed:', err));
+                }
+                return;
+            }
+
+            const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites')) || [];
+            document.querySelectorAll('.wishlist-form').forEach(form => {
+                const productIdInput = form.querySelector('input[name="productId"]');
+                if (!productIdInput) return;
+                const productId = productIdInput.value;
+                if (guestFavorites.includes(productId)) {
+                    const button = form.querySelector('button');
+                    const icon = button.querySelector('i');
+                    const actionInput = form.querySelector('input[name="action"]');
+                    button.classList.add('active');
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    if (actionInput) actionInput.value = 'remove';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', syncGuestFavorites);
+    </script>
 </body>
 
 </html>
