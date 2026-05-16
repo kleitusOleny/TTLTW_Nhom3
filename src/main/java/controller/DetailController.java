@@ -41,20 +41,16 @@ public class DetailController extends HttpServlet {
         //xem lai sau
 //        List<Review> reviews = dao.getReviews(id);
 //
-//        HttpSession session = request.getSession(false);
-//        if (session != null) {
-//            User user = (User) session.getAttribute("user");
-//            if (user != null) {
-//                FavouriteDAO favouriteDAO = new FavouriteDAO();
-//                List<Map<String, Object>> userFavourites = favouriteDAO
-//                        .getFavouritesWithProductsByUserID(user.getId());
-//                Map<String, Boolean> favouriteProductMap = new HashMap<>();
-//                for (Map<String, Object> fav : userFavourites) {
-//                    favouriteProductMap.put((String) fav.get("product_id"), true);
-//                }
-//                request.setAttribute("favouriteProductMap", favouriteProductMap);
-//            }
-//        }
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            model.User user = (model.User) session.getAttribute("user");
+            if (user != null) {
+                dao.FavouriteDAO favouriteDAO = new dao.FavouriteDAO();
+                List<Map<String, Object>> userFavouritesList = favouriteDAO
+                        .getFavouritesWithProductsByUserID(user.getId());
+                request.setAttribute("userFavouritesList", userFavouritesList);
+            }
+        }
 
         request.setAttribute("product", product);
         request.setAttribute("relatedProducts", relatedProducts);
