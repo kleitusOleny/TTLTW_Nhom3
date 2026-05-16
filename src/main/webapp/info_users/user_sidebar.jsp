@@ -30,6 +30,15 @@
                                         data-url="<%= request.getContextPath() %>/user?page=reviews"><i class="fa-solid fa-clock-rotate-left review-icon"></i><span
                                             data-lang-key="reviewHistory">Lịch
                                             sử đánh giá</span></a></li>
+                                <li><a href="#" data-url="<%= request.getContextPath() %>/user?page=favorites"><i
+                                            class="fa-solid fa-heart"></i> <span data-lang-key="favorites">Sản phẩm yêu thích</span>
+                                            <c:if test="${favCount > 0}">
+                                                <span class="badge" id="sidebar-fav-count">${favCount}</span>
+                                            </c:if>
+                                            <c:if test="${favCount <= 0}">
+                                                <span class="badge" id="sidebar-fav-count" style="display: none;">0</span>
+                                            </c:if>
+                                        </a></li>
                                 <hr>
                                 <li><a href="support.jsp"
                                         data-url="<%= request.getContextPath() %>/user?page=support"><i
