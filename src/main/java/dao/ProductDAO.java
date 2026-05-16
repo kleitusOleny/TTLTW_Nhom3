@@ -263,18 +263,19 @@ public class ProductDAO extends ADAO {
         ProductService.appendFilterConditions(sql, prices, categories, manufacturers, types, origins, capacities, tags, keyword);
 
         sql.append(" LIMIT :limit OFFSET :offset");
-
+        
         return jdbi.withHandle(handle -> {
-            // Tạo query
             var query = handle.createQuery(sql.toString())
                     .bind("limit", limit)
                     .bind("offset", offset);
-
-            // Bind tham số keyword nếu có
+            
             if (keyword != null && !keyword.trim().isEmpty()) {
-                query.bind("keyword", "%" + keyword.trim() + "%");
+                String[] words = keyword.trim().split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.bind("keyword" + i, "%" + words[i] + "%");
+                }
             }
-
+            
             return query.mapToBean(Product.class).list();
         });
     }
@@ -288,11 +289,14 @@ public class ProductDAO extends ADAO {
                         "WHERE p.is_delete = 0 ");
         
         ProductService.appendFilterConditions(sql, prices, categories, manufacturers, types, origins, capacities, tags, keyword);
-
+        
         return jdbi.withHandle(handle -> {
             var query = handle.createQuery(sql.toString());
             if (keyword != null && !keyword.trim().isEmpty()) {
-                query.bind("keyword", "%" + keyword.trim() + "%");
+                String[] words = keyword.trim().split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.bind("keyword" + i, "%" + words[i] + "%");
+                }
             }
             return query.mapTo(Integer.class).findOnly();
         });
