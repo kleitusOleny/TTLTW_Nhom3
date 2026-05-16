@@ -3,6 +3,7 @@ package services;
 import dao.CTEvaluateDAO;
 import dao.EvaluateDAO;
 import dao.ProductDAO;
+import dao.FavouriteDAO;
 import dao.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +26,7 @@ import java.util.*;
 
 public class UserService {
     private final UserDAO userDAO = new UserDAO();
+    private final FavouriteDAO favouriteDAO = new FavouriteDAO();
 
     public boolean updateProfile(User newUser) {
         if (newUser == null)
@@ -144,6 +146,11 @@ public class UserService {
                 List<Evaluates> reviewData = evaluateService.getUserReviewHistory(user.getId());
                 request.setAttribute("data", reviewData);
                 request.getRequestDispatcher(path + "review_history.jsp").forward(request, response);
+                break;
+            case "favorites":
+                List<Map<String, Object>> favorites = favouriteDAO.getFavouritesWithProductsByUserID(user.getId());
+                request.setAttribute("favouritesList", favorites);
+                request.getRequestDispatcher(path + "favorites.jsp").forward(request, response);
                 break;
             case "settings":
                 request.getRequestDispatcher(path + "settings.jsp").forward(request, response);

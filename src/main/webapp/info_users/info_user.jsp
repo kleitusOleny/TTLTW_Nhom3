@@ -105,6 +105,9 @@
 </div>
 
 <script src="<%= request.getContextPath() %>/preventspace.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     (function () {
         const editBtn = document.getElementById("editBtn");
@@ -244,7 +247,14 @@
 
             if (!isFullNameValid || !isPhoneValid || !isBirthValid || !isNewPassValid || !isConfirmValid) {
                 e.preventDefault();
-                alert("Vui lòng kiểm tra lại thông tin và sửa các lỗi hiển thị.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Thông tin không hợp lệ',
+                    text: 'Vui lòng kiểm tra lại các trường thông tin và sửa các lỗi hiển thị màu đỏ.',
+                    confirmButtonColor: '#8c3333',
+                    background: '#fff',
+                    borderRadius: '12px'
+                });
             }
         };
     })();

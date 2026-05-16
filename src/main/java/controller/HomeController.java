@@ -21,12 +21,14 @@ public class HomeController extends HttpServlet {
     private FavouriteDAO favouriteDAO;
     private services.DiscountService discountService;
     private BlogDAO blogDAO;
+    private dao.ProductDAO productDAO;
 
     @Override
     public void init() {
         favouriteDAO = new FavouriteDAO();
         discountService = new services.DiscountService();
         blogDAO = new BlogDAO();
+        productDAO = new dao.ProductDAO();
     }
 
     @Override
@@ -71,6 +73,12 @@ public class HomeController extends HttpServlet {
 
         List<Blogs> latestBlogs = blogDAO.getLatestBlogs(3);
         request.setAttribute("latestBlogs", latestBlogs);
+
+        List<model.Product> featuredProducts = productDAO.getProducts();
+        if (featuredProducts != null && featuredProducts.size() > 4) {
+            featuredProducts = featuredProducts.subList(0, 4);
+        }
+        request.setAttribute("featuredProducts", featuredProducts);
 
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
