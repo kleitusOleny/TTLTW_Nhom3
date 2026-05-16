@@ -94,6 +94,11 @@ label {
 .confirm-age label, .confirm-license label {
     font-size: 0.9rem;
     font-weight: normal;
+    cursor: pointer;
+}
+
+.confirm-age input, .confirm-license input {
+    cursor: pointer;
 }
 
 input[type="text"],
@@ -178,9 +183,13 @@ button:hover {
     text-align: left;
 }
 
-p {
+#warning {
     color: rgba(85, 85, 85, 0.68);
     margin-bottom: -10px;
+}
+
+p {
+    color: rgba(27 ,27 ,27 ,0.8);
 }
 
 /* backward */
@@ -239,4 +248,79 @@ p {
 
 .g_id_signin {
     margin-top: 10px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: white;
+    padding: 25px 30px;
+    border-radius: 12px;
+    width: 650px;
+    max-width: 90%;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: scale(0.95) translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-content h3 {
+    margin-bottom: 15px;
+    color: #595555;
+    padding-bottom: 0;
+    font-size: 1.5rem;
+}
+
+.modal-body {
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding-right: 10px;
+    color: #555;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px; right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: #e5074a;
+}
+
+#accept-tos-btn {
+    margin-top: auto;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-overlay.show .modal-content {
+    transform: scale(1) translateY(0);
 }

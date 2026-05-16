@@ -1,21 +1,20 @@
 package controller;
 
-import dao.AddressDAO;
+import dao.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import model.Address;
-import model.Product;
-import model.User;
+import model.*;
 import services.ProductService;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @WebServlet(name = "OrderDetailController", value = "/order-detail")
 public class OrderDetailController extends HttpServlet {
@@ -69,7 +68,7 @@ public class OrderDetailController extends HttpServlet {
             request.setAttribute("productMap", productMap);
 
             AddressDAO addressDAO = new AddressDAO();
-            Address shippingAddress = addressDAO.getById(order.getShippingAddressId());
+            Optional<Address> shippingAddress = addressDAO.findById(order.getShippingAddressId());
             request.setAttribute("shippingAddress", shippingAddress);
 
             PaymentDAO paymentDAO = new PaymentDAO();
@@ -86,7 +85,7 @@ public class OrderDetailController extends HttpServlet {
             response.sendRedirect("orders");
         } catch (Exception e) {
             e.printStackTrace();
-            throw e; // Re-throw to let container handle 500
+            throw e;
         }
     }
 }

@@ -3,6 +3,7 @@ package dao;
 import model.User;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class UserDAO extends ADAO implements IDAO<User, Integer> {
@@ -30,7 +31,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
     @Override
     public Optional<User> findById(Integer id) {
         return Optional.of(jdbi.withHandle(handle ->
-                handle.createQuery("""
+                Objects.requireNonNull(handle.createQuery("""
                                     SELECT id, email, username,
                                            password_hash,
                                            phone_number,
@@ -46,7 +47,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                         .bind("id", id)
                         .mapToBean(User.class)
                         .findFirst()
-                        .orElse(null)
+                        .orElse(null))
         ));
     }
 
@@ -92,7 +93,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 sql.append("phone_number = :phone_number, ");
                 sql.append("birth_day = :birth_day, ");
                 sql.append("active = :active, ");
-                sql.append("update_at = :update_at, ");
+                sql.append("update_at = NOW(), ");
                 sql.append("administrator = :administrator ");
                 sql.append("WHERE id = :id");
 
@@ -105,7 +106,6 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                         .bind("birth_day", entity.getBirthDay())
                         .bind("active", entity.getActive())
                         .bind("administrator", entity.getAdministrator())
-                        .bind("update_at", entity.getUpdateAt())
                         .bind("password_hash", hasPassword ? entity.getPasswordHash() : null)
                         .execute();
                 if (rows == 0) {
@@ -117,7 +117,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
     }
 
     @Override
-    public void deleteById(Integer id) {
+    public boolean deleteById(Integer id) {
         jdbi.withHandle(handle -> handle.createUpdate("""
                             UPDATE users 
                             SET active:= 0
@@ -125,6 +125,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                         """)
                 .bind("id", id)
                 .execute() > 0);
+        return false;
     }
 
     @Override
@@ -149,14 +150,14 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                             id,
                             email,
                             username,
-                            password_hash AS passwordHash,
-                            phone_number AS phoneNumber,
-                            full_name AS fullName,
-                            birth_day AS birthDay,
+                            password_hash,
+                            phone_number,
+                            full_name,
+                            birth_day,
                             administrator,
                             active,
-                            created_at AS createdAt,
-                            update_at AS updateAt
+                            created_at,
+                            update_at
                         FROM users
                         WHERE email=:email
                         """)
@@ -172,14 +173,14 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                             id,
                             email,
                             username,
-                            password_hash AS passwordHash,
-                            phone_number AS phoneNumber,
-                            full_name AS fullName,
-                            birth_day AS birthDay,
+                            password_hash,
+                            phone_number,
+                            full_name,
+                            birth_day,
                             administrator,
                             active,
-                            created_at AS createdAt,
-                            update_at AS updateAt
+                            created_at,
+                            update_at
                         FROM users
                         WHERE username=:username
                         """)

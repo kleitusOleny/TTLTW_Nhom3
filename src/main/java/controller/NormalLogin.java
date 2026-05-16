@@ -5,6 +5,9 @@ import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import model.Cart;
 import model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import services.AuthServices;
 import services.UserValidationServices;
 
@@ -14,6 +17,8 @@ import java.util.Map;
 
 @WebServlet(name = "NormalLogin", value = "/login")
 public class NormalLogin extends HttpServlet {
+    private static final Logger log = LoggerFactory.getLogger(NormalLogin.class);
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -61,14 +66,18 @@ public class NormalLogin extends HttpServlet {
                     if (account.getAdministrator() == 1) {
                         response.sendRedirect("dashboard");
                     } else if (redirect != null && !redirect.isEmpty()) {
-                        if ("checkout".equals(redirect)) {
+                        if ("checkout".equals(redirect) || redirect.endsWith("/checkout")) {
                             if ("buyNow".equals(checkoutType)) {
-                                response.sendRedirect("checkout?from=buyNow");
+                                response.sendRedirect("checkout?from=buyNow&loginSuccess=1");
                             } else {
-                                response.sendRedirect("checkout");
+                                response.sendRedirect("checkout?loginSuccess=1");
                             }
                         } else {
-                            response.sendRedirect(redirect);
+                            if (redirect.contains("?")) {
+                                response.sendRedirect(redirect + "&loginSuccess=1");
+                            } else {
+                                response.sendRedirect(redirect + "?loginSuccess=1");
+                            }
                         }
                     } else {
                         response.sendRedirect(request.getContextPath() + "/home?loginSuccess=1");

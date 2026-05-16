@@ -835,27 +835,6 @@
 </script>
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    // đăng nhập thành công
-    if (urlParams.has('loginSuccess')) {
-        Swal.fire({
-            icon: 'success',
-            title: 'Đăng nhập thành công!',
-            text: 'Chào mừng bạn quay trở lại.',
-            timer: 3000,
-            showConfirmButton: false
-        });
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
-    // đăng ký thành công
-    if (urlParams.has('registerSuccess')) {
-        Swal.fire({
-            icon: 'success',
-            title: 'Đăng ký thành công!',
-            text: 'Bạn có thể đăng nhập ngay bây giờ.',
-            confirmButtonColor: '#3085d6'
-        });
-        window.history.replaceState({}, document.title, window.location.pathname);
-    }
 </script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
