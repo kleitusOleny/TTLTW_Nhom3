@@ -36,9 +36,7 @@ public class FilterController extends HttpServlet {
         String search = request.getParameter("search");
         
         String sort = request.getParameter("sort");
-        if (sort == null) {
-            sort = "default";
-        }
+        if (sort == null) sort = "default";
         
         //Xử lý phân trang
         int pageSize = 24;
@@ -104,7 +102,7 @@ public class FilterController extends HttpServlet {
                 request.setAttribute("favouriteProductMap", favouriteProductMap);
             }
         }
-
+        request.setAttribute("currentSort", sort);
         request.getRequestDispatcher("store.jsp").forward(request, response);
     }
 }

@@ -114,9 +114,15 @@ public class ProductService {
         }
         
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND (p.product_name LIKE :keyword ")
-                    .append(" OR m.manufacturer_name LIKE :keyword ")
-                    .append(" OR t.type_name LIKE :keyword) ");
+            String[] words = keyword.trim().split("\\s+");
+            sql.append(" AND (");
+            for (int i = 0; i < words.length; i++) {
+                if (i > 0) {
+                    sql.append(" OR ");
+                }
+                sql.append("p.product_name LIKE :keyword").append(i);
+            }
+            sql.append(") ");
         }
     }
 }
