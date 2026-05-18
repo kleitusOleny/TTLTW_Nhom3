@@ -66,4 +66,35 @@ public class HttpUtil {
             return response.toString();
         }
     }
+
+    /**
+     * GET với Token header (dùng cho GHTK fee calculation)
+     */
+    public static String sendGet(String apiUrl, String token) throws Exception {
+        URL url = new URL(apiUrl);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        conn.setRequestProperty("Token", token);
+
+        int status = conn.getResponseCode();
+        InputStream is = (status >= 200 && status < 300)
+                ? conn.getInputStream()
+                : conn.getErrorStream();
+
+        if (is == null) {
+            throw new IOException("Server returned HTTP response code: " + status + " for URL: " + apiUrl);
+        }
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8))) {
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                response.append(line);
+            }
+            if (status < 200 || status >= 300) {
+                throw new IOException("Server returned HTTP " + status + " for URL: " + apiUrl + " | Response: " + response);
+            }
+            return response.toString();
+        }
+    }
 }
