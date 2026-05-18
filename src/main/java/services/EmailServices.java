@@ -27,14 +27,12 @@ public class EmailServices {
     String password = dotenv.get("APP_PASSWORD", System.getenv("APP_PASSWORD"));
 
     public boolean sendOtpEmail(String toEmail, String otp) {
-        // Cấu hình SMTP Server của Gmail
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
 
-        // Tạo Session xác thực
         Session session = Session.getInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, password);

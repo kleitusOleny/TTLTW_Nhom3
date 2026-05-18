@@ -20,8 +20,6 @@ public class Service {
         Map<String, Object> result = new HashMap<>();
         try {
             Gson gson = new Gson();
-
-            // Bước 1: Lấy danh sách dịch vụ khả dụng cho tuyến này
             String serviceBody = """
                     {
                         "shop_id": %d,
@@ -30,7 +28,7 @@ public class Service {
                     }
                     """.formatted(Config.SHOP_ID, districtId);
 
-            int serviceId = 2; // default fallback
+            int serviceId = 2;
             try {
                 String serviceResponse = HttpUtil.sendPost(
                         Config.BASE_URL + "/v2/shipping-order/available-services",
@@ -211,24 +209,17 @@ public class Service {
         }
     }
 
-    // ============================================================
-    // Helper: an toàn lấy JsonArray, tránh ClassCastException khi data = null
-    // ============================================================
-    private static JsonArray safeGetArray(JsonObject obj, String key) {
+    public static JsonArray safeGetArray(JsonObject obj, String key) {
         if (obj == null || !obj.has(key)) return new JsonArray();
         JsonElement el = obj.get(key);
         if (el == null || el.isJsonNull() || !el.isJsonArray()) return new JsonArray();
         return el.getAsJsonArray();
     }
 
-    // ============================================================
-    // Bỏ dấu tiếng Việt để so sánh fuzzy (ví dụ: "Bà Vì" = "Ba Vi")
-    // ============================================================
-    private static String normalizeVn(String s) {
+    public static String normalizeVn(String s) {
         if (s == null) return "";
         String result = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD);
         result = result.replaceAll("\\p{InCombiningDiacriticalMarks}+", "");
-        // Xử lý đ/Đ riêng vì không phải diacritical mark
         result = result.replace("đ", "d").replace("Đ", "D");
         return result.toLowerCase().replaceAll("\\s+", " ").trim();
     }
@@ -240,7 +231,7 @@ public class Service {
             "tp", "tp."
     };
 
-    private static String stripPrefix(String s) {
+    public static String stripPrefix(String s) {
         if (s == null) return "";
         String lower = s.trim().toLowerCase().replaceAll("\\s+", " ");
         for (String prefix : PREFIXES) {
@@ -249,39 +240,32 @@ public class Service {
                 break;
             }
         }
-        // Thử lại với chuỗi đã bỏ dấu
         String noAccent = normalizeVn(s);
         for (String prefix : PREFIXES) {
             if (noAccent.startsWith(prefix + " ")) {
                 noAccent = noAccent.substring(prefix.length()).trim();
                 break;
             }
-        }
-        // Trả về cái nào ngắn hơn (đã strip tốt hơn)
+}
         return lower.length() <= noAccent.length() ? lower : noAccent;
     }
 
-    private static boolean matchName(String ghnName, String inputStripped) {
+    public static boolean matchName(String ghnName, String inputStripped) {
         if (ghnName == null || inputStripped == null || inputStripped.isEmpty()) return false;
 
         String ghnStripped    = stripPrefix(ghnName);
         String ghnLower       = ghnName.trim().toLowerCase().replaceAll("\\s+", " ");
 
-        // 1. So khớp chính xác sau strip
         if (ghnStripped.equals(inputStripped)) return true;
-
-        // 2. Contains
+   
         if (ghnStripped.contains(inputStripped) || inputStripped.contains(ghnStripped)) return true;
         if (ghnLower.contains(inputStripped)    || inputStripped.contains(ghnLower))    return true;
 
-        // 3. So sánh sau khi bỏ dấu (xử lý trường hợp DB không lưu dấu, hoặc lưu dấu khác)
         String ghnNoAccent    = normalizeVn(ghnStripped);
         String inputNoAccent  = normalizeVn(inputStripped);
         if (ghnNoAccent.equals(inputNoAccent)) return true;
         if (ghnNoAccent.contains(inputNoAccent) || inputNoAccent.contains(ghnNoAccent)) return true;
 
-        // 4. Regex wildcard cho bất kỳ ký tự đặc biệt hoặc ký tự lỗi encoding (ví dụ '?', '', '\uFFFD', v.v.)
-        // Thay thế tất cả các ký tự không phải chữ cái Tiếng Anh/Tiếng Việt, số hoặc khoảng trắng thành '?'
         String allowedPattern = "[^a-zA-Z0-9àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ\\s]";
         String cleanedInput = inputStripped.replace('\u00A0', ' ').replaceAll(allowedPattern, "?");
         String cleanedGhn   = ghnStripped.replace('\u00A0', ' ').replaceAll(allowedPattern, "?");

@@ -4,14 +4,8 @@ import model.ReviewViewModel;
 
 import java.util.List;
 
-/**
- * DAO để quản lý đánh giá - kết hợp dữ liệu từ evaluates và ct_evaluates
- */
 public class ReviewDAO extends ADAO {
 
-    /**
-     * Lấy tất cả đánh giá với đầy đủ thông tin user và product
-     */
     public List<ReviewViewModel> getAllReviews() {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT 
@@ -36,9 +30,6 @@ public class ReviewDAO extends ADAO {
                 .list());
     }
 
-    /**
-     * Lấy tất cả đánh giá chưa bị xóa
-     */
     public List<ReviewViewModel> getAllActiveReviews() {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT 
@@ -64,9 +55,6 @@ public class ReviewDAO extends ADAO {
                 .list());
     }
 
-    /**
-     * Lấy đánh giá theo ID
-     */
     public ReviewViewModel getReviewById(int id) {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT 
@@ -93,9 +81,6 @@ public class ReviewDAO extends ADAO {
                 .orElse(null));
     }
 
-    /**
-     * Xóa mềm đánh giá (set is_delete = NOW())
-     */
     public boolean deleteReview(int id) {
         return jdbi.withHandle(handle -> handle.createUpdate("""
                 UPDATE ct_evaluates 
@@ -106,9 +91,6 @@ public class ReviewDAO extends ADAO {
                 .execute() > 0);
     }
 
-    /**
-     * Xóa vĩnh viễn đánh giá
-     */
     public boolean hardDeleteReview(int id) {
         return jdbi.inTransaction(handle -> {
             // Xóa từ evaluates trước (foreign key)
@@ -122,9 +104,6 @@ public class ReviewDAO extends ADAO {
         });
     }
 
-    /**
-     * Khôi phục đánh giá đã bị xóa mềm
-     */
     public boolean restoreReview(int id) {
         return jdbi.withHandle(handle -> handle.createUpdate("""
                 UPDATE ct_evaluates 
@@ -135,9 +114,6 @@ public class ReviewDAO extends ADAO {
                 .execute() > 0);
     }
 
-    /**
-     * Cập nhật nội dung và số sao của đánh giá
-     */
     public boolean updateReview(int id, String content, double star) {
         return jdbi.withHandle(handle -> handle.createUpdate("""
                 UPDATE ct_evaluates 
@@ -150,9 +126,6 @@ public class ReviewDAO extends ADAO {
                 .execute() > 0);
     }
 
-    /**
-     * Lấy đánh giá theo sản phẩm
-     */
     public List<ReviewViewModel> getReviewsByProduct(String productId) {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT 
@@ -179,9 +152,6 @@ public class ReviewDAO extends ADAO {
                 .list());
     }
 
-    /**
-     * Lấy đánh giá theo user
-     */
     public List<ReviewViewModel> getReviewsByUser(int userId) {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT 
@@ -208,9 +178,6 @@ public class ReviewDAO extends ADAO {
                 .list());
     }
 
-    /**
-     * Lấy đánh giá theo số sao
-     */
     public List<ReviewViewModel> getReviewsByStar(double star) {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT 
@@ -237,9 +204,6 @@ public class ReviewDAO extends ADAO {
                 .list());
     }
 
-    /**
-     * Đếm tổng số đánh giá
-     */
     public int countAllReviews() {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT COUNT(*) FROM ct_evaluates WHERE is_delete IS NULL
@@ -249,9 +213,6 @@ public class ReviewDAO extends ADAO {
                 .orElse(0));
     }
 
-    /**
-     * Tính điểm đánh giá trung bình
-     */
     public double getAverageRating() {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT COALESCE(AVG(star), 0) FROM ct_evaluates WHERE is_delete IS NULL

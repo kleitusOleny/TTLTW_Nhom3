@@ -7,9 +7,6 @@ import java.nio.charset.StandardCharsets;
 
 public class HttpUtil {
 
-    /**
-     * POST với Token header (dùng cho GHN master-data: province, district, ward)
-     */
     public static String sendPost(
             String apiUrl,
             String token,
@@ -18,9 +15,6 @@ public class HttpUtil {
         return sendPost(apiUrl, token, null, body);
     }
 
-    /**
-     * POST với Token + ShopId header (dùng cho GHN fee calculation)
-     */
     public static String sendPost(
             String apiUrl,
             String token,
@@ -67,9 +61,6 @@ public class HttpUtil {
         }
     }
 
-    /**
-     * GET với Token header (dùng cho GHTK fee calculation)
-     */
     public static String sendGet(String apiUrl, String token) throws Exception {
         URL url = new URL(apiUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
