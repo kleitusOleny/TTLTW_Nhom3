@@ -9,12 +9,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Cart;
 import model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.AuthServices;
 
 import java.io.IOException;
 
 @WebServlet("/LoginGoogle")
 public class LoginGoogle extends HttpServlet {
+    private static final Logger log = LoggerFactory.getLogger(LoginGoogle.class);
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
         // Google gửi mã xác thực qua tham số "credential"
@@ -26,6 +30,7 @@ public class LoginGoogle extends HttpServlet {
         User user = userDao.findByEmail(emailFromGoogleToken);
         if (user != null) {
             if (user.getActive() == 1) {
+                log.info("Đăng nhập thành công: {}", user.getEmail());
                 HttpSession oldSession = request.getSession(false);
                 Cart cart = null;
                 Cart buyNowCart = null;
@@ -68,6 +73,7 @@ public class LoginGoogle extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/home?loginSuccess=1");
                 }
             } else {
+                log.warn("Đăng nhập thất bại: Tài khoản bị khoá (username: {})", user.getEmail());
                 request.setAttribute("loginError",
                         "Tài khoản của bạn đã bị khoá, vui lòng liên hệ Admin để giải quyết");
                 request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);

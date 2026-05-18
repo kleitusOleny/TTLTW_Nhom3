@@ -157,4 +157,31 @@ public class UserService {
                 break;
         }
     }
+
+    public String getClientIp(HttpServletRequest request) {
+        String[] headerNames = {
+                "X-Forwarded-For",
+                "Proxy-Client-IP",
+                "WL-Proxy-Client-IP"
+        };
+        String ipAddress = null;
+        for (String header : headerNames) {
+            ipAddress = request.getHeader(header);
+            if (ipAddress != null && !ipAddress.isEmpty() && !"unknown".equalsIgnoreCase(ipAddress)) {
+                break;
+            }
+        }
+        if (ipAddress == null || ipAddress.isEmpty() || "unknown".equalsIgnoreCase(ipAddress)) {
+            ipAddress = request.getRemoteAddr();
+            // xử lý chạy trên localhost
+            if ("0:0:0:0:0:0:0:1".equals(ipAddress)) {
+                ipAddress = "127.0.0.1";
+            }
+        }
+        // nếu qua nhiều proxy thì lấy IP đầu tiên
+        if (ipAddress != null && ipAddress.length() > 15 && ipAddress.indexOf(",") > 0) {
+            ipAddress = ipAddress.substring(0, ipAddress.indexOf(","));
+        }
+        return ipAddress;
+    }
 }
