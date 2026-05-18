@@ -182,8 +182,14 @@
             </c:if>
             <div class="address-list">
                 <c:forEach var="addr" items="${addressList}">
-                    <div class="address-card" data-fullname="${addr.fullName}" data-phone="${addr.phoneNumber}"
-                        data-address="${addr.addressLine}, ${addr.ward}, ${addr.city}">
+                    <div class="address-card"
+                        data-fullname="${addr.fullName}"
+                        data-phone="${addr.phoneNumber}"
+                        data-address="${addr.addressLine}, ${addr.ward}, ${addr.district}, ${addr.city}"
+                        data-addressline="${addr.addressLine}"
+                        data-ward="${addr.ward}"
+                        data-district="${addr.district}"
+                        data-city="${addr.city}">
 
                         <div class="address-card-info">
                             <div class="info-item">
@@ -210,9 +216,15 @@
                             <div class="action-row">
                                 <c:if test="${not addr.isDefault}">
                                     <form action="${pageContext.request.contextPath}/address" method="post"
-                                        style="display:inline;">
+                                        style="display:inline;" class="form-set-default">
                                         <input type="hidden" name="action" value="default">
                                         <input type="hidden" name="id" value="${addr.id}">
+                                        <input type="hidden" name="data-fullname" value="${addr.fullName}">
+                                        <input type="hidden" name="data-phone" value="${addr.phoneNumber}">
+                                        <input type="hidden" name="data-addressline" value="${addr.addressLine}">
+                                        <input type="hidden" name="data-ward" value="${addr.ward}">
+                                        <input type="hidden" name="data-district" value="${addr.district}">
+                                        <input type="hidden" name="data-city" value="${addr.city}">
                                         <button type="submit" class="btn-default">Đặt mặc định</button>
                                     </form>
                                 </c:if>
@@ -703,10 +715,41 @@
                         const data = {
                             fullName: card.dataset.fullname,
                             phone: card.dataset.phone,
-                            address: card.dataset.address
+                            address: card.dataset.address,
+                            addressLine: card.dataset.addressline,
+                            ward: card.dataset.ward,
+                            district: card.dataset.district,
+                            city: card.dataset.city
                         };
                         window.parent.postMessage({ type: 'SELECT_ADDRESS', data: data }, '*');
                     }
+                });
+
+                // AJAX cho "Đặt mặc định" trong popup
+                document.addEventListener('submit', function(e) {
+                    const form = e.target.closest('.form-set-default');
+                    if (!form) return;
+                    e.preventDefault();
+                    const fd = new FormData(form);
+                    fetch(form.action, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                        body: fd
+                    }).then(r => r.json()).then(res => {
+                        if (res.success) {
+                            // Gửi thông báo cho parent để cập nhật phí ship
+                            const addrData = {
+                                fullName: fd.get('data-fullname'),
+                                phone: fd.get('data-phone'),
+                                address: fd.get('data-addressline') + ', ' + fd.get('data-ward') + ', ' + fd.get('data-district') + ', ' + fd.get('data-city'),
+                                addressLine: fd.get('data-addressline'),
+                                ward: fd.get('data-ward'),
+                                district: fd.get('data-district'),
+                                city: fd.get('data-city')
+                            };
+                            window.parent.postMessage({ type: 'SELECT_ADDRESS', data: addrData }, '*');
+                        }
+                    }).catch(err => console.error('Set default error:', err));
                 });
             })();
         </script>
