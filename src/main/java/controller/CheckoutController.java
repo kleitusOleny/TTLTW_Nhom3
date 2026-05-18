@@ -9,6 +9,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.*;
 import services.DiscountService;
+import services.OrderService;
+import services.OrderItemService;
+import services.ProductService;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -21,15 +24,15 @@ import java.util.Map;
 
 @WebServlet(name = "CheckoutController", value = "/checkout")
 public class CheckoutController extends HttpServlet {
-    private OrderDAO orderDAO;
-    private OrderItemDAO orderItemDAO;
-    private ProductDAO productDAO;
+    private OrderService orderService;
+    private OrderItemService orderItemService;
+    private ProductService productService;
     private static final int LEGAL_AGE = 18;
     @Override
     public void init() {
-        orderDAO = new OrderDAO();
-        orderItemDAO = new OrderItemDAO();
-        productDAO = new ProductDAO();
+        orderService = new OrderService();
+        orderItemService = new OrderItemService();
+        productService = new ProductService();
     }
 
     @Override
@@ -71,6 +74,10 @@ public class CheckoutController extends HttpServlet {
                     .orElse(addresses.get(0));
         }
 
+        DiscountService discountService = new DiscountService();
+        double loyaltyAmount = discountService.calculateLoyaltyDiscount(user.getId(), cart.getSubtotal());
+        cart.setLoyaltyDiscountAmount(loyaltyAmount);
+
         Order order = new Order();
         order.setUserId(user.getId());
         order.setTotalPrice(cart.getTotal());
@@ -86,6 +93,10 @@ public class CheckoutController extends HttpServlet {
         }
         if (cart.getVoucherDiscount() != null) {
             order.setVoucherDiscountId(cart.getVoucherDiscount().getId());
+        }
+        if (loyaltyAmount > 0) {
+            Discount loyaltyDiscount = discountService.getOrCreateLoyaltyDiscount();
+            order.setLoyaltyDiscountId(loyaltyDiscount.getId());
         }
 
         List<OrderItem> items = new ArrayList<>();
@@ -105,7 +116,6 @@ public class CheckoutController extends HttpServlet {
 
         session.setAttribute("pendingOrder", order);
 
-        DiscountService discountService = new DiscountService();
         List<Discount> allUserVouchers = discountService.getUserVouchers(user.getId());
 
         List<Discount> shippingDiscounts = new ArrayList<>();
@@ -205,12 +215,20 @@ public class CheckoutController extends HttpServlet {
                 }
             }
         }
-        // Chọn phí ship mặc định
         shippingFee = ghnFee > 0 ? ghnFee : ghtkFee;
+
+        double excessDiscount = 0.0;
+        if (cart.getShippingDiscount() != null && shippingFee > 0) {
+            double sdVal = cart.getShippingDiscount().getDiscountValue();
+            if (sdVal > shippingFee) {
+                excessDiscount = sdVal - shippingFee;
+            }
+        }
 
         request.setAttribute("ghnFee", ghnFee);
         request.setAttribute("ghtkFee", ghtkFee);
         request.setAttribute("shippingFee", shippingFee);
+        request.setAttribute("excessDiscount", excessDiscount);
         request.setAttribute("shippingError", shippingError);
         request.setAttribute("currentCart", cart);
         request.setAttribute("order", order);
@@ -226,6 +244,13 @@ public class CheckoutController extends HttpServlet {
         HttpSession session = request.getSession();
         User user = (User) session.getAttribute("user");
         Order order = (Order) session.getAttribute("pendingOrder");
+        Cart cart;
+        String checkoutType = (String) session.getAttribute("checkoutType");
+        if ("buyNow".equals(checkoutType)) {
+            cart = (Cart) session.getAttribute("buyNowCart");
+        } else {
+            cart = (Cart) session.getAttribute("cart");
+        }
 
         if (user == null || order == null) {
             response.sendRedirect("store");
@@ -237,10 +262,8 @@ public class CheckoutController extends HttpServlet {
             response.sendRedirect("address?redirect=checkout");
             return;
         }
-        // Kiểm tra tuổi phía server
         if (!checkLegalAge(user)) {
             session.setAttribute("errorMessage", "Bạn chưa đủ tuổi hợp pháp để mua sản phẩm này.");
-            String checkoutType = (String) session.getAttribute("checkoutType");
             if ("buyNow".equals(checkoutType)) {
                 response.sendRedirect("checkout?from=buyNow");
             } else {
@@ -255,12 +278,11 @@ public class CheckoutController extends HttpServlet {
 
             // Kiểm tra tồn kho
             for (OrderItem item : order.getItems()) {
-                int currentStock = productDAO.getQuantity(item.getProductId());
+                int currentStock = productService.getQuantity(item.getProductId());
                 if (currentStock < item.getQuantity()) {
-                    String productName = productDAO.getProductById(item.getProductId()).getProductName();
+                    String productName = productService.getProductById(item.getProductId()).getProductName();
                     session.setAttribute("errorMessage", "Sản phẩm '" + productName
                             + "' không đủ số lượng trong kho (Còn lại: " + currentStock + ")");
-                    String checkoutType = (String) session.getAttribute("checkoutType");
                     if ("buyNow".equals(checkoutType)) {
                         response.sendRedirect("checkout?from=buyNow");
                     } else {
@@ -270,16 +292,16 @@ public class CheckoutController extends HttpServlet {
                 }
             }
 
-            int orderId = orderDAO.createAndReturnId(order);
+            int orderId = orderService.createAndReturnId(order);
             order.setId(orderId);
 
             // Trừ tồn kho
             for (OrderItem item : order.getItems()) {
                 item.setOrderId(orderId);
-                orderItemDAO.save(item);
+                orderItemService.save(item);
 
-                int currentStock = productDAO.getQuantity(item.getProductId());
-                productDAO.updateQuantity(item.getProductId(), currentStock - item.getQuantity());
+                int currentStock = productService.getQuantity(item.getProductId());
+                productService.updateQuantity(item.getProductId(), currentStock - item.getQuantity());
             }
 
             String paymentMethod = request.getParameter("payment_method");
@@ -289,7 +311,6 @@ public class CheckoutController extends HttpServlet {
             double shippingFee = 0.0;
             int estimatedDays = 3;
 
-            // Đọc phí ship từ form (đã tính qua GHN API ở frontend)
             String shippingFeeParam = request.getParameter("shipping_fee");
             if (shippingFeeParam != null && !shippingFeeParam.isEmpty()) {
                 try {
@@ -303,14 +324,20 @@ public class CheckoutController extends HttpServlet {
                     carrierName = "Giao Hàng Nhanh (GHN)";
                 }
             }
-
+            double shippingDiscountVal = 0.0;
+            if (cart != null && cart.getShippingDiscount() != null) {
+                shippingDiscountVal = cart.getShippingDiscount().getDiscountValue();
+            }
+            double excessDiscount = 0.0;
+            if (shippingDiscountVal > shippingFee) {
+                excessDiscount = shippingDiscountVal - shippingFee;
+            }
+            double actualShippingFee = Math.max(0.0, shippingFee - shippingDiscountVal);
             PaymentDAO paymentDAO = new PaymentDAO();
             Payment payment = new Payment();
             payment.setOrderId(orderId);
-            payment.setAmount(order.getTotalPrice() + shippingFee);
+            payment.setAmount(order.getTotalPrice() + shippingFee + excessDiscount);
             payment.setPaidAt(new Timestamp(System.currentTimeMillis()));
-
-            String checkoutType = (String) session.getAttribute("checkoutType");
 
             if ("ewallet".equals(paymentMethod)) {
                 payment.setPayStrategy("VNPay");
@@ -323,7 +350,7 @@ public class CheckoutController extends HttpServlet {
                 shipOrder.setOrderId(orderId);
                 shipOrder.setCarrierName(carrierName);
                 shipOrder.setTrackingNumber("VNPAY" + System.currentTimeMillis());
-                shipOrder.setShippingFee(shippingFee);
+                shipOrder.setShippingFee(actualShippingFee);
                 shipOrder.setStatus("Chờ thanh toán");
                 shipOrder.setEstimatedDeliveryDate(
                         new Timestamp(System.currentTimeMillis() + (long) estimatedDays * 24 * 60 * 60 * 1000));
@@ -351,7 +378,7 @@ public class CheckoutController extends HttpServlet {
                 shipOrder.setOrderId(orderId);
                 shipOrder.setCarrierName(carrierName);
                 shipOrder.setTrackingNumber("COD" + System.currentTimeMillis());
-                shipOrder.setShippingFee(shippingFee);
+                shipOrder.setShippingFee(actualShippingFee);
                 shipOrder.setStatus("Chuẩn bị đơn hàng");
                 shipOrder.setEstimatedDeliveryDate(
                         new Timestamp(System.currentTimeMillis() + (long) estimatedDays * 24 * 60 * 60 * 1000));

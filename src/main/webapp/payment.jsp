@@ -239,7 +239,7 @@
                                 <tr>
                                     <th>Tổng phụ</th>
                                     <td>
-                                        <fmt:formatNumber value="${requestScope.order.totalPrice}" type="currency"
+                                        <fmt:formatNumber value="${requestScope.currentCart.subtotal}" type="currency"
                                             currencySymbol="₫" maxFractionDigits="0" />
                                     </td>
                                 </tr>
@@ -270,7 +270,7 @@
                                 <tr>
                                     <th>Tổng thanh toán</th>
                                     <td><strong>
-                                            <fmt:formatNumber value="${requestScope.order.totalPrice + requestScope.shippingFee}" type="currency"
+                                            <fmt:formatNumber value="${requestScope.order.totalPrice + requestScope.shippingFee + (not empty requestScope.excessDiscount ? requestScope.excessDiscount : 0)}" type="currency"
                                                 currencySymbol="₫" maxFractionDigits="0" />
                                         </strong></td>
                                 </tr>
@@ -592,7 +592,12 @@
 
                         // Recalculate and update Grand Total
                         const subtotal = parseFloat('${requestScope.order.totalPrice}') || 0;
-                        const total = subtotal + fee;
+                        const shippingDiscountValue = parseFloat('${currentCart.shippingDiscount.discountValue}') || 0;
+                        let excessDiscount = 0;
+                        if (shippingDiscountValue > fee) {
+                            excessDiscount = shippingDiscountValue - fee;
+                        }
+                        const total = subtotal + fee + excessDiscount;
                         const totalRows = document.querySelectorAll('table tbody tr, .order-summary tbody tr');
                         totalRows.forEach(row => {
                             const th = row.querySelector('th');

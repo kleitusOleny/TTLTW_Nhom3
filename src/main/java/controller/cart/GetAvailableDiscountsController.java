@@ -58,8 +58,15 @@ public class GetAvailableDiscountsController extends HttpServlet {
         }
 
         if (cart != null) {
-            double loyaltyRate = discountService.calculateWholesaleDiscountRate(cart.getTotalQuantity());
-            double loyaltyAmount = discountService.calculateWholesaleAmount(cart);
+            double loyaltyAmount = 0.0;
+            double loyaltyRate = 0.0;
+            if (user != null) {
+                loyaltyAmount = discountService.calculateLoyaltyDiscount(user.getId(), cart.getSubtotal());
+                dao.OrderDAO orderDAO = new dao.OrderDAO();
+                if (orderDAO.countOrdersOfUser(user.getId()) >= 15) {
+                    loyaltyRate = 0.10;
+                }
+            }
             Map<String, Object> loyalty = new HashMap<>();
             loyalty.put("rate", loyaltyRate);
             loyalty.put("amount", loyaltyAmount);
