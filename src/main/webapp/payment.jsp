@@ -251,8 +251,8 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <th>Phí vận chuyển (GHN)</th>
-                                    <td>
+                                    <th>Phí vận chuyển <span id="summary-carrier-label" style="font-weight:normal;color:#666;">(<c:choose><c:when test="${requestScope.shippingFee > 0 && requestScope.ghnFee > 0}">GHN</c:when><c:when test="${requestScope.shippingFee > 0 && requestScope.ghtkFee > 0}">GHTK</c:when><c:otherwise>--</c:otherwise></c:choose>)</span></th>
+                                    <td id="summary-shipping-fee">
                                         <c:choose>
                                             <c:when test="${requestScope.shippingFee > 0}">
                                                 <fmt:formatNumber value="${requestScope.shippingFee}" type="currency"
@@ -276,33 +276,86 @@
                                 </tr>
                             </tbody>
                         </table>
-                        <!-- Thông tin vận chuyển GHN -->
+
+                        <style>
+                            .carrier-options-list {
+                                display: flex;
+                                flex-direction: column;
+                                gap: 12px;
+                                margin-top: 10px;
+                            }
+                            .carrier-option.disabled {
+                                opacity: 0.6;
+                                cursor: not-allowed;
+                                background-color: #fafafa;
+                                pointer-events: none;
+                            }
+                        </style>
+
+                        <!-- Thông tin vận chuyển (GHN & GHTK) -->
                         <div class="shipping-carrier-section">
-                            <h3>Vận chuyển</h3>
-                            <div class="carrier-option selected" style="pointer-events:none;">
-                                <label style="display:flex;align-items:center;gap:14px;width:100%;margin:0;">
-                                    <div class="carrier-icon" style="background:#8c3333;color:#fff;"><i class="fas fa-truck"></i></div>
-                                    <div class="carrier-info">
-                                        <div class="carrier-name">Giao Hàng Nhanh (GHN)</div>
-                                        <c:choose>
-                                            <c:when test="${requestScope.shippingFee > 0}">
-                                                <div class="carrier-detail" style="color:#28a745;">Phí ship được tính từ địa chỉ giao hàng của bạn</div>
-                                            </c:when>
-                                            <c:when test="${not empty requestScope.shippingError}">
-                                                <div class="carrier-detail" style="color:#dc3545;">${requestScope.shippingError}</div>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <div class="carrier-detail" style="color:#888;">Vui lòng thêm địa chỉ để tính phí ship</div>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                    <c:if test="${requestScope.shippingFee > 0}">
-                                        <div class="carrier-fee">
-                                            <fmt:formatNumber value="${requestScope.shippingFee}" type="currency"
-                                                currencySymbol="₫" maxFractionDigits="0" />
+                            <h3>Đơn vị vận chuyển</h3>
+                            <div class="carrier-options-list">
+                                <!-- Option GHN -->
+                                <div class="carrier-option <c:choose><c:when test='${requestScope.ghnFee > 0}'>selected</c:when><c:otherwise>disabled</c:otherwise></c:choose>" id="carrier-ghn-option" onclick="selectCarrier('ghn', ${requestScope.ghnFee})">
+                                    <input type="radio" id="carrier-ghn" name="shipping_carrier_radio" value="ghn" <c:choose><c:when test='${requestScope.ghnFee > 0}'>checked</c:when><c:otherwise>disabled</c:otherwise></c:choose>>
+                                    <label style="display:flex;align-items:center;gap:14px;width:100%;margin:0;cursor:pointer;">
+                                        <div class="carrier-icon" style="background:#8c3333;color:#fff;"><i class="fas fa-truck"></i></div>
+                                        <div class="carrier-info" style="flex:1;">
+                                            <div class="carrier-name" style="font-weight:bold;">Giao Hàng Nhanh (GHN)</div>
+                                            <div class="carrier-detail" style="font-size:12px;color:#666;" id="ghn-detail-text">
+                                                <c:choose>
+                                                    <c:when test="${requestScope.ghnFee > 0}">
+                                                        Nhận hàng nhanh chóng từ đối tác GHN
+                                                    </c:when>
+                                                    <c:when test="${not empty requestScope.shippingError}">
+                                                        <span style="color:#dc3545;">${requestScope.shippingError}</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        Chưa có địa chỉ giao hàng
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
                                         </div>
-                                    </c:if>
-                                </label>
+                                        <div class="carrier-fee" id="ghn-fee-display" style="font-weight:bold;color:#8c3333;">
+                                            <c:choose>
+                                                <c:when test="${requestScope.ghnFee > 0}">
+                                                    <fmt:formatNumber value="${requestScope.ghnFee}" type="currency" currencySymbol="₫" maxFractionDigits="0" />
+                                                </c:when>
+                                                <c:otherwise>--</c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Option GHTK -->
+                                <div class="carrier-option <c:choose><c:when test='${requestScope.ghnFee <= 0 && requestScope.ghtkFee > 0}'>selected</c:when><c:when test='${requestScope.ghtkFee > 0}'></c:when><c:otherwise>disabled</c:otherwise></c:choose>" id="carrier-ghtk-option" onclick="selectCarrier('ghtk', ${requestScope.ghtkFee})">
+                                    <input type="radio" id="carrier-ghtk" name="shipping_carrier_radio" value="ghtk" <c:choose><c:when test='${requestScope.ghnFee <= 0 && requestScope.ghtkFee > 0}'>checked</c:when></c:choose> <c:choose><c:when test='${requestScope.ghtkFee > 0}'></c:when><c:otherwise>disabled</c:otherwise></c:choose>>
+                                    <label style="display:flex;align-items:center;gap:14px;width:100%;margin:0;cursor:pointer;">
+                                        <div class="carrier-icon" style="background:#1b75bb;color:#fff;"><i class="fas fa-shipping-fast"></i></div>
+                                        <div class="carrier-info" style="flex:1;">
+                                            <div class="carrier-name" style="font-weight:bold;">Giao Hàng Tiết Kiệm (GHTK)</div>
+                                            <div class="carrier-detail" style="font-size:12px;color:#666;" id="ghtk-detail-text">
+                                                <c:choose>
+                                                    <c:when test="${requestScope.ghtkFee > 0}">
+                                                        Tiết kiệm chi phí với đối tác GHTK
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        Không khả dụng cho tuyến đường này
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </div>
+                                        </div>
+                                        <div class="carrier-fee" id="ghtk-fee-display" style="font-weight:bold;color:#1b75bb;">
+                                            <c:choose>
+                                                <c:when test="${requestScope.ghtkFee > 0}">
+                                                    <fmt:formatNumber value="${requestScope.ghtkFee}" type="currency" currencySymbol="₫" maxFractionDigits="0" />
+                                                </c:when>
+                                                <c:otherwise>--</c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -394,8 +447,19 @@
                     document.addEventListener('DOMContentLoaded', function () {
                         // Hidden inputs already pre-filled server-side; reinforce here for safety
                         var svrFee = parseFloat('${requestScope.shippingFee}') || 0;
-                        document.getElementById('shipping_carrier_input').value = svrFee > 0 ? 'ghn' : '';
-                        document.getElementById('shipping_fee_input').value = svrFee;
+                        var ghnFee = parseFloat('${requestScope.ghnFee}') || 0;
+                        var ghtkFee = parseFloat('${requestScope.ghtkFee}') || 0;
+
+                        if (ghnFee > 0) {
+                            document.getElementById('shipping_carrier_input').value = 'ghn';
+                            document.getElementById('shipping_fee_input').value = ghnFee;
+                        } else if (ghtkFee > 0) {
+                            document.getElementById('shipping_carrier_input').value = 'ghtk';
+                            document.getElementById('shipping_fee_input').value = ghtkFee;
+                        } else {
+                            document.getElementById('shipping_carrier_input').value = '';
+                            document.getElementById('shipping_fee_input').value = '0';
+                        }
 
                         const ageVerifyCheckbox = document.getElementById('age-verify');
                         const placeOrderBtn = document.getElementById('place-order-btn');
@@ -469,61 +533,6 @@
                                 sessionStorage.setItem('selectedPaymentMethod', value);
                             });
                         });
-
-                        /* ========== Place Order with Stock Check ========== */
-                        placeOrderBtn.addEventListener('click', function (e) {
-                            // Age check
-                            if (!ageVerifyCheckbox || !ageVerifyCheckbox.checked) {
-                                var ageDiv = document.querySelector('.age-verification');
-                                if(ageDiv) ageDiv.classList.add('error');
-                                showToast('warning','Xác nhận tuổi','Bạn phải xác nhận đủ tuổi để đặt hàng.');
-                                return;
-                            }
-                            var ageDiv2 = document.querySelector('.age-verification');
-                            if(ageDiv2) ageDiv2.classList.remove('error');
-
-                            // Payment method check
-                            if (!document.querySelector('input[name="payment_method"]:checked')) {
-                                showToast('warning','Phương thức thanh toán','Vui lòng chọn phương thức thanh toán.');
-                                return;
-                            }
-
-                            // Shipping fee check (tính tự động từ địa chỉ)
-                            if (!document.getElementById('shipping_carrier_input').value) {
-                                showToast('warning','Phí vận chuyển','Chưa tính được phí ship. Vui lòng kiểm tra địa chỉ giao hàng.');
-                                return;
-                            }
-
-                            // Stock check via AJAX
-                            placeOrderBtn.disabled = true;
-                            placeOrderBtn.textContent = 'Đang kiểm tra...';
-
-                            fetch('${pageContext.request.contextPath}/api/stock-check', { method:'POST' })
-                            .then(function(r){ return r.json(); })
-                            .then(function(data){
-                                if (data.success) {
-                                    var form = document.getElementById('checkoutForm');
-                                    form.action = '${pageContext.request.contextPath}/checkout';
-                                    sessionStorage.removeItem('selectedPaymentMethod');
-                                    form.submit();
-                                } else {
-                                    var msg = '';
-                                    if (data.errors) {
-                                        data.errors.forEach(function(err){
-                                            msg += err.productName + ' (còn ' + err.available + ', cần ' + err.requested + ')\n';
-                                        });
-                                    }
-                                    showToast('error','Không đủ tồn kho', msg || data.message);
-                                    placeOrderBtn.disabled = false;
-                                    placeOrderBtn.textContent = 'ĐẶT HÀNG';
-                                }
-                            })
-                            .catch(function(err){
-                                showToast('error','Lỗi','Không thể kiểm tra tồn kho. Vui lòng thử lại.');
-                                placeOrderBtn.disabled = false;
-                                placeOrderBtn.textContent = 'ĐẶT HÀNG';
-                            });
-                        });
                     });
                 </script>
                 <script>
@@ -545,19 +554,69 @@
                         closeBtn._addressSelected = false;
                     });
 
-                    /* ========== Tính lại phí ship khi chọn địa chỉ mới ========== */
-                    function recalcShipping(city, district, ward) {
-                        const carrierSection = document.querySelector('.carrier-detail');
-                        const feeDisplay = document.querySelector('.carrier-fee');
-                        const shipRowTd = document.querySelector('th.ship-fee-label')
-                                          ? document.querySelector('th.ship-fee-label').nextElementSibling
-                                          : null;
+                    /* ========== Dynamic Carrier Selection & Recalculation ========== */
+                    let ghnCalculatedFee = parseFloat('${requestScope.ghnFee}') || 0;
+                    let ghtkCalculatedFee = parseFloat('${requestScope.ghtkFee}') || 0;
 
-                        // Hiển thị loading
-                        if (carrierSection) {
-                            carrierSection.style.color = '#888';
-                            carrierSection.textContent = 'Đang tính phí vận chuyển...';
+                    function selectCarrier(carrier, fee) {
+                        if (fee <= 0) return; // Do not allow selecting disabled carriers
+
+                        // Update hidden form inputs
+                        document.getElementById('shipping_carrier_input').value = carrier;
+                        document.getElementById('shipping_fee_input').value = fee;
+
+                        // Update selected visual states in UI
+                        const ghnOpt = document.getElementById('carrier-ghn-option');
+                        const ghtkOpt = document.getElementById('carrier-ghtk-option');
+                        const ghnRadio = document.getElementById('carrier-ghn');
+                        const ghtkRadio = document.getElementById('carrier-ghtk');
+
+                        if (carrier === 'ghn') {
+                            if(ghnOpt) ghnOpt.classList.add('selected');
+                            if(ghtkOpt) ghtkOpt.classList.remove('selected');
+                            if(ghnRadio) ghnRadio.checked = true;
+                        } else {
+                            if(ghtkOpt) ghtkOpt.classList.add('selected');
+                            if(ghnOpt) ghnOpt.classList.remove('selected');
+                            if(ghtkRadio) ghtkRadio.checked = true;
                         }
+
+                        // Update summary carrier label
+                        const labelEl = document.getElementById('summary-carrier-label');
+                        if (labelEl) labelEl.textContent = '(' + carrier.toUpperCase() + ')';
+
+                        // Update summary shipping fee cell
+                        const feeFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fee);
+                        const feeCell = document.getElementById('summary-shipping-fee');
+                        if (feeCell) feeCell.innerHTML = feeFormatted;
+
+                        // Recalculate and update Grand Total
+                        const subtotal = parseFloat('${requestScope.order.totalPrice}') || 0;
+                        const total = subtotal + fee;
+                        const totalRows = document.querySelectorAll('table tbody tr, .order-summary tbody tr');
+                        totalRows.forEach(row => {
+                            const th = row.querySelector('th');
+                            if (th && th.textContent.includes('Tổng thanh toán')) {
+                                const td = row.querySelector('td strong');
+                                if (td) td.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
+                            }
+                        });
+                    }
+
+                    /* ========== Tính lại phí ship khi chọn địa chỉ mới (Cả hai hãng) ========== */
+                    function recalcShipping(city, district, ward) {
+                        const ghnDetail = document.getElementById('ghn-detail-text');
+                        const ghtkDetail = document.getElementById('ghtk-detail-text');
+                        
+                        const ghnFeeDisplay = document.getElementById('ghn-fee-display');
+                        const ghtkFeeDisplay = document.getElementById('ghtk-fee-display');
+                        
+                        const ghnOpt = document.getElementById('carrier-ghn-option');
+                        const ghtkOpt = document.getElementById('carrier-ghtk-option');
+
+                        // Show loading state
+                        if (ghnDetail) { ghnDetail.style.color = '#888'; ghnDetail.textContent = 'Đang tính phí ship GHN...'; }
+                        if (ghtkDetail) { ghtkDetail.style.color = '#888'; ghtkDetail.textContent = 'Đang tính phí ship GHTK...'; }
 
                         const params = new URLSearchParams({
                             city: city,
@@ -569,67 +628,67 @@
                         fetch('${pageContext.request.contextPath}/api/shipping-by-address?' + params.toString())
                         .then(r => r.json())
                         .then(result => {
-                            const feeInput = document.getElementById('shipping_fee_input');
-                            const carrierInput = document.getElementById('shipping_carrier_input');
-                            const totalEl = document.getElementById('display-total');
-
                             if (result.status === 'success') {
-                                const fee = result.fee;
-                                feeInput.value = fee;
-                                carrierInput.value = 'ghn';
+                                const ghn = result.ghn || { status: 'error', message: 'Lỗi' };
+                                const ghtk = result.ghtk || { status: 'error', message: 'Lỗi' };
 
-                                // Cập nhật bảng phí ship
-                                const feeFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fee);
-                                const shipCells = document.querySelectorAll('td.ship-fee-cell');
-                                if (shipCells.length > 0) {
-                                    shipCells.forEach(el => el.innerHTML = feeFormatted);
+                                let ghnFee = 0;
+                                let ghtkFee = 0;
+
+                                // Update GHN
+                                if (ghn.status === 'success') {
+                                    ghnFee = parseFloat(ghn.fee) || 0;
+                                    ghnCalculatedFee = ghnFee;
+                                    if (ghnDetail) { ghnDetail.style.color = '#28a745'; ghnDetail.textContent = 'Nhận hàng nhanh chóng từ đối tác GHN'; }
+                                    if (ghnFeeDisplay) ghnFeeDisplay.innerHTML = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(ghnFee);
+                                    if (ghnOpt) ghnOpt.classList.remove('disabled');
                                 } else {
-                                    // Tìm dòng phí ship trong bảng và update
-                                    const rows = document.querySelectorAll('table tbody tr, .order-summary tbody tr');
-                                    rows.forEach(row => {
-                                        const th = row.querySelector('th');
-                                        if (th && th.textContent.includes('Phí vận chuyển')) {
-                                            const td = row.querySelector('td');
-                                            if (td) td.innerHTML = feeFormatted;
-                                        }
-                                    });
+                                    ghnCalculatedFee = 0;
+                                    if (ghnDetail) { ghnDetail.style.color = '#dc3545'; ghnDetail.textContent = ghn.message || 'Không khả dụng cho tuyến đường này'; }
+                                    if (ghnFeeDisplay) ghnFeeDisplay.innerHTML = '--';
+                                    if (ghnOpt) ghnOpt.classList.add('disabled');
                                 }
 
-                                if (feeDisplay) {
-                                    feeDisplay.style.display = '';
-                                    feeDisplay.innerHTML = feeFormatted;
-                                }
-                                if (carrierSection) {
-                                    carrierSection.style.color = '#28a745';
-                                    carrierSection.textContent = 'Phí ship được tính từ địa chỉ giao hàng của bạn';
+                                // Update GHTK
+                                if (ghtk.status === 'success') {
+                                    ghtkFee = parseFloat(ghtk.fee) || 0;
+                                    ghtkCalculatedFee = ghtkFee;
+                                    if (ghtkDetail) { ghtkDetail.style.color = '#28a745'; ghtkDetail.textContent = 'Tiết kiệm chi phí với đối tác GHTK'; }
+                                    if (ghtkFeeDisplay) ghtkFeeDisplay.innerHTML = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(ghtkFee);
+                                    if (ghtkOpt) ghtkOpt.classList.remove('disabled');
+                                } else {
+                                    ghtkCalculatedFee = 0;
+                                    if (ghtkDetail) { ghtkDetail.style.color = '#dc3545'; ghtkDetail.textContent = ghtk.message || 'Không khả dụng cho tuyến đường này'; }
+                                    if (ghtkFeeDisplay) ghtkFeeDisplay.innerHTML = '--';
+                                    if (ghtkOpt) ghtkOpt.classList.add('disabled');
                                 }
 
-                                // Cập nhật tổng thanh toán
-                                const subtotal = parseFloat('${requestScope.order.totalPrice}') || 0;
-                                const total = subtotal + fee;
-                                const totalRows = document.querySelectorAll('table tbody tr');
-                                totalRows.forEach(row => {
-                                    const th = row.querySelector('th');
-                                    if (th && th.textContent.includes('Tổng thanh toán')) {
-                                        const td = row.querySelector('td strong');
-                                        if (td) td.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
-                                    }
-                                });
-
-                                showToast('success', 'Phí vận chuyển', 'Đã tính được phí ship: ' + feeFormatted);
+                                // Auto select the best available carrier (prefer GHN if both are available)
+                                if (ghnFee > 0) {
+                                    selectCarrier('ghn', ghnFee);
+                                    showToast('success', 'Phí vận chuyển', 'Đã cập nhật phí ship GHN: ' + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(ghnFee));
+                                } else if (ghtkFee > 0) {
+                                    selectCarrier('ghtk', ghtkFee);
+                                    showToast('success', 'Phí vận chuyển', 'Đã cập nhật phí ship GHTK: ' + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(ghtkFee));
+                                } else {
+                                    // Reset inputs
+                                    document.getElementById('shipping_fee_input').value = '0';
+                                    document.getElementById('shipping_carrier_input').value = '';
+                                    if (ghnOpt) ghnOpt.classList.remove('selected');
+                                    if (ghtkOpt) ghtkOpt.classList.remove('selected');
+                                    showToast('warning', 'Phí vận chuyển', 'Không có đơn vị vận chuyển nào khả dụng cho địa chỉ này.');
+                                }
                             } else {
-                                feeInput.value = '0';
-                                carrierInput.value = '';
-                                if (carrierSection) {
-                                    carrierSection.style.color = '#dc3545';
-                                    carrierSection.textContent = result.message || 'Không thể tính phí vận chuyển cho địa chỉ này';
-                                }
-                                showToast('warning', 'Phí vận chuyển', result.message || 'Không thể tính phí ship cho địa chỉ này');
+                                throw new Error(result.message);
                             }
                         })
                         .catch(err => {
                             console.error('Shipping calc error:', err);
-                            showToast('error', 'Lỗi', 'Không thể kết nối dịch vụ vận chuyển');
+                            showToast('error', 'Lỗi', 'Không thể tính phí vận chuyển cho địa chỉ này');
+                            if (ghnDetail) { ghnDetail.style.color = '#dc3545'; ghnDetail.textContent = 'Lỗi tính phí ship'; }
+                            if (ghtkDetail) { ghtkDetail.style.color = '#dc3545'; ghtkDetail.textContent = 'Lỗi tính phí ship'; }
+                            if (ghnOpt) ghnOpt.classList.add('disabled');
+                            if (ghtkOpt) ghtkOpt.classList.add('disabled');
                         });
                     }
 
