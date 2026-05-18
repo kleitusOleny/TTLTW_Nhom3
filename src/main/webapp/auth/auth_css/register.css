@@ -324,3 +324,15 @@ p {
 .modal-overlay.show .modal-content {
     transform: scale(1) translateY(0);
 }
+
+/* Giao diện nút khi chưa cuộn hết */
+#accept-tos-btn:disabled {
+    background-color: #cccccc;
+    color: #888888;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+#accept-tos-btn {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}

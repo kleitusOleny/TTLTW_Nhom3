@@ -51,6 +51,7 @@
                class="${not empty emailError ? 'input-error' : ''}" required>
         <span class="error-msg">${emailError}</span>
         <span class="error-msg">${emailError2}</span>
+        <span class="error-msg">${emailExistError}</span>
         <div class="reminder">
           <div class="remind-item username-remind">
             <input type="checkbox" id="remind-email" name="remind-email" disabled>
@@ -66,6 +67,7 @@
                value="${param.username}"
                class="${not empty usernameError ? 'input-error' : ''}">
         <span class="error-msg">${usernameError}</span>
+        <span class="error-msg">${usernameExistError}</span>
         <div class="reminder">
           <div class="remind-item username-remind">
             <input type="checkbox" id="remind-username" name="remind-username" disabled>
@@ -118,6 +120,7 @@
              value="${param['phone-number']}"
              class="${not empty phoneNumberError ? 'input-error' : ''}" required>
       <span class="error-msg">${phoneNumberError}</span>
+      <span class="error-msg">${phoneNumExistError}</span>
     </div>
     <div class="reminder">
       <div class="remind-item">
@@ -209,7 +212,7 @@
 
       <p style="text-align: right; font-style: italic; margin-top: 20px; font-size: 0.85rem;">* Cập nhật lần cuối: 04/05/2026</p>
     </div>
-    <button type="button" id="accept-tos-btn">Tôi chấp nhận điều khoản trên</button>
+    <button type="button" id="accept-tos-btn" disabled>Tôi chấp nhận điều khoản trên</button>
   </div>
 </div>
 
@@ -220,11 +223,22 @@
   const closeModalBtn = document.getElementById('close-modal');
   const acceptTosBtn = document.getElementById('accept-tos-btn');
 
+  const modalBody = document.querySelector('.modal-body');
+
   licenseCheckbox.addEventListener('click', function(event) {
     if (this.checked) {
       event.preventDefault();
       this.checked = false;
       tosModal.classList.add('show');
+      // check edge-case
+      acceptTosBtn.disabled = modalBody.scrollHeight > modalBody.clientHeight;
+    }
+  });
+
+  // Sự kiện scroll
+  modalBody.addEventListener('scroll', function() {
+    if (this.scrollHeight - this.scrollTop <= this.clientHeight + 2) {
+      acceptTosBtn.disabled = false;
     }
   });
 
@@ -341,6 +355,15 @@
     } else if (!allValid) {
       alert("Vui lòng hoàn thành đúng các yêu cầu (các ô tích) trước khi đăng ký.");
     }
+  });
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', function() {
+    if (emailInput.value) validateEmail();
+    if (usernameInput.value) validateUsername();
+    if (phoneInput.value) validatePhoneNumber();
+    if (birthInput.value) validateBirth();
+    if (passwordInput.value) validatePassword();
   });
 </script>
 <style>

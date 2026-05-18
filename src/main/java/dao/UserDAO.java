@@ -218,4 +218,17 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 .mapTo(Integer.class)
                 .findOnly());
     }
+
+    public boolean isEmailExist(String email){
+        return jdbi.withHandle(handle -> handle.createQuery("select exists (select 1 from users where email =:email)")
+                .bind("email", email).mapTo(Boolean.class).one());
+    }
+    public boolean isUsernameExist(String username){
+        return jdbi.withHandle(handle -> handle.createQuery("select exists (select 1 from users where username =:username)")
+                .bind("username", username).mapTo(Boolean.class).one());
+    }
+    public boolean isPhoneNumExist(String phoneNumber){
+        return jdbi.withHandle(handle -> handle.createQuery("select exists (select 1 from users where phone_number =:phoneNumber)")
+                .bind("phoneNumber", phoneNumber).mapTo(Boolean.class).one());
+    }
 }
