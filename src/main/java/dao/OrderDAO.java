@@ -12,12 +12,12 @@ import java.util.Optional;
 public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     public Order findById(int id) {
-        return jdbi.withHandle(handle -> Objects.requireNonNull(handle
+        return jdbi.withHandle(handle -> handle
                 .createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE id = :id AND is_delete IS NULL")
                 .bind("id", id)
                 .mapToBean(Order.class)
                 .findFirst()
-                .orElse(null)));
+                .orElse(null));
     }
 
     public int createAndReturnId(Order entity) {
@@ -222,12 +222,16 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     @Override
     public Optional<Order> findById(Integer integer) {
-        return Optional.of(jdbi.withHandle(handle -> Objects.requireNonNull(handle
+        if (integer == null || integer <= 0) {
+            return Optional.empty();
+        }
+        Order order = jdbi.withHandle(handle -> handle
                 .createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE id = :id AND is_delete IS NULL")
                 .bind("id", integer)
                 .mapToBean(Order.class)
                 .findFirst()
-                .orElse(null))));
+                .orElse(null));
+        return Optional.ofNullable(order);
     }
 
     @Override

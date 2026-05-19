@@ -20,7 +20,7 @@ public class DiscountService {
         List<Discount> discounts = new ArrayList<>();
         for (UserVoucher uv : userVouchers) {
             discountDAO.findById(uv.getDiscountId()).ifPresent(found -> {
-                if (found.isActive() && found.getQuantity() > 0) {
+                if (found.isActive()) {
                     discounts.add(found);
                 }
             });

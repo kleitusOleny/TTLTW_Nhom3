@@ -5,7 +5,7 @@ import org.jdbi.v3.core.mapper.reflect.ColumnName;
 import java.sql.Timestamp;
 
 public class ShipOrder {
-    @ColumnName("id")
+    @ColumnName("ship_id")
     private int id;
 
     @ColumnName("order_id")

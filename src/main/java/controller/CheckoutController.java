@@ -116,44 +116,30 @@ public class CheckoutController extends HttpServlet {
 
         session.setAttribute("pendingOrder", order);
 
+        List<Discount> availableShipping = discountService.getAvailableShippingDiscounts();
         List<Discount> allUserVouchers = discountService.getUserVouchers(user.getId());
 
-        List<Discount> shippingDiscounts = new ArrayList<>();
+        List<Discount> shippingDiscounts = new ArrayList<>(availableShipping);
         List<Discount> otherVouchers = new ArrayList<>();
 
         for (Discount d : allUserVouchers) {
             if (d.getApplyType() != null && d.getApplyType().toUpperCase().contains("SHIP")) {
-                shippingDiscounts.add(d);
+                boolean exists = false;
+                for (Discount s : shippingDiscounts) {
+                    if (s.getId().equals(d.getId())) {
+                        exists = true;
+                        break;
+                    }
+                }
+                if (!exists) {
+                    shippingDiscounts.add(d);
+                }
             } else {
                 otherVouchers.add(d);
             }
         }
-
-        if (cart.getShippingDiscount() != null) {
-            boolean exists = false;
-            for (Discount d : shippingDiscounts) {
-                if (d.getDiscountCode().equals(cart.getShippingDiscount().getDiscountCode())) {
-                    exists = true;
-                    break;
-                }
-            }
-            if (!exists) {
-                shippingDiscounts.add(cart.getShippingDiscount());
-            }
-        }
-
-        if (cart.getVoucherDiscount() != null) {
-            boolean exists = false;
-            for (Discount d : otherVouchers) {
-                if (d.getDiscountCode().equals(cart.getVoucherDiscount().getDiscountCode())) {
-                    exists = true;
-                    break;
-                }
-            }
-            if (!exists) {
-                otherVouchers.add(cart.getVoucherDiscount());
-            }
-        }
+        System.out.println("SHIPPING DISCOUNTS: " + shippingDiscounts);
+        System.out.println("OTHER VOUCHERS: " + otherVouchers);
 
         request.setAttribute("shippingDiscounts", shippingDiscounts);
         request.setAttribute("userVouchers", otherVouchers);
@@ -336,20 +322,30 @@ public class CheckoutController extends HttpServlet {
             PaymentDAO paymentDAO = new PaymentDAO();
             Payment payment = new Payment();
             payment.setOrderId(orderId);
-            payment.setAmount(order.getTotalPrice() + shippingFee + excessDiscount);
+            payment.setAmount(order.getTotalPrice() + actualShippingFee);
             payment.setPaidAt(new Timestamp(System.currentTimeMillis()));
 
-            if ("ewallet".equals(paymentMethod)) {
-                payment.setPayStrategy("VNPay");
+            if ("ewallet".equals(paymentMethod) || "momo".equals(paymentMethod) || "paypal".equals(paymentMethod)) {
+                String strategy = "VNPay";
+                String trackingPrefix = "VNPAY";
+                if ("momo".equals(paymentMethod)) {
+                    strategy = "MoMo";
+                    trackingPrefix = "MOMO";
+                } else if ("paypal".equals(paymentMethod)) {
+                    strategy = "PayPal";
+                    trackingPrefix = "PAYPAL";
+                }
+
+                payment.setPayStrategy(strategy);
                 payment.setStatus("Pending");
                 paymentDAO.save(payment);
 
-                // Tạo ship order cho VNPay (đã trừ tồn kho)
+                // Tạo ship order cho VNPay/MoMo/PayPal (đã trừ tồn kho)
                 ShipOrderDAO shipOrderDAO = new ShipOrderDAO();
                 ShipOrder shipOrder = new ShipOrder();
                 shipOrder.setOrderId(orderId);
                 shipOrder.setCarrierName(carrierName);
-                shipOrder.setTrackingNumber("VNPAY" + System.currentTimeMillis());
+                shipOrder.setTrackingNumber(trackingPrefix + System.currentTimeMillis());
                 shipOrder.setShippingFee(actualShippingFee);
                 shipOrder.setStatus("Chờ thanh toán");
                 shipOrder.setEstimatedDeliveryDate(
@@ -364,10 +360,15 @@ public class CheckoutController extends HttpServlet {
                 session.removeAttribute("pendingOrder");
                 session.removeAttribute("checkoutType");
 
-                // Xử lý voucher/discount
                 handleDiscountsAfterOrder(order, user);
 
-                response.sendRedirect("payment?orderId=" + orderId);
+                if ("ewallet".equals(paymentMethod)) {
+                    response.sendRedirect("payment?orderId=" + orderId);
+                } else if ("momo".equals(paymentMethod)) {
+                    response.sendRedirect("momoPayment?orderId=" + orderId);
+                } else {
+                    response.sendRedirect("paypalPayment?orderId=" + orderId);
+                }
             } else {
                 payment.setPayStrategy("COD");
                 payment.setStatus("Pending");
@@ -392,7 +393,6 @@ public class CheckoutController extends HttpServlet {
                 session.removeAttribute("pendingOrder");
                 session.removeAttribute("checkoutType");
 
-                // Xử lý voucher/discount
                 handleDiscountsAfterOrder(order, user);
 
                 response.sendRedirect("order-success?orderId=" + orderId);
