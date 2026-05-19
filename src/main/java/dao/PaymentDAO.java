@@ -91,6 +91,35 @@ public class PaymentDAO extends ADAO implements IDAO<Payment, Integer> {
         return false;
     }
 
+    public List<Payment> findPendingVnPayPayments(int hoursThreshold) {
+        return jdbi.withHandle(handle -> handle.createQuery("""
+                SELECT id, order_id, pay_strategy, status, amount, paid_at 
+                FROM payments 
+                WHERE pay_strategy = 'VNPay' 
+                AND status = 'Pending' 
+                AND paid_at <= DATE_SUB(NOW(), INTERVAL :hours HOUR)
+                """)
+                .bind("hours", hoursThreshold)
+                .mapToBean(Payment.class)
+                .list());
+    }
+
+    public boolean updateStatus(int paymentId, String status) {
+        return jdbi.withHandle(handle -> handle.createUpdate(
+                "UPDATE payments SET status = :status WHERE id = :id")
+                .bind("status", status)
+                .bind("id", paymentId)
+                .execute() > 0);
+    }
+    
+    public boolean updateStatusByOrderId(int orderId, String status) {
+        return jdbi.withHandle(handle -> handle.createUpdate(
+                "UPDATE payments SET status = :status WHERE order_id = :orderId")
+                .bind("status", status)
+                .bind("orderId", orderId)
+                .execute() > 0);
+    }
+
     @Override
     public boolean existsById(Integer integer) {
         return findById(integer).isPresent();
