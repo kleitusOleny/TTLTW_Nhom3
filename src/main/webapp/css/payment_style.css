@@ -1243,22 +1243,20 @@ dialog iframe {
     display: none;
     padding: 20px;
     background-color: #fff;
-    animation: slideDown 0.3s ease-out;
+    animation: fadeIn 0.2s ease-out;
 }
 
 .discount-content.show {
     display: block;
 }
 
-@keyframes slideDown {
+@keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(-10px);
     }
 
     to {
         opacity: 1;
-        transform: translateY(0);
     }
 }
 
