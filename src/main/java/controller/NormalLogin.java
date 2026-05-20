@@ -9,16 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import services.AuthServices;
-import services.UserService;
 import services.UserValidationServices;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @WebServlet(name = "NormalLogin", value = "/login")
 public class NormalLogin extends HttpServlet {
+    UserValidationServices userValidationServices = new UserValidationServices();
+    AuthServices authServices = new AuthServices();
     private static final Logger log = LoggerFactory.getLogger(NormalLogin.class);
 
     @Override
@@ -30,20 +30,12 @@ public class NormalLogin extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        UserValidationServices userValidationServices = new UserValidationServices();
-        UserService userService = new UserService();
 
-        // Setup MDC
-        String clientIp = userService.getClientIp(request);
-        String traceId = UUID.randomUUID().toString().substring(0, 4);
-
-        MDC.put("client_ip", clientIp);
-        MDC.put("trace_id", traceId);
-
+        authServices.baseSetupMdc(request, "searching for email that doesn't exist");
         try {
             String username = request.getParameter("username");
             String pass = request.getParameter("password");
-            log.info("Xử lí người dùng: {}", username);
+
             Map<String, String> allErrors = new HashMap<>(
                     userValidationServices.validateBothUsernameAndEmail(username, pass));
 
@@ -51,9 +43,17 @@ public class NormalLogin extends HttpServlet {
             AuthServices authService = new AuthServices();
             if (allErrors.isEmpty()) {
                 account = authService.login(username, pass);
+                String emailOrUsername;
+                if (username.contains("@")) {
+                    emailOrUsername = username;
+                } else {
+                    emailOrUsername = username + "(username)";
+                }
+                MDC.put("email", emailOrUsername);
+                log.info("Xử lí người dùng");
                 if (account != null) {
                     if (account.getActive() == 1) {
-                        log.info("Đăng nhập thành công: {}", username);
+                        log.info("Đăng nhập thành công");
                         HttpSession oldSession = request.getSession(false);
                         Cart cart = null;
                         Cart buyNowCart = null;
@@ -96,18 +96,18 @@ public class NormalLogin extends HttpServlet {
                             response.sendRedirect(request.getContextPath() + "/home?loginSuccess=1");
                         }
                     } else {
-                        log.warn("Đăng nhập thất bại: Tài khoản bị khoá (username: {})", username);
+                        log.warn("Đăng nhập thất bại: Tài khoản bị khoá");
                         request.setAttribute("loginError",
                                 "Tài khoản của bạn đã bị khoá, vui lòng liên hệ Admin để giải quyết");
                         request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
                     }
                 } else {
-                    log.warn("Đăng nhập thất bại: Sai thông tin đăng nhập (username: {})", username);
+                    log.warn("Đăng nhập thất bại: Sai thông tin đăng nhập");
                     request.setAttribute("loginError", "Bạn đã nhập sai tên tài khoản hoặc mật khẩu");
                     request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
                 }
             } else {
-                log.info("Đăng nhập thất bại do lỗi validate form cho user: {}", username);
+                log.info("Đăng nhập thất bại do lỗi validate form cho user");
                 allErrors.forEach(request::setAttribute);
                 request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
             }
