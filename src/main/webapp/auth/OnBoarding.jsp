@@ -64,6 +64,7 @@
              value="${param['phone-number']}"
              class="${not empty phoneNumberError ? 'input-error' : ''}" required>
       <span class="error-msg">${phoneNumberError}</span>
+      <span class="error-msg">${phoneNumExistError}</span>
     </div>
     <div class="birth form-group">
       <label for="birth">Chọn Ngày Sinh *</label>
