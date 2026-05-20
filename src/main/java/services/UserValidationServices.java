@@ -64,11 +64,16 @@ public class UserValidationServices {
         Map<String, String> errors = new HashMap<>();
         if (username != null) {
             username = username.trim();
-            if (!username.isEmpty()) {
-                if (username.length() < 4 || username.length() > 30) {
-                    errors.put("usernameError", "Tên tài khoản quá ngắn hoặc quá dài");
-                }
+            // Kiểm tra độ dài
+            if (username.length() < 4 || username.length() > 30) {
+                    errors.put("usernameError", "Tên tài khoản quá ngắn hoặc quá dài (từ 4 - 30 ký tự)");
             }
+            // Kiểm tra ký tự đặc biệt, dấu tiếng Việt và khoảng trắng
+            if (!username.matches("^[a-zA-Z0-9_-]+$")) {
+                errors.put("usernameFormatError", "Tên tài khoản chỉ được chứa chữ cái không dấu, chữ số, dấu '_' hoặc '-' và không có khoảng trắng");
+            }
+        } else {
+            errors.put("usernameNull", "Tên tài khoản không hợp lệ");
         }
         return errors;
     }

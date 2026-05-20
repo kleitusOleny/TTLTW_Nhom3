@@ -67,6 +67,8 @@
                value="${param.username}"
                class="${not empty usernameError ? 'input-error' : ''}">
         <span class="error-msg">${usernameError}</span>
+        <span class="error-msg">${usernameNull}</span>
+        <span class="error-msg">${usernameFormatError}</span>
         <span class="error-msg">${usernameExistError}</span>
         <div class="reminder">
           <div class="remind-item username-remind">

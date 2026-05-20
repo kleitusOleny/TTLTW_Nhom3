@@ -47,6 +47,9 @@
              value="${param.username}"
              class="${not empty usernameError ? 'input-error' : ''}">
       <span class="error-msg">${usernameError}</span>
+      <span class="error-msg">${usernameExistError}</span>
+      <span class="error-msg">${usernameFormatError}</span>
+      <span class="error-msg">${usernameNull}</span>
       <div class="reminder">
         <div class="remind-item username-remind">
           <input type="checkbox" id="remind-username" name="remind-username" disabled>
