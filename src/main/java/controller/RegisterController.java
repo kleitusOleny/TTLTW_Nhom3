@@ -30,7 +30,9 @@ public class RegisterController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String email = request.getParameter("email");
+        String emailInput = request.getParameter("email");
+        String email = emailInput.toLowerCase();
+
         String lastname = request.getParameter("lastname");
         String firstname = request.getParameter("firstname");
         String username = request.getParameter("username");

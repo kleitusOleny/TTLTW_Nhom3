@@ -75,6 +75,10 @@
             <input type="checkbox" id="remind-username" name="remind-username" disabled>
             <label for="remind-username">Tên tài khoản phải từ 4-30 kí tự</label>
           </div>
+          <div class="remind-item username-remind">
+            <input type="checkbox" id="remind-username-specialCharacters" name="remind-username-specialCharacters" disabled>
+            <label for="remind-username-specialCharacters">Tên tài khoản không bao gồm kí tự đặc biệt</label>
+          </div>
         </div>
       </div>
     </div>
@@ -275,12 +279,13 @@
   const remindUppercase = document.getElementById('remind-uppercase');
   const remindSpecial = document.getElementById('remind-special');
   const remindUsernameLength = document.getElementById('remind-username');
+  const remindUsernameSpecialCharacters = document.getElementById('remind-username-specialCharacters');
   const remindConfirm = document.getElementById('remind-confirm');
   const remindEmail = document.getElementById('remind-email');
   const remindPhoneNumber = document.getElementById('remind-phone');
   const remindBirth = document.getElementById('remind-birth');
 
-  const listFields = ['#email, #username, #password, #confirm-password, #phone-number, #birth'];
+  const listFields = ['#email', '#username', '#password', '#confirm-password', '#phone-number', 'birth'];
   preventspace(listFields)
 
   function validateBirth() {
@@ -330,9 +335,18 @@
     const usernameValue = usernameInput.value;
     remindUsernameLength.checked = usernameValue.length >= 4 && usernameValue.length <= 30;
   }
+
+  function validateUsernameSpecialCharacters() {
+    const usernameValue = usernameInput.value;
+    remindUsernameSpecialCharacters.checked = !/[^a-zA-Z0-9_-]/.test(usernameValue) && usernameValue.length > 0;
+  }
+
   passwordInput.addEventListener('input', validatePassword);
   confirmInput.addEventListener('input', validateConfirm);
-  usernameInput.addEventListener('input', validateUsername);
+  usernameInput.addEventListener('input', () => {
+    validateUsername(); // kiểm tra độ dài
+    validateUsernameSpecialCharacters();
+  });
   emailInput.addEventListener('input', validateEmail);
   phoneInput.addEventListener('input', validatePhoneNumber);
   birthInput.addEventListener('input', validateBirth);
@@ -343,7 +357,7 @@
     const ageChecked = document.getElementById('age-confirm').checked;
     const licenseChecked = document.getElementById('license-confirm').checked;
     const allValid = remindEmail.checked &&
-            (usernameInput.value.length === 0 || remindUsernameLength.checked) &&
+            (usernameInput.value.length === 0 || remindUsernameLength.checked && remindUsernameSpecialCharacters.checked) &&
             remindWords.checked &&
             remindUppercase.checked &&
             remindSpecial.checked &&
@@ -362,7 +376,10 @@
 <script>
   window.addEventListener('DOMContentLoaded', function() {
     if (emailInput.value) validateEmail();
-    if (usernameInput.value) validateUsername();
+    if (usernameInput.value) {
+      validateUsernameLength();
+      validateUsernameSpecialCharacters();
+    }
     if (phoneInput.value) validatePhoneNumber();
     if (birthInput.value) validateBirth();
     if (passwordInput.value) validatePassword();

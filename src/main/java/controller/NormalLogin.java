@@ -45,12 +45,11 @@ public class NormalLogin extends HttpServlet {
                 account = authService.login(username, pass);
                 String emailOrUsername;
                 if (username.contains("@")) {
-                    emailOrUsername = username;
+                    emailOrUsername = username.toLowerCase();
                 } else {
                     emailOrUsername = username + "(username)";
                 }
                 MDC.put("email", emailOrUsername);
-                log.info("Xử lí người dùng");
                 if (account != null) {
                     if (account.getActive() == 1) {
                         log.info("Đăng nhập thành công");
