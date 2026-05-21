@@ -7,11 +7,25 @@ import java.util.List;
 
 public class ProductService {
     private static List<Product> lst = new ProductDAO().getProducts();
+    private final ProductDAO productDAO = new ProductDAO();
+
     public Product getProduct(String productId) {
         for (Product product:lst){
             if (product.getId().equals(productId)) return product;
         }
         return null;
+    }
+
+    public int getQuantity(String productId) {
+        return productDAO.getQuantity(productId);
+    }
+
+    public boolean updateQuantity(String productId, int quantity) {
+        return productDAO.updateQuantity(productId, quantity);
+    }
+
+    public Product getProductById(String id) {
+        return productDAO.getProductById(id);
     }
     
     public static int countTotalProducts() {

@@ -133,13 +133,13 @@
                     <div class="order-summary">
                         <h2>ĐƠN HÀNG CỦA BẠN</h2>
                         <div class="discount-section">
-                            <div class="discount-toggle" id="discount-toggle-btn">
+                            <div class="discount-toggle active" id="discount-toggle-btn">
                                 <h3><i class="fas fa-tags" style="margin-right: 10px; color: #8c3333;"></i>Mã giảm giá
                                 </h3>
                                 <i class="fas fa-chevron-down"></i>
                             </div>
 
-                            <div class="discount-content" id="discount-content-area">
+                            <div class="discount-content show" id="discount-content-area">
                                 <!-- Shipping Discount -->
                                 <div class="discount-group">
                                     <label for="shipping-discount-select"><i class="fas fa-truck"
@@ -230,6 +230,28 @@
                                 </div>
                             </div>
                         </div>
+
+                        <c:set var="actualShippingDiscount" value="0" />
+                        <c:if test="${not empty requestScope.currentCart.shippingDiscount && requestScope.shippingFee > 0}">
+                            <c:set var="actualShippingDiscount" value="${requestScope.currentCart.shippingDiscount.discountValue > requestScope.shippingFee ? requestScope.shippingFee : requestScope.currentCart.shippingDiscount.discountValue}" />
+                        </c:if>
+
+                        <c:set var="actualVoucherDiscount" value="0" />
+                        <c:if test="${not empty requestScope.currentCart.voucherDiscount}">
+                            <c:choose>
+                                <c:when test="${fn:toUpperCase(requestScope.currentCart.voucherDiscount.discountType) == 'PERCENT'}">
+                                    <c:set var="actualVoucherDiscount" value="${requestScope.currentCart.subtotal * (requestScope.currentCart.voucherDiscount.discountValue / 100.0)}" />
+                                </c:when>
+                                <c:otherwise>
+                                    <c:set var="actualVoucherDiscount" value="${requestScope.currentCart.voucherDiscount.discountValue}" />
+                                </c:otherwise>
+                            </c:choose>
+                        </c:if>
+
+                        <c:set var="actualLoyaltyDiscount" value="${requestScope.currentCart.loyaltyDiscountAmount}" />
+                        <c:set var="cappedDiscountAmount" value="${actualLoyaltyDiscount + actualVoucherDiscount + actualShippingDiscount}" />
+                        <c:set var="grandTotal" value="${requestScope.currentCart.subtotal - cappedDiscountAmount + (requestScope.shippingFee > 0 ? requestScope.shippingFee : 0)}" />
+
                         <table>
                             <tbody>
                                 <tr>
@@ -239,14 +261,7 @@
                                 <tr>
                                     <th>Tổng phụ</th>
                                     <td>
-                                        <fmt:formatNumber value="${requestScope.order.totalPrice}" type="currency"
-                                            currencySymbol="₫" maxFractionDigits="0" />
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th>Khuyến mãi</th>
-                                    <td>-
-                                        <fmt:formatNumber value="${requestScope.discountAmount}" type="currency"
+                                        <fmt:formatNumber value="${requestScope.currentCart.subtotal}" type="currency"
                                             currencySymbol="₫" maxFractionDigits="0" />
                                     </td>
                                 </tr>
@@ -255,8 +270,19 @@
                                     <td id="summary-shipping-fee">
                                         <c:choose>
                                             <c:when test="${requestScope.shippingFee > 0}">
-                                                <fmt:formatNumber value="${requestScope.shippingFee}" type="currency"
-                                                    currencySymbol="₫" maxFractionDigits="0" />
+                                                <c:choose>
+                                                    <c:when test="${not empty requestScope.currentCart.shippingDiscount && requestScope.currentCart.shippingDiscount.discountValue >= requestScope.shippingFee}">
+                                                        <span style="text-decoration: line-through; color: #888; margin-right: 8px;">
+                                                            <fmt:formatNumber value="${requestScope.shippingFee}" type="currency"
+                                                                currencySymbol="₫" maxFractionDigits="0" />
+                                                        </span>
+                                                        <span style="color: #28a745; font-weight: bold;">Miễn phí</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <fmt:formatNumber value="${requestScope.shippingFee}" type="currency"
+                                                            currencySymbol="₫" maxFractionDigits="0" />
+                                                    </c:otherwise>
+                                                </c:choose>
                                             </c:when>
                                             <c:when test="${not empty requestScope.shippingError}">
                                                 <span style="color:#dc3545;font-size:13px;">${requestScope.shippingError}</span>
@@ -267,11 +293,51 @@
                                         </c:choose>
                                     </td>
                                 </tr>
+                                <c:choose>
+                                    <c:when test="${cappedDiscountAmount > 0}">
+                                        <c:if test="${actualLoyaltyDiscount > 0}">
+                                            <tr style="font-size: 13px; color: #666; font-style: italic;">
+                                                <th style="font-weight: normal; padding-left: 15px;">• Thành viên thân thiết</th>
+                                                <td>-
+                                                    <fmt:formatNumber value="${actualLoyaltyDiscount}" type="currency"
+                                                                      currencySymbol="₫" maxFractionDigits="0" />
+                                                </td>
+                                            </tr>
+                                        </c:if>
+                                        <c:if test="${actualVoucherDiscount > 0}">
+                                            <tr style="font-size: 13px; color: #666; font-style: italic;">
+                                                <th style="font-weight: normal; padding-left: 15px;">• Voucher (${requestScope.currentCart.voucherDiscount.discountCode})</th>
+                                                <td>-
+                                                    <fmt:formatNumber value="${actualVoucherDiscount}" type="currency"
+                                                                      currencySymbol="₫" maxFractionDigits="0" />
+                                                </td>
+                                            </tr>
+                                        </c:if>
+                                        <tr style="font-weight: 600; border-top: 1px dashed #eee;">
+                                            <th>Khuyến mãi</th>
+                                            <td id="summary-total-discount-value">-
+                                                <fmt:formatNumber value="${cappedDiscountAmount}" type="currency"
+                                                                  currencySymbol="₫" maxFractionDigits="0" />
+                                            </td>
+                                        </tr>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <tr>
+                                            <th>Khuyến mãi</th>
+                                            <td id="summary-total-discount-value">
+                                                <fmt:formatNumber value="0" type="currency"
+                                                                  currencySymbol="₫" maxFractionDigits="0" />
+                                            </td>
+                                        </tr>
+                                    </c:otherwise>
+                                </c:choose>
                                 <tr>
                                     <th>Tổng thanh toán</th>
                                     <td><strong>
-                                            <fmt:formatNumber value="${requestScope.order.totalPrice + requestScope.shippingFee}" type="currency"
-                                                currencySymbol="₫" maxFractionDigits="0" />
+                                            <span id="summary-grand-total">
+                                                <fmt:formatNumber value="${grandTotal < 0 ? 0 : grandTotal}" type="currency"
+                                                    currencySymbol="₫" maxFractionDigits="0" />
+                                            </span>
                                         </strong></td>
                                 </tr>
                             </tbody>
@@ -390,6 +456,30 @@
                                         </div>
                                     </label>
                                 </div>
+                                <div class="payment-option" data-value="momo">
+                                    <input type="radio" id="momo" name="payment_method" value="momo">
+                                    <label for="momo">
+                                        <div class="payment-icon" style="background:#e11b74; color:#fff; display:flex; align-items:center; justify-content:center; border-radius:50%; width:32px; height:32px; margin-top:2px;">
+                                            <span style="font-weight:900; font-size:14px; font-family:'Outfit', sans-serif;">m</span>
+                                        </div>
+                                        <div class="payment-info">
+                                            <div class="payment-name">Ví điện tử MoMo</div>
+                                            <div class="payment-desc">Thanh toán nhanh chóng qua MoMo Sandbox</div>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div class="payment-option" data-value="paypal">
+                                    <input type="radio" id="paypal" name="payment_method" value="paypal">
+                                    <label for="paypal">
+                                        <div class="payment-icon" style="background:#003087; color:#fff; display:flex; align-items:center; justify-content:center; border-radius:50%; width:32px; height:32px; margin-top:2px;">
+                                            <i class="fab fa-paypal" style="font-size:14px;"></i>
+                                        </div>
+                                        <div class="payment-info">
+                                            <div class="payment-name">Cổng thanh toán PayPal</div>
+                                            <div class="payment-desc">Thanh toán quốc tế an toàn qua PayPal Sandbox</div>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                         <c:choose>
@@ -463,13 +553,46 @@
 
                         const ageVerifyCheckbox = document.getElementById('age-verify');
                         const placeOrderBtn = document.getElementById('place-order-btn');
+
+                        if (placeOrderBtn) {
+                            placeOrderBtn.addEventListener('click', function (e) {
+                                e.preventDefault();
+
+                                const addressCheck = document.getElementById('display-address');
+                                if (!addressCheck) {
+                                    showToast('error', 'Lỗi đặt hàng', 'Vui lòng cập nhật địa chỉ giao hàng trước khi đặt hàng.');
+                                    return;
+                                }
+
+                                const selectedCarrier = document.getElementById('shipping_carrier_input').value;
+                                if (!selectedCarrier) {
+                                    showToast('error', 'Lỗi đặt hàng', 'Vui lòng chọn đơn vị giao hàng để tiếp tục.');
+                                    return;
+                                }
+
+                                const paymentMethodOption = document.querySelector('input[name="payment_method"]:checked');
+                                if (!paymentMethodOption) {
+                                    showToast('error', 'Lỗi đặt hàng', 'Vui lòng chọn phương thức thanh toán.');
+                                    return;
+                                }
+
+                                if (ageVerifyCheckbox && !ageVerifyCheckbox.checked) {
+                                    showToast('warning', 'Xác nhận độ tuổi', 'Vui lòng xác nhận bạn đã đủ tuổi hợp pháp để mua sản phẩm này.');
+                                    return;
+                                }
+
+                                // Submit the form!
+                                document.getElementById('checkoutForm').submit();
+                            });
+                        }
                         const selectedPaymentDisplay = document.querySelector('.selected-payment-display');
                         const paymentOptionsList = document.querySelector('.payment-options-list');
                         const paymentOptions = document.querySelectorAll('.payment-option');
 
                         const paymentNames = {
                             'cod': 'Thanh toán khi nhận hàng',
-                            'ewallet': 'Ví điện tử (VNPay)'
+                            'ewallet': 'Ví điện tử (VNPay)',
+                            'momo': 'Ví điện tử MoMo'
                         };
 
                         const savedPaymentMethod = sessionStorage.getItem('selectedPaymentMethod');
@@ -586,21 +709,48 @@
                         if (labelEl) labelEl.textContent = '(' + carrier.toUpperCase() + ')';
 
                         // Update summary shipping fee cell
-                        const feeFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fee);
                         const feeCell = document.getElementById('summary-shipping-fee');
-                        if (feeCell) feeCell.innerHTML = feeFormatted;
+                        if (feeCell) {
+                            const shippingDiscountValue = parseFloat('${requestScope.currentCart.shippingDiscount.discountValue}') || 0;
+                            if (shippingDiscountValue >= fee && fee > 0) {
+                                const originalFeeFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fee);
+                                feeCell.innerHTML = `<span style="text-decoration: line-through; color: #888; margin-right: 8px;">${originalFeeFormatted}</span><span style="color: #28a745; font-weight: bold;">Miễn phí</span>`;
+                            } else {
+                                const feeFormatted = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(fee);
+                                feeCell.innerHTML = feeFormatted;
+                            }
+                        }
 
                         // Recalculate and update Grand Total
-                        const subtotal = parseFloat('${requestScope.order.totalPrice}') || 0;
-                        const total = subtotal + fee;
-                        const totalRows = document.querySelectorAll('table tbody tr, .order-summary tbody tr');
-                        totalRows.forEach(row => {
-                            const th = row.querySelector('th');
-                            if (th && th.textContent.includes('Tổng thanh toán')) {
-                                const td = row.querySelector('td strong');
-                                if (td) td.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(total);
-                            }
-                        });
+                        const subtotal = parseFloat('${requestScope.currentCart.subtotal}') || 0;
+                        const loyaltyDiscount = parseFloat('${actualLoyaltyDiscount}') || 0;
+                        const voucherDiscount = parseFloat('${actualVoucherDiscount}') || 0;
+                        const shippingDiscountValue = parseFloat('${requestScope.currentCart.shippingDiscount.discountValue}') || 0;
+
+                        // Cap shipping discount by the selected carrier fee
+                        let actualShippingDiscount = 0;
+                        if (shippingDiscountValue > 0 && fee > 0) {
+                            actualShippingDiscount = Math.min(shippingDiscountValue, fee);
+                        }
+
+                        const cappedDiscountAmount = loyaltyDiscount + voucherDiscount + actualShippingDiscount;
+                        const grandTotal = Math.max(0, subtotal - cappedDiscountAmount + fee);
+
+                        // Update dynamic values in UI cells
+                        const shipDiscountCell = document.getElementById('summary-shipping-discount-value');
+                        if (shipDiscountCell) {
+                            shipDiscountCell.textContent = '-' + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(actualShippingDiscount);
+                        }
+
+                        const totalDiscountCell = document.getElementById('summary-total-discount-value');
+                        if (totalDiscountCell) {
+                            totalDiscountCell.textContent = '-' + new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(cappedDiscountAmount);
+                        }
+
+                        const grandTotalEl = document.getElementById('summary-grand-total');
+                        if (grandTotalEl) {
+                            grandTotalEl.textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(grandTotal);
+                        }
                     }
 
                     /* ========== Tính lại phí ship khi chọn địa chỉ mới (Cả hai hãng) ========== */

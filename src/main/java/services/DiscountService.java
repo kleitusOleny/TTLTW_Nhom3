@@ -6,6 +6,7 @@ import model.Cart;
 import model.Discount;
 import model.UserVoucher;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +20,7 @@ public class DiscountService {
         List<Discount> discounts = new ArrayList<>();
         for (UserVoucher uv : userVouchers) {
             discountDAO.findById(uv.getDiscountId()).ifPresent(found -> {
-                if (found.isActive() && found.getQuantity() > 0) {
+                if (found.isActive()) {
                     discounts.add(found);
                 }
             });
@@ -82,5 +83,43 @@ public class DiscountService {
             return true;
         }
         return false;
+    }
+
+    public double calculateLoyaltyDiscount(int userId, double subtotal) {
+        dao.OrderDAO orderDAO = new dao.OrderDAO();
+        int completedOrders = orderDAO.countOrdersOfUser(userId);
+        if (completedOrders >= 15) {
+            double discount = subtotal * 0.05;
+            return Math.min(discount, 100000.0);
+        }
+        return 0.0;
+    }
+
+    public Discount getOrCreateLoyaltyDiscount() {
+        Discount d = discountDAO.findActiveByCode("LOYALTY");
+        if (d == null) {
+            d = new Discount();
+            d.setDiscountCode("LOYALTY");
+            d.setDiscountType("PERCENT");
+            d.setDiscountValue(10.0);
+            d.setApplyType("loyalty");
+            d.setActive(true);
+            d.setQuantity(999999);
+            d.setDiscountFrom(new Timestamp(0));
+            d.setDiscountTo(new Timestamp(System.currentTimeMillis() + 100L * 365 * 24 * 60 * 60 * 1000));
+            d.setCreateAt(new Timestamp(System.currentTimeMillis()));
+            d.setUpdateAt(new Timestamp(System.currentTimeMillis()));
+            d.setIsDelete(false);
+            d = discountDAO.save(d);
+        }
+        return d;
+    }
+    public void updateQuantity(String code,int quantity){
+        Discount d = discountDAO.findActiveByCode(code);
+        if (d != null) {
+            d.setQuantity(d.getQuantity()-1);
+            d.setUpdateAt(new Timestamp(System.currentTimeMillis()));
+            discountDAO.save(d);
+        }
     }
 }

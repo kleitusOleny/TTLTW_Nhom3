@@ -34,7 +34,6 @@ public class DistrictController extends HttpServlet {
             districts = districtService.getDistrictsByProvince(provinceIdParam);
         }
         
-        // Fallback to name if ID returns nothing
         if (districts.isEmpty() && provinceNameParam != null && !provinceNameParam.isEmpty()) {
             districts = districtService.getDistrictsByProvinceName(provinceNameParam);
         }

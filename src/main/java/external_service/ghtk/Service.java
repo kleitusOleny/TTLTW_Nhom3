@@ -21,10 +21,6 @@ public class Service {
 
         try {
 
-            /*
-             * API URL
-             */
-
             String api = Config.BASE_URL
 
                     + "/services/shipment/fee"
@@ -39,10 +35,6 @@ public class Service {
 
                     + "&weight=" + weight;
 
-            /*
-             * CALL API
-             */
-
             String response = HttpUtil.sendGet(api, Config.TOKEN);
 
             System.out.println("[GHTK RESPONSE] " + response);
@@ -50,10 +42,6 @@ public class Service {
             Gson gson = new Gson();
 
             JsonObject json = gson.fromJson(response, JsonObject.class);
-
-            /*
-             * CHECK SUCCESS
-             */
 
             boolean success = json.has("success") && json.get("success").getAsBoolean();
 
@@ -65,11 +53,6 @@ public class Service {
 
                 return result;
             }
-
-            /*
-             * GET FEE
-             */
-
             JsonObject fee = json.getAsJsonObject("fee");
 
             int totalFee = fee.get("fee").getAsInt();
@@ -92,16 +75,12 @@ public class Service {
         return result;
     }
 
-    public static Map<String, Object> calculateFeeByAddress(
-            String provinceName, String districtName, int weight
-    ) {
+    public static Map<String, Object> calculateFeeByAddress(String provinceName, String districtName, int weight) {
         String cleanProvince = provinceName;
         String cleanDistrict = districtName;
         try {
             Gson gson = new Gson();
-            String provResponse = HttpUtil.sendPost(
-                    external_service.ghn.Config.BASE_URL + "/master-data/province",
-                    external_service.ghn.Config.TOKEN, "{}");
+            String provResponse = HttpUtil.sendPost(external_service.ghn.Config.BASE_URL + "/master-data/province", external_service.ghn.Config.TOKEN, "{}");
             JsonObject provJson = gson.fromJson(provResponse, JsonObject.class);
             com.google.gson.JsonArray provinces = external_service.ghn.Service.safeGetArray(provJson, "data");
 
@@ -128,10 +107,7 @@ public class Service {
             }
 
             if (provinceId != -1) {
-                String distResponse = HttpUtil.sendPost(
-                        external_service.ghn.Config.BASE_URL + "/master-data/district",
-                        external_service.ghn.Config.TOKEN,
-                        "{\"province_id\":" + provinceId + "}");
+                String distResponse = HttpUtil.sendPost(external_service.ghn.Config.BASE_URL + "/master-data/district", external_service.ghn.Config.TOKEN, "{\"province_id\":" + provinceId + "}");
                 JsonObject distJson = gson.fromJson(distResponse, JsonObject.class);
                 com.google.gson.JsonArray districts = external_service.ghn.Service.safeGetArray(distJson, "data");
 
@@ -151,12 +127,6 @@ public class Service {
 
         return calculateFee(cleanProvince, cleanDistrict, weight);
     }
-
-    /*
-     * =====================================================
-     * URL ENCODE
-     * =====================================================
-     */
 
     private static String encode(String value) {
 

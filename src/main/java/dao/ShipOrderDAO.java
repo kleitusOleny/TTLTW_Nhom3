@@ -12,7 +12,7 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder, Integer> {
     public List<ShipOrder> search(String keyword) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("""
-                                SELECT ship_id, order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date FROM ship_orders
+                                SELECT ship_id AS id, order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date FROM ship_orders
                                 WHERE carrier_name LIKE :kw
                                 OR tracking_number LIKE :kw
                                 OR status LIKE :kw
@@ -26,11 +26,11 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder, Integer> {
 
     public ShipOrder getByOrderId(int orderId) {
         return jdbi.withHandle(handle ->
-                Objects.requireNonNull(handle.createQuery("SELECT ship_id, order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date FROM ship_orders WHERE order_id = :oid")
+                handle.createQuery("SELECT ship_id AS id, order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date FROM ship_orders WHERE order_id = :oid")
                         .bind("oid", orderId)
                         .mapToBean(ShipOrder.class)
                         .findFirst()
-                        .orElse(null))
+                        .orElse(null)
         );
     }
 
@@ -48,19 +48,22 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder, Integer> {
     }
 
     public ShipOrder findByTracking(String trackingNumber) {
+        if (trackingNumber == null || trackingNumber.trim().isEmpty()) {
+            return null;
+        }
         return jdbi.withHandle(handle ->
-                Objects.requireNonNull(handle.createQuery("SELECT ship_id, order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date FROM ship_orders WHERE tracking_number = :tn")
+                handle.createQuery("SELECT ship_id AS id, order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date FROM ship_orders WHERE tracking_number = :tn")
                         .bind("tn", trackingNumber)
                         .mapToBean(ShipOrder.class)
                         .findFirst()
-                        .orElse(null))
+                        .orElse(null)
         );
     }
 
     @Override
     public List<ShipOrder> findAll() {
         return jdbi.withHandle(handle ->
-                handle.createQuery("SELECT ship_id, order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date FROM ship_orders")
+                handle.createQuery("SELECT ship_id AS id, order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date FROM ship_orders")
                         .mapToBean(ShipOrder.class)
                         .list()
         );
@@ -68,13 +71,17 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder, Integer> {
 
     @Override
     public Optional<ShipOrder> findById(Integer integer) {
-        return Optional.of(jdbi.withHandle(handle ->
-                Objects.requireNonNull(handle.createQuery("SELECT ship_id, order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date FROM ship_orders WHERE id = :id")
+        if (integer == null || integer <= 0) {
+            return Optional.empty();
+        }
+        ShipOrder shipOrder = jdbi.withHandle(handle ->
+                handle.createQuery("SELECT ship_id AS id, order_id, carrier_name, tracking_number, shipping_fee, status, estimated_delivery_date FROM ship_orders WHERE ship_id = :id")
                         .bind("id", integer)
                         .mapToBean(ShipOrder.class)
                         .findFirst()
-                        .orElse(null))
-        ));
+                        .orElse(null)
+        );
+        return Optional.ofNullable(shipOrder);
     }
 
     @Override
@@ -93,7 +100,7 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder, Integer> {
                           shipping_fee = :shipping_fee,
                           status = :status,
                           estimated_delivery_date = :estimated_delivery_date
-                      WHERE id = :id
+                      WHERE ship_id = :id
                     """
                     : """
                       INSERT INTO ship_orders
@@ -137,7 +144,7 @@ public class ShipOrderDAO extends ADAO implements IDAO<ShipOrder, Integer> {
     @Override
     public boolean deleteById(Integer integer) {
         jdbi.withHandle(handle ->
-                handle.createUpdate("DELETE FROM ship_orders WHERE id = :id")
+                handle.createUpdate("DELETE FROM ship_orders WHERE ship_id = :id")
                         .bind("id", integer)
                         .execute() > 0
         );

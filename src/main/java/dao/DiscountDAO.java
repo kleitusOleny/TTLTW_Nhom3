@@ -132,7 +132,7 @@ public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
                         SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts
                         WHERE is_active = 1 AND is_delete = 0
                         AND NOW() BETWEEN discount_from AND discount_to
-                        AND apply_type = 'shipping'
+                        AND (apply_type = 'SHIP' OR UPPER(apply_type) LIKE '%SHIP%')
                         ORDER BY discount_value DESC
                         """)
                 .mapToBean(Discount.class)

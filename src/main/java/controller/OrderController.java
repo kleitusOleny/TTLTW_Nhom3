@@ -1,6 +1,8 @@
 package controller;
 
 import dao.OrderDAO;
+import dao.PaymentDAO;
+import dao.ShipOrderDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,7 +15,9 @@ import model.ShipOrder;
 import model.User;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet(name = "OrderController", value = "/orders")
 public class OrderController extends HttpServlet {
@@ -42,10 +46,10 @@ public class OrderController extends HttpServlet {
 
         List<Order> orders = orderDAO.getByUserId(user.getId());
 
-        dao.ShipOrderDAO shipOrderDAO = new dao.ShipOrderDAO();
-        dao.PaymentDAO paymentDAO = new dao.PaymentDAO();
-        java.util.Map<Integer, ShipOrder> shipOrderMap = new java.util.HashMap<>();
-        java.util.Map<Integer, Payment> paymentMap = new java.util.HashMap<>();
+        ShipOrderDAO shipOrderDAO = new ShipOrderDAO();
+        PaymentDAO paymentDAO = new PaymentDAO();
+        Map<Integer, ShipOrder> shipOrderMap = new HashMap<>();
+        Map<Integer, Payment> paymentMap = new HashMap<>();
 
         for (Order order : orders) {
             ShipOrder shipOrder = shipOrderDAO.getByOrderId(order.getId());

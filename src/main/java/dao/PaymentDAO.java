@@ -10,11 +10,14 @@ public class PaymentDAO extends ADAO implements IDAO<Payment, Integer> {
 
 
     public Payment findByOrderId(int orderId) {
-        return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("SELECT id, order_id, pay_strategy, status, amount, paid_at FROM payments WHERE order_id = :orderId")
+        if (orderId <= 0) {
+            return null;
+        }
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT id, order_id, pay_strategy, status, amount, paid_at FROM payments WHERE order_id = :orderId")
                 .bind("orderId", orderId)
                 .mapToBean(Payment.class)
                 .findFirst()
-                .orElse(null)));
+                .orElse(null));
     }
 
     @Override
@@ -26,11 +29,15 @@ public class PaymentDAO extends ADAO implements IDAO<Payment, Integer> {
 
     @Override
     public Optional<Payment> findById(Integer integer) {
-        return Optional.of(jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("SELECT id, order_id, pay_strategy, status, amount, paid_at FROM payments WHERE id = :id")
+        if (integer == null || integer <= 0) {
+            return Optional.empty();
+        }
+        Payment payment = jdbi.withHandle(handle -> handle.createQuery("SELECT id, order_id, pay_strategy, status, amount, paid_at FROM payments WHERE id = :id")
                 .bind("id", integer)
                 .mapToBean(Payment.class)
                 .findFirst()
-                .orElse(null))));
+                .orElse(null));
+        return Optional.ofNullable(payment);
     }
 
     @Override
@@ -95,7 +102,7 @@ public class PaymentDAO extends ADAO implements IDAO<Payment, Integer> {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT id, order_id, pay_strategy, status, amount, paid_at 
                 FROM payments 
-                WHERE pay_strategy = 'VNPay' 
+                WHERE pay_strategy IN ('VNPay', 'MoMo') 
                 AND status = 'Pending' 
                 AND paid_at <= DATE_SUB(NOW(), INTERVAL :hours HOUR)
                 """)
