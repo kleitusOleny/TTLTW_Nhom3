@@ -27,7 +27,6 @@ public class AuthenticationController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String clientIp = userService.getClientIp(request);
         String emailInput = request.getParameter("email");
         String action = request.getParameter("action");
         String otpInput = request.getParameter("otpInput");
@@ -39,11 +38,10 @@ public class AuthenticationController extends HttpServlet {
         if (account != null && account.getEmail() != null) {
             finalEmail = account.getEmail();
         } else if (emailInput != null && !emailInput.isEmpty()) {
-            finalEmail = emailInput;
+            finalEmail = emailInput.toLowerCase();
         }
 
-        MDC.put("client_ip", clientIp);
-        MDC.put("email", finalEmail);
+        authService.baseSetupMdc(request, finalEmail);
 
         // ------------------------ Button cho lấy mã OTP ---------------------------------
         try {
