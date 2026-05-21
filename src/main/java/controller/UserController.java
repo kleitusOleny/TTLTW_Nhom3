@@ -2,6 +2,7 @@ package controller;
 
 import dao.CTEvaluateDAO;
 import dao.EvaluateDAO;
+import dao.FavouriteDAO;
 import dao.ProductDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -27,11 +28,13 @@ import java.util.Optional;
 public class UserController extends HttpServlet {
     private UserService userService;
     private EvaluateService evaluateService;
+    private FavouriteDAO favouriteDAO;
 
     @Override
     public void init() {
         userService = new UserService();
         evaluateService = new EvaluateService();
+        favouriteDAO = new FavouriteDAO();
     }
 
     @Override
@@ -44,6 +47,11 @@ public class UserController extends HttpServlet {
             page = "info";
         }
         request.setAttribute("user", user);
+        
+        if (user != null) {
+            int favCount = favouriteDAO.countFavouritesByUserID(user.getId());
+            request.setAttribute("favCount", favCount);
+        }
         String requestedWith = request.getHeader("X-Requested-With");
         if (!"XMLHttpRequest".equals(requestedWith)) {
             request.setAttribute("initialPage", userService.getFullUrl(request, page));

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Cart;
 import model.Discount;
+import model.User;
 import services.DiscountService;
 
 import java.io.IOException;
@@ -71,7 +72,11 @@ public class ApplyDiscountController extends HttpServlet {
             }
         }
 
-        double loyaltyAmount = discountService.calculateWholesaleAmount(cart);
+        User user= (User) session.getAttribute("user");
+        double loyaltyAmount = 0.0;
+        if (user != null) {
+            loyaltyAmount = discountService.calculateLoyaltyDiscount(user.getId(), cart.getSubtotal());
+        }
         cart.setLoyaltyDiscountAmount(loyaltyAmount);
 
         result.put("success", true);

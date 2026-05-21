@@ -12,10 +12,18 @@
             </div>
 
             <div class="header-center">
-                <form class="search-form" action="${pageContext.request.contextPath}/filter"
-                      method="get">
+                <form class="search-form" action="${pageContext.request.contextPath}/filter" method="get">
                     <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..."
                            value="${param.search}" required>
+
+                    <c:forEach items="${paramValues}" var="p">
+                        <c:if test="${p.key ne 'search' and p.key ne 'page'}">
+                            <c:forEach items="${p.value}" var="val">
+                                <input type="hidden" name="${p.key}" value="${val}">
+                            </c:forEach>
+                        </c:if>
+                    </c:forEach>
+
                     <button type="submit" aria-label="Search">
                         <i class="fas fa-search"></i>
                     </button>
@@ -39,7 +47,7 @@
                     </c:if>
                     <c:set var="queryString" value="${pageContext.request.queryString}"/>
                     <c:set var="fullRedirectUrl" value="${reqUri}${not empty queryString ? '?' : ''}${queryString}"/>
-                    
+
                     <%-- Remove loginSuccess/registerSuccess from queryString if present --%>
                     <c:if test="${fn:contains(fullRedirectUrl, 'loginSuccess') or fn:contains(fullRedirectUrl, 'registerSuccess')}">
                         <c:url var="fullRedirectUrl" value="${reqUri}">

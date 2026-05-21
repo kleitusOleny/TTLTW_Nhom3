@@ -59,20 +59,16 @@ public class StoreController extends HttpServlet {
         int totalPages = (int) Math.ceil((double) totalProducts / pageSize);
 
         // 4. Load user's favorite product IDs if logged in
-//        HttpSession session = request.getSession(false);
-//        if (session != null) {
-//            User user = (User) session.getAttribute("user");
-//            if (user != null) {
-//                FavouriteDAO favouriteDAO = new FavouriteDAO();
-//                List<Map<String, Object>> userFavourites = favouriteDAO.getFavouritesWithProductsByUserID(user.getId());
-//
-//                Map<String, Boolean> favouriteProductMap = new HashMap<>();
-//                for (Map<String, Object> fav : userFavourites) {
-//                    favouriteProductMap.put((String) fav.get("product_id"), true);
-//                }
-//                request.setAttribute("favouriteProductMap", favouriteProductMap);
-//            }
-//        }
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            model.User user = (model.User) session.getAttribute("user");
+            if (user != null) {
+                dao.FavouriteDAO favouriteDAO = new dao.FavouriteDAO();
+                List<Map<String, Object>> userFavouritesList = favouriteDAO
+                        .getFavouritesWithProductsByUserID(user.getId());
+                request.setAttribute("userFavouritesList", userFavouritesList);
+            }
+        }
         
         
         request.setAttribute("currentSort", sort);

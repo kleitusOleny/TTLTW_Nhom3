@@ -109,6 +109,23 @@ body {
 .nav-menu li a span {
     font-size: 0.95em;
 }
+
+.badge {
+    background-color: #8c3333;
+    color: #fff;
+    font-size: 0.75em;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: auto;
+    min-width: 18px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.nav-menu li.active .badge {
+    background-color: #fff;
+    color: #333;
+}
 /* Removed .fa-star specific styling - inherits from parent link */
 
 

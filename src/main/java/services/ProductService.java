@@ -7,11 +7,25 @@ import java.util.List;
 
 public class ProductService {
     private static List<Product> lst = new ProductDAO().getProducts();
+    private final ProductDAO productDAO = new ProductDAO();
+
     public Product getProduct(String productId) {
         for (Product product:lst){
             if (product.getId().equals(productId)) return product;
         }
         return null;
+    }
+
+    public int getQuantity(String productId) {
+        return productDAO.getQuantity(productId);
+    }
+
+    public boolean updateQuantity(String productId, int quantity) {
+        return productDAO.updateQuantity(productId, quantity);
+    }
+
+    public Product getProductById(String id) {
+        return productDAO.getProductById(id);
     }
     
     public static int countTotalProducts() {
@@ -114,9 +128,15 @@ public class ProductService {
         }
         
         if (keyword != null && !keyword.trim().isEmpty()) {
-            sql.append(" AND (p.product_name LIKE :keyword ")
-                    .append(" OR m.manufacturer_name LIKE :keyword ")
-                    .append(" OR t.type_name LIKE :keyword) ");
+            String[] words = keyword.trim().split("\\s+");
+            sql.append(" AND (");
+            for (int i = 0; i < words.length; i++) {
+                if (i > 0) {
+                    sql.append(" OR ");
+                }
+                sql.append("p.product_name LIKE :keyword").append(i);
+            }
+            sql.append(") ");
         }
     }
 }

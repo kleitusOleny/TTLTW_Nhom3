@@ -79,24 +79,14 @@ public class ProductDAO extends ADAO {
                 "p.id, p.product_name, p.slug, p.price, p.capacity, p.alcohol, p.origin, p.quantity, p.create_at," +
                 "t.type_name AS typeId, " +
                 "m.manufacturer_name AS manufacturerId, " +
-                "d.discount_value AS discount_value, " +
-                "d.discount_type AS discount_type, " +
-
+                "(SELECT d.discount_value FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_value, " +
+                "(SELECT d.discount_type FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_type, " +
                 "(SELECT url_img FROM p_img WHERE product_id = p.id LIMIT 1) AS imageUrl, " +
-
-                "(SELECT AVG(ct.star) " +
-                " FROM evaluates e " +
-                " JOIN ct_evaluates ct ON e.evaluate_id = ct.id " +
-                " WHERE e.product_id = p.id AND ct.is_delete IS NULL) AS rating, " +
-
-                "(SELECT COUNT(*) FROM evaluates e JOIN ct_evaluates ct ON e.evaluate_id = ct.id WHERE e.product_id = p.id AND ct.is_delete IS NULL) AS totalReviews "
-                +
+                "(SELECT AVG(ct.star) FROM evaluates e JOIN ct_evaluates ct ON e.evaluate_id = ct.id WHERE e.product_id = p.id AND ct.is_delete IS NULL) AS rating, " +
+                "(SELECT COUNT(*) FROM evaluates e JOIN ct_evaluates ct ON e.evaluate_id = ct.id WHERE e.product_id = p.id AND ct.is_delete IS NULL) AS totalReviews " +
                 "FROM products p " +
                 "LEFT JOIN product_types t ON p.type_id = t.id " +
                 "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
-                "LEFT JOIN dis_process dp ON p.id = dp.product_id AND dp.is_delete = 0 " +
-                "LEFT JOIN discounts d ON dp.discount_id = d.id AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to "
-                +
                 "WHERE p.is_delete = 0 ")
                 .mapToBean(Product.class)
                 .list());
@@ -104,19 +94,22 @@ public class ProductDAO extends ADAO {
     }
 
     public List<Product> getProducts(int limit, int offset, String sort) {
-        String order = "ORDER BY price ";
+        String orderClause = "ORDER BY price ";
         switch (sort) {
             case "price-asc":
-                order += "ASC ";
+                orderClause = "ORDER BY price ASC ";
                 break;
             case "price-desc":
-                order += "DESC ";
+                orderClause = "ORDER BY price DESC ";
                 break;
             case "rating":
-                order += "DESC "; // Giả sử cột là rating
+                orderClause = "ORDER BY rating DESC ";
+                break;
+            case "latest":
+                orderClause = "ORDER BY p.create_at DESC ";
                 break;
             default:
-                order = ""; // Mặc định
+                orderClause = "ORDER BY p.create_at DESC ";
                 break;
         }
 
@@ -142,7 +135,7 @@ public class ProductDAO extends ADAO {
 //                "LEFT JOIN dis_process dp ON p.id = dp.product_id AND dp.is_delete = 0 " +
 //                "LEFT JOIN discounts d ON dp.discount_id = d.id AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to " +
                 "WHERE p.is_delete = 0 " +
-                order +
+                orderClause +
                 "LIMIT :limit OFFSET :offset";
         return jdbi.withHandle(handle -> handle.createQuery(sql)
                 .bind("limit", limit)
@@ -159,22 +152,18 @@ public class ProductDAO extends ADAO {
     public Product getProductById(String id) {
         return jdbi.withHandle(handle -> handle.createQuery(
                 "SELECT " +
-                        "p.id, p.product_name, p.slug, p.price, p.capacity, p.alcohol, p.origin, p.quantity, p.detail, p.create_at, p.update_at, p.is_delete, "
-                        +
+                        "p.id, p.product_name, p.slug, p.price, p.capacity, p.alcohol, p.origin, p.quantity, p.detail, p.create_at, p.update_at, p.is_delete, " +
                         "t.type_name AS typeId, " +
                         "m.manufacturer_name AS manufacturerId, " +
                         "c.category_name AS categoryId, " +
-                        "d.discount_value AS discount_value, " +
-                        "d.discount_type AS discount_type, " +
+                        "(SELECT d.discount_value FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_value, " +
+                        "(SELECT d.discount_type FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_type, " +
                         "(SELECT url_img FROM p_img WHERE product_id = p.id LIMIT 1) AS imageUrl " +
 
                         "FROM products p " +
                         "LEFT JOIN product_types t ON p.type_id = t.id " +
                         "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
                         "LEFT JOIN categorys c ON p.category_id = c.id " +
-                        "LEFT JOIN dis_process dp ON p.id = dp.product_id AND dp.is_delete = 0 " +
-                        "LEFT JOIN discounts d ON dp.discount_id = d.id AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to "
-                        +
                         "WHERE p.id = :id AND p.is_delete = 0")
                 .bind("id", id)
                 .mapToBean(Product.class)
@@ -189,16 +178,13 @@ public class ProductDAO extends ADAO {
                         "t.type_name AS typeId, " +
                         "m.manufacturer_name AS manufacturerId, " +
                         "c.category_name AS categoryId, " +
-                        "d.discount_value AS discount_value, " +
-                        "d.discount_type AS discount_type, " +
+                        "(SELECT d.discount_value FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_value, " +
+                        "(SELECT d.discount_type FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_type, " +
                         "(SELECT url_img FROM p_img WHERE product_id = p.id LIMIT 1) AS imageUrl " +
                         "FROM products p " +
                         "LEFT JOIN product_types t ON p.type_id = t.id " +
                         "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
                         "LEFT JOIN categorys c ON p.category_id = c.id " +
-                        "LEFT JOIN dis_process dp ON p.id = dp.product_id AND dp.is_delete = 0 " +
-                        "LEFT JOIN discounts d ON dp.discount_id = d.id AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to "
-                        +
                         "WHERE p.is_delete = 0 " +
                         "ORDER BY RAND() LIMIT 5")
                 .mapToBean(Product.class)
@@ -243,7 +229,8 @@ public class ProductDAO extends ADAO {
         StringBuilder sql = new StringBuilder(
                 "SELECT p.id, p.product_name, p.slug, p.price, p.capacity, p.alcohol, p.origin, p.quantity, " +
                         "t.type_name AS typeId, m.manufacturer_name AS manufacturerId, " +
-                        "d.discount_value AS discount_value, d.discount_type AS discount_type, " +
+                        "(SELECT d.discount_value FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_value, " +
+                        "(SELECT d.discount_type FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_type, " +
                         "(SELECT url_img FROM p_img WHERE product_id = p.id LIMIT 1) AS imageUrl, " +
                         "(SELECT AVG(ct.star) FROM evaluates e JOIN ct_evaluates ct ON e.evaluate_id = ct.id WHERE e.product_id = p.id AND ct.is_delete IS NULL) AS rating, "
                         +
@@ -252,26 +239,24 @@ public class ProductDAO extends ADAO {
                         "FROM products p " +
                         "LEFT JOIN product_types t ON p.type_id = t.id " +
                         "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
-                        "LEFT JOIN dis_process dp ON p.id = dp.product_id AND dp.is_delete = 0 " +
-                        "LEFT JOIN discounts d ON dp.discount_id = d.id AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to "
-                        +
                         "WHERE p.is_delete = 0 ");
 
         ProductService.appendFilterConditions(sql, prices, categories, manufacturers, types, origins, capacities, tags, keyword);
 
         sql.append(" LIMIT :limit OFFSET :offset");
-
+        
         return jdbi.withHandle(handle -> {
-            // Tạo query
             var query = handle.createQuery(sql.toString())
                     .bind("limit", limit)
                     .bind("offset", offset);
-
-            // Bind tham số keyword nếu có
+            
             if (keyword != null && !keyword.trim().isEmpty()) {
-                query.bind("keyword", "%" + keyword.trim() + "%");
+                String[] words = keyword.trim().split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.bind("keyword" + i, "%" + words[i] + "%");
+                }
             }
-
+            
             return query.mapToBean(Product.class).list();
         });
     }
@@ -285,11 +270,14 @@ public class ProductDAO extends ADAO {
                         "WHERE p.is_delete = 0 ");
         
         ProductService.appendFilterConditions(sql, prices, categories, manufacturers, types, origins, capacities, tags, keyword);
-
+        
         return jdbi.withHandle(handle -> {
             var query = handle.createQuery(sql.toString());
             if (keyword != null && !keyword.trim().isEmpty()) {
-                query.bind("keyword", "%" + keyword.trim() + "%");
+                String[] words = keyword.trim().split("\\s+");
+                for (int i = 0; i < words.length; i++) {
+                    query.bind("keyword" + i, "%" + words[i] + "%");
+                }
             }
             return query.mapTo(Integer.class).findOnly();
         });
@@ -337,16 +325,13 @@ public class ProductDAO extends ADAO {
                         "t.type_name AS typeId, " +
                         "m.manufacturer_name AS manufacturerId, " +
                         "c.category_name AS categoryId, " +
-                        "d.discount_value AS discount_value, " +
-                        "d.discount_type AS discount_type, " +
+                        "(SELECT d.discount_value FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_value, " +
+                        "(SELECT d.discount_type FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_type, " +
                         "(SELECT url_img FROM p_img WHERE product_id = p.id LIMIT 1) AS imageUrl " +
                         "FROM products p " +
                         "LEFT JOIN product_types t ON p.type_id = t.id " +
                         "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
                         "LEFT JOIN categorys c ON p.category_id = c.id " +
-                        "LEFT JOIN dis_process dp ON p.id = dp.product_id AND dp.is_delete = 0 " +
-                        "LEFT JOIN discounts d ON dp.discount_id = d.id AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to "
-                        +
                         "WHERE p.category_id = :categoryId AND p.is_delete = 0")
                 .bind("categoryId", categoryId)
                 .mapToBean(Product.class)
@@ -364,16 +349,13 @@ public class ProductDAO extends ADAO {
                         "t.type_name AS typeId, " +
                         "m.manufacturer_name AS manufacturerId, " +
                         "c.category_name AS categoryId, " +
-                        "d.discount_value AS discount_value, " +
-                        "d.discount_type AS discount_type, " +
+                        "(SELECT d.discount_value FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_value, " +
+                        "(SELECT d.discount_type FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_type, " +
                         "(SELECT url_img FROM p_img WHERE product_id = p.id LIMIT 1) AS imageUrl " +
                         "FROM products p " +
                         "LEFT JOIN product_types t ON p.type_id = t.id " +
                         "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
                         "LEFT JOIN categorys c ON p.category_id = c.id " +
-                        "LEFT JOIN dis_process dp ON p.id = dp.product_id AND dp.is_delete = 0 " +
-                        "LEFT JOIN discounts d ON dp.discount_id = d.id AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to "
-                        +
                         "WHERE p.manufacturer_id = :manufacturerId AND p.is_delete = 0")
                 .bind("manufacturerId", manufacturerId)
                 .mapToBean(Product.class)

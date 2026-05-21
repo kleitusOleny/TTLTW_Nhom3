@@ -6,10 +6,6 @@ import java.util.List;
 
 public class BlogDAO extends ADAO {
 
-    /**
-     * Get all active blogs (display=true, is_delete=false)
-     * Ordered by upload_at DESC
-     */
     public List<Blogs> getAllActiveBlogs() {
         return jdbi.withHandle(handle -> {
             return handle.createQuery(
@@ -19,9 +15,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Get blog by ID
-     */
     public Blogs getById(int id) {
         return jdbi.withHandle(handle -> {
             return handle.createQuery(
@@ -33,9 +26,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Get blog by slug
-     */
     public Blogs getBySlug(String slug) {
         return jdbi.withHandle(handle -> {
             return handle.createQuery(
@@ -47,9 +37,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Get latest N blogs
-     */
     public List<Blogs> getLatestBlogs(int limit) {
         return jdbi.withHandle(handle -> {
             return handle.createQuery(
@@ -60,9 +47,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Get all blogs (for admin)
-     */
     public List<Blogs> getAll() {
         return jdbi.withHandle(handle -> {
             return handle.createQuery("SELECT * FROM blogs WHERE is_delete = 0 ORDER BY upload_at DESC")
@@ -71,9 +55,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Search blogs by text (title/content) and category
-     */
     public List<Blogs> searchBlogs(String text, String category) {
         StringBuilder sql = new StringBuilder("SELECT * FROM blogs WHERE display = 1 AND is_delete = 0");
 
@@ -102,9 +83,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Count total blogs for pagination
-     */
     public int countBlogs(String text, String category) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM blogs WHERE display = 1 AND is_delete = 0");
         if (text != null && !text.trim().isEmpty()) {
@@ -123,9 +101,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Search blogs with pagination
-     */
     public List<Blogs> searchBlogs(String text, String category, int limit, int offset) {
         StringBuilder sql = new StringBuilder("SELECT * FROM blogs WHERE display = 1 AND is_delete = 0");
         if (text != null && !text.trim().isEmpty()) {
@@ -148,9 +123,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Get related blogs (same category, excluding current one)
-     */
     public List<Blogs> getRelatedBlogs(int currentId, String category, int limit) {
         return jdbi.withHandle(handle -> {
             String sql = "SELECT * FROM blogs WHERE display = 1 AND is_delete = 0 AND id != :id";
@@ -173,9 +145,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Soft delete blog
-     */
     public void delete(int id) {
         jdbi.useHandle(handle -> {
             handle.createUpdate("UPDATE blogs SET is_delete = 1 WHERE id = :id")
@@ -184,9 +153,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Update blog
-     */
     public void update(Blogs blog) {
         jdbi.useHandle(handle -> {
             handle.createUpdate("UPDATE blogs SET title = :title, content = :content, blog_image = :image, " +
@@ -201,9 +167,6 @@ public class BlogDAO extends ADAO {
         });
     }
 
-    /**
-     * Insert new blog
-     */
     public void insert(Blogs blog) {
         jdbi.useHandle(handle -> {
             handle.createUpdate(
