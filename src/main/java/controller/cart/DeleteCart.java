@@ -21,20 +21,29 @@ public class DeleteCart extends HttpServlet {
     
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String id = request.getParameter("id");
-        String listId = request.getParameter("listId");
+        String[] listIds = request.getParameterValues("listId");
+        String[] ids = request.getParameterValues("id");
         String isAjax = request.getParameter("ajax");
         
         Cart cart = (Cart) request.getSession().getAttribute("cart");
-
+        
         if (cart != null) {
-            if (listId != null && !listId.isEmpty()) {
-                String[] ids = listId.split(",");
-                for (String itemId : ids) {
-                    cart.removeItem(itemId.trim());
+            if (listIds != null && listIds.length > 0) {
+                for (String item : listIds) {
+                    String[] splitIds = item.split(",");
+                    for (String splitId : splitIds) {
+                        if (!splitId.trim().isEmpty()) {
+                            cart.removeItem(splitId.trim());
+                        }
+                    }
                 }
-            } else if (id != null) {
-                cart.removeItem(id);
+            }
+            else if (ids != null && ids.length > 0) {
+                for (String singleId : ids) {
+                    if (!singleId.trim().isEmpty()) {
+                        cart.removeItem(singleId.trim());
+                    }
+                }
             }
         }
         

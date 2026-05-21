@@ -9,6 +9,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Giỏ hàng</title>
     <link rel="stylesheet" href="css/cart_style.css">
+    <style>
+        /* CSS cho Custom Popup */
+        .popup-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999;
+        }
+        .popup-content {
+            background: #fff; padding: 25px; border-radius: 8px;
+            text-align: center; min-width: 320px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        #popup-message {
+            font-size: 16px; margin-bottom: 20px; color: #333;
+        }
+        .popup-actions {
+            display: flex; justify-content: center; gap: 15px;
+        }
+        .popup-actions button {
+            padding: 10px 20px; border: none; border-radius: 5px;
+            cursor: pointer; font-weight: bold; font-size: 14px;
+        }
+        .btn-primary { background: #d9534f; color: white; border: 2px solid #000000 !important;}
+        .btn-primary:hover { background: #c9302c; }
+        .btn-secondary { background: #e0e0e0; color: #333; }
+        .btn-secondary:hover { background: #ccc; }
+    </style>
 </head>
 
 <body>
@@ -36,7 +64,7 @@
                     <tbody>
                     <c:forEach items="${sessionScope.cart.items}" var="ci">
                         <tr class="cart-item-row">
-                            <td><input type="checkbox" class="select-product"></td>
+                            <td><input type="checkbox" class="select-product" value="${ci.product.id}"></td>
                             <td class="cart-product-image">
                                 <a href="detail?id=${ci.product.id}">
                                     <img src=${ci.product.imageUrl} alt="${ci.product.productName}">
@@ -108,9 +136,7 @@
                 </table>
                 <div class="cart-actions">
                     <a href="store" class="btn btn-secondary">Tiếp tục xem sản phẩm</a>
-                    <button class="btn btn-danger" id="delete-selected">Xóa sản phẩm đã
-                        chọn
-                    </button>
+                    <button class="btn btn-danger" id="delete-selected">Xóa sản phẩm đã chọn</button>
                 </div>
             </div>
 
@@ -132,79 +158,6 @@
                         <strong>Miễn phí</strong>
                     </div>
 
-<%--                    <div class="summary-row" id="shipping-discount-row" style="display: none;">--%>
-<%--                        <span>Giảm giá vận chuyển</span>--%>
-<%--                        <strong id="shipping-discount-amount" style="color: green;"></strong>--%>
-<%--                    </div>--%>
-
-<%--                    <div class="summary-row" id="voucher-discount-row" style="display: none;">--%>
-<%--                        <span>Voucher người dùng</span>--%>
-<%--                        <strong id="voucher-discount-amount" style="color: green;"></strong>--%>
-<%--                    </div>--%>
-
-<%--                    <div class="discount-section"--%>
-<%--                         style="margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 5px;">--%>
-<%--                        <h5 style="font-size: 1em; margin-bottom: 10px;">Mã giảm giá</h5>--%>
-
-<%--                        <div class="form-group" style="margin-bottom: 10px;">--%>
-<%--                            <label style="font-size: 0.9em; color: #666;">Mã vận chuyển</label>--%>
-<%--                            <select id="shipping-discount-select" class="form-control"--%>
-<%--                                    onchange="applyDiscount('shipping')"--%>
-<%--                                    style="width: 100%; padding: 5px;">--%>
-<%--                                <option value="">Chọn mã vận chuyển</option>--%>
-<%--                                <c:forEach items="${shippingDiscounts}" var="d">--%>
-<%--                                    <option value="${d.discountCode}"--%>
-<%--                                        ${sessionScope.cart.shippingDiscount.discountCode==d.discountCode--%>
-<%--                                                ? 'selected' : '' }>--%>
-<%--                                            ${d.discountCode} - Giảm--%>
-<%--                                        <fmt:formatNumber value="${d.discountValue}" type="currency"--%>
-<%--                                                          currencySymbol="₫" maxFractionDigits="0"/>--%>
-<%--                                    </option>--%>
-<%--                                </c:forEach>--%>
-<%--                            </select>--%>
-<%--                        </div>--%>
-
-<%--                        <!-- User Voucher Select -->--%>
-<%--                        <div class="form-group">--%>
-<%--                            <label style="font-size: 0.9em; color: #666;">Voucher của bạn</label>--%>
-<%--                            <select id="voucher-discount-select" class="form-control"--%>
-<%--                                    onchange="applyDiscount('voucher')"--%>
-<%--                                    style="width: 100%; padding: 5px;">--%>
-<%--                                <option value="">Chọn voucher</option>--%>
-<%--                                <c:forEach items="${userVouchers}" var="d">--%>
-<%--                                    <option value="${d.discountCode}"--%>
-<%--                                        ${sessionScope.cart.voucherDiscount.discountCode==d.discountCode--%>
-<%--                                                ? 'selected' : '' }>--%>
-<%--                                            ${d.discountCode} - Giảm--%>
-<%--                                        <c:choose>--%>
-<%--                                            <c:when--%>
-<%--                                                    test="${d.discountType == 'PERCENT' || d.discountType == 'percentage'}">--%>
-<%--                                                <fmt:formatNumber value="${d.discountValue}"--%>
-<%--                                                                  type="number" maxFractionDigits="0"/>%--%>
-<%--                                            </c:when>--%>
-<%--                                            <c:otherwise>--%>
-<%--                                                <fmt:formatNumber value="${d.discountValue}"--%>
-<%--                                                                  type="currency" currencySymbol="₫"--%>
-<%--                                                                  maxFractionDigits="0"/>--%>
-<%--                                            </c:otherwise>--%>
-<%--                                        </c:choose>--%>
-<%--                                    </option>--%>
-<%--                                </c:forEach>--%>
-<%--                            </select>--%>
-<%--                        </div>--%>
-
-<%--                        <div id="discount-message" style="margin-top: 5px; font-size: 0.9em;"></div>--%>
-                    </div>
-
-<%--                    <div id="collectable-vouchers-section"--%>
-<%--                         style="display:none; margin: 15px 0; padding: 10px; background: #e9ecef; border-radius: 5px;">--%>
-<%--                        <h5 style="font-size: 1em; margin-bottom: 10px;">Mã giảm giá có thể thu thập--%>
-<%--                        </h5>--%>
-<%--                        <div id="collectable-vouchers-list" class="list-group">--%>
-<%--                            <!-- Populated by JS -->--%>
-<%--                        </div>--%>
-<%--                    </div>--%>
-
                     <div class="summary-total">
                         <span>Tổng</span>
                         <strong id="final-total-display">
@@ -224,110 +177,48 @@
 
 <%@ include file="components/footer.jsp" %>
 
+<div id="custom-popup" class="popup-overlay" style="display: none;">
+    <div class="popup-content">
+        <p id="popup-message"></p>
+        <div class="popup-actions">
+            <button id="popup-cancel" class="btn btn-secondary" style="display: none;">Hủy</button>
+            <button id="popup-confirm" class="btn btn-primary">Đồng ý</button>
+        </div>
+    </div>
+</div>
+
 <script>
     function formatMoney(amount) {
         return new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'}).format(amount);
     }
 
-    const currentShippingCode = "${sessionScope.cart.shippingDiscount.discountCode}";
-    const currentVoucherCode = "${sessionScope.cart.voucherDiscount.discountCode}";
-    const isLoggedIn = ${ not empty sessionScope.user };
+    // Hàm điều khiển Popup
+    function showPopup(message, isConfirm, onConfirmCallback) {
+        const popup = document.getElementById('custom-popup');
+        const msgEl = document.getElementById('popup-message');
+        const btnCancel = document.getElementById('popup-cancel');
+        const btnConfirm = document.getElementById('popup-confirm');
 
-    // xem lai
-    <%--function loadDiscounts() {--%>
-    <%--    fetch('cart/get-discounts')--%>
-    <%--        .then(response => response.json())--%>
-    <%--        .then(data => {--%>
-    <%--            const collectableSection = document.getElementById('collectable-vouchers-section');--%>
-    <%--            const collectableList = document.getElementById('collectable-vouchers-list');--%>
-    <%--            collectableList.innerHTML = '';--%>
+        msgEl.textContent = message;
+        popup.style.display = 'flex';
 
-    <%--            if (data.collectableVouchers && data.collectableVouchers.length > 0) {--%>
-    <%--                collectableSection.style.display = 'block';--%>
-    <%--                data.collectableVouchers.forEach(d => {--%>
-    <%--                    const item = document.createElement('div');--%>
-    <%--                    item.className = 'list-group-item d-flex justify-content-between align-items-center';--%>
-    <%--                    item.style.marginBottom = '5px';--%>
-    <%--                    item.style.padding = '5px';--%>
-    <%--                    item.style.background = 'white';--%>
-    <%--                    item.style.borderRadius = '3px';--%>
-    <%--                    item.innerHTML = `--%>
-    <%--                                                <div>--%>
-    <%--                                                    <strong>${d.discountCode}</strong><br>--%>
-    <%--                                                    <small>Giảm ${formatMoney(d.discountValue)}</small>--%>
-    <%--                                                </div>--%>
-    <%--                                                <button class="btn btn-sm btn-primary" onclick="collectVoucher(${d.id})" style="font-size: 0.8em;">Thu thập</button>--%>
-    <%--                                            `;--%>
-    <%--                    collectableList.appendChild(item);--%>
-    <%--                });--%>
-    <%--            } else {--%>
-    <%--                collectableSection.style.display = 'none';--%>
-    <%--            }--%>
+        if (isConfirm) {
+            btnCancel.style.display = 'inline-block';
+        } else {
+            btnCancel.style.display = 'none';
+        }
 
-    <%--            // Update discount amounts from session if available--%>
-    <%--            <c:if test="${not empty sessionScope.cart.shippingDiscount}">--%>
-    <%--            document.getElementById('shipping-discount-row').style.display = 'flex';--%>
-    <%--            document.getElementById('shipping-discount-amount').textContent = '-' + formatMoney(${sessionScope.cart.shippingDiscount.discountValue});--%>
-    <%--            </c:if>--%>
-    <%--            <c:if test="${not empty sessionScope.cart.voucherDiscount}">--%>
-    <%--            document.getElementById('voucher-discount-row').style.display = 'flex';--%>
-    <%--            </c:if>--%>
+        btnConfirm.onclick = function() {
+            popup.style.display = 'none';
+            if (onConfirmCallback) onConfirmCallback();
+        };
 
-    <%--            // Show Loyalty Discount if applicable--%>
-    <%--            if (data.loyalty && data.loyalty.amount > 0) {--%>
-    <%--                document.getElementById('loyalty-discount-row').style.display = 'flex';--%>
-    <%--                document.getElementById('loyalty-discount-amount').textContent = '-' + formatMoney(data.loyalty.amount);--%>
-    <%--            }--%>
-    <%--        });--%>
-    <%--}--%>
-
-    <%--function collectVoucher(discountId) {--%>
-    <%--    fetch('cart/collect-voucher?discountId=' + discountId, {--%>
-    <%--        method: 'POST'--%>
-    <%--    })--%>
-    <%--        .then(response => response.json())--%>
-    <%--        .then(data => {--%>
-    <%--            if (data.success) {--%>
-    <%--                alert(data.message);--%>
-    <%--                loadDiscounts(); // Refresh lists--%>
-    <%--            } else {--%>
-    <%--                alert(data.message);--%>
-    <%--            }--%>
-    <%--        })--%>
-    <%--        .catch(error => console.error('Error collecting voucher:', error));--%>
-    <%--}--%>
-
-    <%--function applyDiscount(type) {--%>
-    <%--    let code = '';--%>
-    <%--    if (type === 'shipping') {--%>
-    <%--        code = document.getElementById('shipping-discount-select').value;--%>
-    <%--    } else if (type === 'voucher') {--%>
-    <%--        code = document.getElementById('voucher-discount-select').value;--%>
-    <%--    }--%>
-
-    <%--    if (!code && type !== 'loyalty') return;--%>
-
-    <%--    fetch('cart/apply-discount', {--%>
-    <%--        method: 'POST',--%>
-    <%--        headers: {--%>
-    <%--            'Content-Type': 'application/x-www-form-urlencoded',--%>
-    <%--        },--%>
-    <%--        body: 'type=' + type + '&code=' + encodeURIComponent(code)--%>
-    <%--    })--%>
-    <%--        .then(response => response.json())--%>
-    <%--        .then(data => {--%>
-    <%--            if (data.success) {--%>
-    <%--                document.getElementById('final-total-display').textContent = formatMoney(data.newTotal);--%>
-    <%--                location.reload();--%>
-    <%--            } else {--%>
-    <%--                alert(data.message);--%>
-    <%--            }--%>
-    <%--        });--%>
-    <%--}--%>
+        btnCancel.onclick = function() {
+            popup.style.display = 'none';
+        };
+    }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // loadDiscounts();
-
         const selectAllCheckbox = document.getElementById('select-all');
         const productCheckboxes = document.querySelectorAll('.select-product');
         const deleteSelectedButton = document.getElementById('delete-selected');
@@ -347,24 +238,49 @@
             });
         });
 
+        // Xử lý sự kiện click xóa hàng loạt dùng fetch API
         deleteSelectedButton.addEventListener('click', function () {
-            const selectedRows = [];
+            const selectedIds = [];
+
             productCheckboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    selectedRows.push(checkbox.closest('tr'));
+                if (checkbox.checked && checkbox.value) {
+                    selectedIds.push(checkbox.value);
                 }
             });
 
-            if (selectedRows.length > 0) {
-                if (confirm('Bạn có chắc chắn muốn xóa ' + selectedRows.length + ' sản phẩm đã chọn?')) {
-                    selectAllCheckbox.checked = false;
-                    selectAllCheckbox.indeterminate = false;
-                    alert('Đã xóa ' + selectedRows.length + ' sản phẩm.');
-                }
+            if (selectedIds.length > 0) {
+                showPopup('Bạn có chắc chắn muốn xóa ' + selectedIds.length + ' sản phẩm đã chọn khỏi giỏ hàng?', true, function() {
+
+                    const formData = new URLSearchParams();
+                    formData.append('listId', selectedIds.join(','));
+                    formData.append('ajax', 'true');
+
+                    fetch('${pageContext.request.contextPath}/delete-cart', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: formData.toString()
+                    })
+                        .then(response => {
+                            if (response.ok) {
+                                showPopup('Đã xóa ' + selectedIds.length + ' sản phẩm thành công.', false, function() {
+                                    window.location.reload();
+                                });
+                            } else {
+                                showPopup('Lỗi: Không thể xóa sản phẩm lúc này.', false);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showPopup('Lỗi kết nối máy chủ.', false);
+                        });
+                });
             } else {
-                alert('Vui lòng chọn ít nhất một sản phẩm để xóa.');
+                showPopup('Vui lòng chọn ít nhất một sản phẩm để xóa.', false);
             }
         });
     });
 </script>
 </body>
+</html>
