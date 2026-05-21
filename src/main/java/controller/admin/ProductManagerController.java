@@ -19,6 +19,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import utils.ExcelUtil;
+
 import java.io.InputStream;
 
 @WebServlet(name = "ProductManagerController", value = "/product-manager")
@@ -128,7 +130,7 @@ public class ProductManagerController extends HttpServlet {
                             Row row = sheet.getRow(i);
                             if (row == null) continue;
                             
-                            String name = getCellValueAsString(row.getCell(0));
+                            String name = ExcelUtil.getCellValueAsString(row.getCell(0));
                             if (name == null || name.trim().isEmpty()) continue;
                             
                             Product p = new Product();
@@ -136,22 +138,22 @@ public class ProductManagerController extends HttpServlet {
                             p.setSlug(name.toLowerCase().replace(" ", "-"));
                             
                             try {
-                                p.setPrice(Double.parseDouble(getCellValueAsString(row.getCell(1))));
-                                p.setQuantity((int) Double.parseDouble(getCellValueAsString(row.getCell(2))));
-                                p.setAlcohol(Double.parseDouble(getCellValueAsString(row.getCell(5))));
+                                p.setPrice(Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(1))));
+                                p.setQuantity((int) Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(2))));
+                                p.setAlcohol(Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(5))));
                             } catch (NumberFormatException e) {
                                 p.setPrice(0.0);
                                 p.setQuantity(0);
                                 p.setAlcohol(0.0);
                             }
                             
-                            p.setOrigin(getCellValueAsString(row.getCell(3)));
-                            p.setCapacity(getCellValueAsString(row.getCell(4)));
-                            p.setDetail(getCellValueAsString(row.getCell(6)));
-                            p.setTypeId(getCellValueAsString(row.getCell(7)));
-                            p.setManufacturerId(getCellValueAsString(row.getCell(8)));
-                            p.setCategoryId(getCellValueAsString(row.getCell(9)));
-                            p.setImageUrl(getCellValueAsString(row.getCell(10)));
+                            p.setOrigin(ExcelUtil.getCellValueAsString(row.getCell(3)));
+                            p.setCapacity(ExcelUtil.getCellValueAsString(row.getCell(4)));
+                            p.setDetail(ExcelUtil.getCellValueAsString(row.getCell(6)));
+                            p.setTypeId(ExcelUtil.getCellValueAsString(row.getCell(7)));
+                            p.setManufacturerId(ExcelUtil.getCellValueAsString(row.getCell(8)));
+                            p.setCategoryId(ExcelUtil.getCellValueAsString(row.getCell(9)));
+                            p.setImageUrl(ExcelUtil.getCellValueAsString(row.getCell(10)));
                             
                             p.setId("P" + System.currentTimeMillis() % 100000 + i);
                             
@@ -168,27 +170,5 @@ public class ProductManagerController extends HttpServlet {
         resp.sendRedirect("product-manager");
     }
     
-    private String getCellValueAsString(Cell cell) {
-        if (cell == null) return "";
-        switch (cell.getCellType()) {
-            case STRING:
-                return cell.getStringCellValue();
-            case NUMERIC:
-                if (DateUtil.isCellDateFormatted(cell)) {
-                    return cell.getDateCellValue().toString();
-                } else {
-                    double num = cell.getNumericCellValue();
-                    if (num == Math.floor(num)) {
-                        return String.valueOf((long) num);
-                    }
-                    return String.valueOf(num);
-                }
-            case BOOLEAN:
-                return String.valueOf(cell.getBooleanCellValue());
-            case FORMULA:
-                return cell.getCellFormula();
-            default:
-                return "";
-        }
-    }
+
 }
