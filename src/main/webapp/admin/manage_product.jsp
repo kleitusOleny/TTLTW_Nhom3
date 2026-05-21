@@ -100,6 +100,15 @@
                         <ion-icon name="trash-outline"></ion-icon>
                         Xóa (Đã chọn)
                     </button>
+
+                    <form id="form-import-excel" action="<%= request.getContextPath() %>/product-manager?action=importExcel" method="post" enctype="multipart/form-data" style="display: none;">
+                        <input type="file" name="excelFile" id="excelFile" accept=".xlsx, .xls" onchange="document.getElementById('form-import-excel').submit();">
+                    </form>
+                    <button class="btn btn-success" onclick="document.getElementById('excelFile').click();" style="background: #28a745; color: white;">
+                        <ion-icon name="document-text-outline"></ion-icon>
+                        Nhập Excel
+                    </button>
+
                     <button class="btn btn-primary add-product-btn" id="btn-open-add">
                         <ion-icon name="add-outline"></ion-icon>
                         Thêm Sản Phẩm
