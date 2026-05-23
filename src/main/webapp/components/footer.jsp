@@ -141,7 +141,7 @@
             Swal.fire({
                 icon: 'success',
                 title: 'Đăng ký thành công!',
-                text: 'Bạn có thể đăng nhập ngay bây giờ.',
+                text: 'Bạn có thể trải nghiệm dịch vụ sản phẩm của chúng tôi tuỳ thích.',
                 confirmButtonColor: '#3085d6'
             });
             window.history.replaceState({}, document.title, window.location.pathname);

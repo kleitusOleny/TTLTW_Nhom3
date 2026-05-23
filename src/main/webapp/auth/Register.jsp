@@ -23,7 +23,7 @@
       <div class="lastname form-group">
         <label for="name">Họ *</label>
         <input type="text" id="lastname" name="lastname"
-               placeholder="Nhập đầy đủ họ của bạn"
+               placeholder="VD: Nguyễn, Ngô,..."
                value="${param.lastname}"
                class="${not empty lastNameError ? 'input-error' : ''}" required>
         <span class="error-msg">${lastNameError}</span>
@@ -33,7 +33,7 @@
       <div class="firstname form-group">
         <label for="name">Tên *</label>
         <input type="text" id="firstname" name="firstname"
-               placeholder="Nhập đầy đủ tên của bạn"
+               placeholder="VD: Ánh, Vi,..."
                value="${param.firstname}"
                class="${not empty firstNameError ? 'input-error' : ''}" required>
         <span class="error-msg">${firstNameError}</span>
@@ -46,7 +46,7 @@
       <div class="email-class form-group">
         <label for="email">Email *</label>
         <input type="text" id="email" name="email"
-               placeholder="Nhập vào định dạng Email"
+               placeholder="mizukinayi@gmail.com,..."
                value="${param.email}"
                class="${not empty emailError ? 'input-error' : ''}" required>
         <span class="error-msg">${emailError}</span>
@@ -63,15 +63,20 @@
       <div class="username-class form-group">
         <label for="username">Tên Đăng Nhập</label>
         <input type="text" id="username" name="username"
-               placeholder="Nhập tên đăng nhập (tùy chọn)"
+               placeholder="jukisyuri_25, nguyenanh123,..."
                value="${param.username}"
                class="${not empty usernameError ? 'input-error' : ''}">
         <span class="error-msg">${usernameError}</span>
+        <span class="error-msg">${usernameFormatError}</span>
         <span class="error-msg">${usernameExistError}</span>
         <div class="reminder">
           <div class="remind-item username-remind">
             <input type="checkbox" id="remind-username" name="remind-username" disabled>
             <label for="remind-username">Tên tài khoản phải từ 4-30 kí tự</label>
+          </div>
+          <div class="remind-item username-remind">
+            <input type="checkbox" id="remind-username-specialCharacters" name="remind-username-specialCharacters" disabled>
+            <label for="remind-username-specialCharacters">Tên tài khoản không bao gồm kí tự đặc biệt</label>
           </div>
         </div>
       </div>
@@ -80,7 +85,7 @@
     <div class="password form-group">
       <label for="password">Mật Khẩu *</label>
       <input type="password" id="password" name="password"
-             placeholder="Nhập mật khẩu dựa theo quy tắc được nêu"
+             placeholder="259@Mizu, Hao29@3PJ4,..."
              class="${not empty passwordError ? 'input-error' : ''}" required>
       <span class="error-msg">${passwordError}</span>
     </div>
@@ -102,7 +107,7 @@
     <div class="confirm-password form-group">
       <label for="confirm-password">Nhập lại Mật Khẩu *</label>
       <input type="password" id="confirm-password" name="confirm-password"
-             placeholder="Nhập lại mật khẩu để xác nhận"
+             placeholder="Nhập lại mật khẩu như trên để xác nhận"
              class="${not empty confirmedPasswordError ? 'input-error' : ''}" required>
       <span class="error-msg">${confirmedPasswordError}</span>
     </div>
@@ -116,7 +121,7 @@
     <div class="phone-number form-group">
       <label for="phone-number">Số Điện Thoại *</label>
       <input type="tel" id="phone-number" name="phone-number"
-             placeholder="Nhập số điện thoại của bạn"
+             placeholder="(+84) 0399150382, 0798827263,..."
              value="${param['phone-number']}"
              class="${not empty phoneNumberError ? 'input-error' : ''}" required>
       <span class="error-msg">${phoneNumberError}</span>
@@ -155,22 +160,35 @@
       </div>
     </div>
     <button type="submit">Đăng Kí</button>
-    <%--         Đăng nhập bằng google --%>
     <div class="social-login">
       <div id="social-remind">Chọn phương thức khác để đăng nhập:</div>
-      <div id="g_id_onload"
-           data-client_id="561993862196-rspl5j67m79f0857je2sdrv8f75m2ijs.apps.googleusercontent.com"
-           data-login_uri="${pageContext.request.contextPath}/LoginGoogle"
-           data-scope="https://www.googleapis.com/auth/user.birthday.read"
-           data-auto_prompt="false">
-      </div>
-      <div class="g_id_signin"
-           data-type="standard"
-           data-size="large"
-           data-theme="outline"
-           data-text="sign_in_with"
-           data-shape="rectangular"
-           data-logo_alignment="left">
+      <div class="social-buttons-container">
+        <%-- Đăng nhập bằng Google --%>
+        <div id="g_id_onload"
+             data-client_id="561993862196-rspl5j67m79f0857je2sdrv8f75m2ijs.apps.googleusercontent.com"
+             data-login_uri="${pageContext.request.contextPath}/LoginGoogle?redirect=${param.redirect}"
+             data-scope="https://www.googleapis.com/auth/user.birthday.read"
+             data-auto_prompt="false">
+        </div>
+        <div class="g_id_signin"
+             data-type="standard"
+             data-size="large"
+             data-theme="outline"
+             data-text="signin_with"
+             data-shape="rectangular"
+             data-logo_alignment="left"
+             data-width="300">
+        </div>
+        <%-- Đăng nhập bằng Facebook --%>
+        <a href="https://www.facebook.com/v19.0/dialog/oauth?client_id=1455204079314019&redirect_uri=http://localhost:8080/TTLTW_Nhom3_war_exploded/login-facebook&scope=email,public_profile"
+           class="fb-signin-btn">
+                        <span class="fb-icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                                <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
+                            </svg>
+                        </span>
+          <span class="fb-text-wrapper">Đăng nhập bằng Facebook</span>
+        </a>
       </div>
     </div>
     <a href="login" id="backward">Quay Lại Trang Trước</a>
@@ -273,12 +291,13 @@
   const remindUppercase = document.getElementById('remind-uppercase');
   const remindSpecial = document.getElementById('remind-special');
   const remindUsernameLength = document.getElementById('remind-username');
+  const remindUsernameSpecialCharacters = document.getElementById('remind-username-specialCharacters');
   const remindConfirm = document.getElementById('remind-confirm');
   const remindEmail = document.getElementById('remind-email');
   const remindPhoneNumber = document.getElementById('remind-phone');
   const remindBirth = document.getElementById('remind-birth');
 
-  const listFields = ['#email, #username, #password, #confirm-password, #phone-number, #birth'];
+  const listFields = ['#email', '#username', '#password', '#confirm-password', '#phone-number', 'birth'];
   preventspace(listFields)
 
   function validateBirth() {
@@ -328,9 +347,18 @@
     const usernameValue = usernameInput.value;
     remindUsernameLength.checked = usernameValue.length >= 4 && usernameValue.length <= 30;
   }
+
+  function validateUsernameSpecialCharacters() {
+    const usernameValue = usernameInput.value;
+    remindUsernameSpecialCharacters.checked = !/[^a-zA-Z0-9_-]/.test(usernameValue) && usernameValue.length > 0;
+  }
+
   passwordInput.addEventListener('input', validatePassword);
   confirmInput.addEventListener('input', validateConfirm);
-  usernameInput.addEventListener('input', validateUsername);
+  usernameInput.addEventListener('input', () => {
+    validateUsername(); // kiểm tra độ dài
+    validateUsernameSpecialCharacters();
+  });
   emailInput.addEventListener('input', validateEmail);
   phoneInput.addEventListener('input', validatePhoneNumber);
   birthInput.addEventListener('input', validateBirth);
@@ -341,7 +369,7 @@
     const ageChecked = document.getElementById('age-confirm').checked;
     const licenseChecked = document.getElementById('license-confirm').checked;
     const allValid = remindEmail.checked &&
-            (usernameInput.value.length === 0 || remindUsernameLength.checked) &&
+            (usernameInput.value.length === 0 || remindUsernameLength.checked && remindUsernameSpecialCharacters.checked) &&
             remindWords.checked &&
             remindUppercase.checked &&
             remindSpecial.checked &&
@@ -360,7 +388,10 @@
 <script>
   window.addEventListener('DOMContentLoaded', function() {
     if (emailInput.value) validateEmail();
-    if (usernameInput.value) validateUsername();
+    if (usernameInput.value) {
+      validateUsernameLength();
+      validateUsernameSpecialCharacters();
+    }
     if (phoneInput.value) validatePhoneNumber();
     if (birthInput.value) validateBirth();
     if (passwordInput.value) validatePassword();
