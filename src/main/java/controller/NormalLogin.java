@@ -58,21 +58,22 @@ public class NormalLogin extends HttpServlet {
                         Cart buyNowCart = null;
                         String checkoutType = null;
 
-                        if (oldSession != null) {
-                            cart = (Cart) oldSession.getAttribute("cart");
-                            buyNowCart = (Cart) oldSession.getAttribute("buyNowCart");
-                            checkoutType = (String) oldSession.getAttribute("checkoutType");
-                            oldSession.invalidate();
-                        }
-                        HttpSession session = request.getSession(true);
-                        session.setAttribute("user", account);
-
-                        if (cart != null)
-                            session.setAttribute("cart", cart);
-                        if (buyNowCart != null)
-                            session.setAttribute("buyNowCart", buyNowCart);
-                        if (checkoutType != null)
-                            session.setAttribute("checkoutType", checkoutType);
+                    if (oldSession != null) {
+                        cart = (Cart) oldSession.getAttribute("cart");
+                        buyNowCart = (Cart) oldSession.getAttribute("buyNowCart");
+                        checkoutType = (String) oldSession.getAttribute("checkoutType");
+                        oldSession.invalidate();
+                    }
+                    HttpSession session = request.getSession(true);
+                    session.setAttribute("user", account);
+                    
+                    services.CartSyncService cartSyncService = new services.CartSyncService();
+                    cartSyncService.syncCart(account, session);
+                    
+                    if (buyNowCart != null)
+                        session.setAttribute("buyNowCart", buyNowCart);
+                    if (checkoutType != null)
+                        session.setAttribute("checkoutType", checkoutType);
 
                         String redirect = request.getParameter("redirect");
                         if (account.getAdministrator() == 1) {

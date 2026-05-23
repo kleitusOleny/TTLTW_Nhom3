@@ -13,6 +13,15 @@ import model.Product;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import utils.ExcelUtil;
+
+import java.io.InputStream;
 
 @WebServlet(name = "ProductManagerController", value = "/product-manager")
 @MultipartConfig(
@@ -110,10 +119,56 @@ public class ProductManagerController extends HttpServlet {
                         productDAO.delete(id);
                     }
                 }
+            } else if ("importExcel".equals(action)) {
+                Part filePart = req.getPart("excelFile");
+                if (filePart != null && filePart.getSize() > 0) {
+                    try (InputStream fileContent = filePart.getInputStream();
+                         Workbook workbook = WorkbookFactory.create(fileContent)) {
+                        
+                        Sheet sheet = workbook.getSheetAt(0);
+                        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                            Row row = sheet.getRow(i);
+                            if (row == null) continue;
+                            
+                            String name = ExcelUtil.getCellValueAsString(row.getCell(0));
+                            if (name == null || name.trim().isEmpty()) continue;
+                            
+                            Product p = new Product();
+                            p.setProductName(name);
+                            p.setSlug(name.toLowerCase().replace(" ", "-"));
+                            
+                            try {
+                                p.setPrice(Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(1))));
+                                p.setQuantity((int) Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(2))));
+                                p.setAlcohol(Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(5))));
+                            } catch (NumberFormatException e) {
+                                p.setPrice(0.0);
+                                p.setQuantity(0);
+                                p.setAlcohol(0.0);
+                            }
+                            
+                            p.setOrigin(ExcelUtil.getCellValueAsString(row.getCell(3)));
+                            p.setCapacity(ExcelUtil.getCellValueAsString(row.getCell(4)));
+                            p.setDetail(ExcelUtil.getCellValueAsString(row.getCell(6)));
+                            p.setTypeId(ExcelUtil.getCellValueAsString(row.getCell(7)));
+                            p.setManufacturerId(ExcelUtil.getCellValueAsString(row.getCell(8)));
+                            p.setCategoryId(ExcelUtil.getCellValueAsString(row.getCell(9)));
+                            p.setImageUrl(ExcelUtil.getCellValueAsString(row.getCell(10)));
+                            
+                            p.setId("P" + System.currentTimeMillis() % 100000 + i);
+                            
+                            productDAO.insert(p);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         resp.sendRedirect("product-manager");
     }
+    
+
 }
