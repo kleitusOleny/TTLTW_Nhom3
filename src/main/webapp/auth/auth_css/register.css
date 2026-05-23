@@ -197,7 +197,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 15px;
+    margin-top: 30px;
     text-decoration: none;
     color: #666;
     font-size: 0.95rem;
@@ -245,10 +245,6 @@ p {
 
 #social-remind::after {
     margin-left: 15px;
-}
-
-.g_id_signin {
-    margin-top: 10px;
 }
 
 .modal-overlay {
@@ -336,4 +332,81 @@ p {
 
 #accept-tos-btn {
     transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.social-login {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.social-login div {
+    font-size: 16px;
+    color: #555;
+}
+
+.social-login img {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.social-login img:hover {
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    border-radius: 50px;
+    transition: box-shadow 0.2s ease;
+}
+
+/* Đăng nhập bằng facebook */
+.social-buttons-container {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.g_id_signin, .fb-signin-btn {
+    width: 300px !important;
+    height: 40px !important;
+    box-sizing: border-box;
+    margin-top: 15px;
+}
+
+.fb-signin-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color .218s, border-color .218s, box-shadow .218s;
+    cursor: pointer;
+}
+
+.fb-signin-btn:hover {
+    background-color: #f7fafe;
+    border-color: #d2e3fc;
+}
+
+.fb-icon-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+    padding-right: 50px;
+}
+
+.fb-icon-wrapper svg {
+    display: block;
+}
+
+.fb-text-wrapper {
+    display: inline-block;
+    vertical-align: middle;
+    color: #5b5050;
+    font-family: "Roboto", arial, sans-serif;
+    font-size: 17px;
 }

@@ -8,7 +8,7 @@ import jakarta.mail.internet.MimeMessage;
 import java.util.Properties;
 
 public class EmailServices {
-    private static Dotenv loadDotenv() {
+    public static Dotenv loadDotenv() {
         try {
             java.net.URL resource = EmailServices.class.getClassLoader().getResource(".env");
             if (resource != null) {
