@@ -356,6 +356,8 @@ public class CheckoutController extends HttpServlet {
                     session.removeAttribute("buyNowCart");
                 } else {
                     session.removeAttribute("cart");
+                    CartDAO cartDAO = new CartDAO();
+                    cartDAO.clearCart(user.getId());
                 }
                 session.removeAttribute("pendingOrder");
                 session.removeAttribute("checkoutType");
@@ -389,6 +391,8 @@ public class CheckoutController extends HttpServlet {
                     session.removeAttribute("buyNowCart");
                 } else {
                     session.removeAttribute("cart");
+                    CartDAO cartDAO = new CartDAO();
+                    cartDAO.clearCart(user.getId());
                 }
                 session.removeAttribute("pendingOrder");
                 session.removeAttribute("checkoutType");
