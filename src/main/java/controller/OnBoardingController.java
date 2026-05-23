@@ -65,8 +65,8 @@ public class OnBoardingController extends HttpServlet {
             account = authService.register(fullName, emailToken, username, null, phoneNumber, ts);
             if (account != null) {
                 session.setAttribute("user", account);
-                response.sendRedirect(request.getContextPath() + "/home" + "?loginSuccess");
-                log.info("Đăng kí thành công từ luồng Google");
+                response.sendRedirect(request.getContextPath() + "?registerSuccess");
+                log.info("Đăng kí thành công từ luồng đăng nhập bên thứ ba");
             } else {
                 response.sendRedirect(request.getContextPath() + "onboarding");
             }
