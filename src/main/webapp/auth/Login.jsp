@@ -32,8 +32,8 @@
             <div class="username-input">
                 <label for="username" class="label-with-icon">
                     <ion-icon name="person-outline"></ion-icon>
-                    Tài Khoản</label>
-                <input type="text" id="username" name="username" placeholder="Nhập tài khoản hoặc email hiện có"
+                    Nhập tên tài khoản hoặc email hiện có</label>
+                <input type="text" id="username" name="username" placeholder="anhnguyen12, anhnguyen25@gmail.com"
                        value="${param.username}"
                        class="${not empty usernameError or not empty inputError or not empty loginError ? 'input-error' : ''}" required>
                 <c:if test="${not empty inputError}">
@@ -53,7 +53,7 @@
                 </label>
                 <div class="input-wrapper">
                     <input type="password" id="password" name="password"
-                           placeholder="Nhập mật khẩu hiện có"
+                           placeholder="Anhnguyen@25"
                            class="${not empty inputError ? 'input-error' : ''}"
                            required>
                     <span id="eyeIcon">

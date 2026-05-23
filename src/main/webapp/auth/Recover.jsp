@@ -21,7 +21,7 @@
             <label for="password" class="label-with-icon">
                 <ion-icon name="lock-closed-outline"></ion-icon>
                 Nhập mật khẩu mới</label>
-            <input type="password" id="password" name="password" placeholder="Nhập mật khẩu mới"
+            <input type="password" id="password" name="password" placeholder="259@Mizu, Yu29@3J67,..."
                    class="${not empty passwordError ? 'input-error' : ''}" required>
             <span class="error-msg">${passwordError}</span>
         </div>

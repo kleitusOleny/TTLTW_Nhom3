@@ -23,7 +23,7 @@
       <div class="lastname form-group">
         <label for="name">Họ *</label>
         <input type="text" id="lastname" name="lastname"
-               placeholder="Nhập đầy đủ họ của bạn"
+               placeholder="VD: Nguyễn, Ngô,..."
                value="${param.lastname}"
                class="${not empty lastNameError ? 'input-error' : ''}" required>
         <span class="error-msg">${lastNameError}</span>
@@ -33,7 +33,7 @@
       <div class="firstname form-group">
         <label for="name">Tên *</label>
         <input type="text" id="firstname" name="firstname"
-               placeholder="Nhập đầy đủ tên của bạn"
+               placeholder="VD: Ánh, Vi,..."
                value="${param.firstname}"
                class="${not empty firstNameError ? 'input-error' : ''}" required>
         <span class="error-msg">${firstNameError}</span>
@@ -46,7 +46,7 @@
       <div class="email-class form-group">
         <label for="email">Email *</label>
         <input type="text" id="email" name="email"
-               placeholder="Nhập vào định dạng Email"
+               placeholder="mizukinayi@gmail.com,..."
                value="${param.email}"
                class="${not empty emailError ? 'input-error' : ''}" required>
         <span class="error-msg">${emailError}</span>
@@ -63,7 +63,7 @@
       <div class="username-class form-group">
         <label for="username">Tên Đăng Nhập</label>
         <input type="text" id="username" name="username"
-               placeholder="Nhập tên đăng nhập (tùy chọn)"
+               placeholder="jukisyuri_25, nguyenanh123,..."
                value="${param.username}"
                class="${not empty usernameError ? 'input-error' : ''}">
         <span class="error-msg">${usernameError}</span>
@@ -86,7 +86,7 @@
     <div class="password form-group">
       <label for="password">Mật Khẩu *</label>
       <input type="password" id="password" name="password"
-             placeholder="Nhập mật khẩu dựa theo quy tắc được nêu"
+             placeholder="259@Mizu, Hao29@3PJ4,..."
              class="${not empty passwordError ? 'input-error' : ''}" required>
       <span class="error-msg">${passwordError}</span>
     </div>
@@ -108,7 +108,7 @@
     <div class="confirm-password form-group">
       <label for="confirm-password">Nhập lại Mật Khẩu *</label>
       <input type="password" id="confirm-password" name="confirm-password"
-             placeholder="Nhập lại mật khẩu để xác nhận"
+             placeholder="Nhập lại mật khẩu như trên để xác nhận"
              class="${not empty confirmedPasswordError ? 'input-error' : ''}" required>
       <span class="error-msg">${confirmedPasswordError}</span>
     </div>
@@ -122,7 +122,7 @@
     <div class="phone-number form-group">
       <label for="phone-number">Số Điện Thoại *</label>
       <input type="tel" id="phone-number" name="phone-number"
-             placeholder="Nhập số điện thoại của bạn"
+             placeholder="(+84) 0399150382, 0798827263,..."
              value="${param['phone-number']}"
              class="${not empty phoneNumberError ? 'input-error' : ''}" required>
       <span class="error-msg">${phoneNumberError}</span>
