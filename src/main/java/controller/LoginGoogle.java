@@ -37,11 +37,12 @@ public class LoginGoogle extends HttpServlet {
                     checkoutType = (String) oldSession.getAttribute("checkoutType");
                     oldSession.invalidate();
                 }
+                
                 HttpSession session = request.getSession(true);
                 session.setAttribute("user", user);
-
-                if (cart != null)
-                    session.setAttribute("cart", cart);
+                
+                services.CartSyncService cartSyncService = new services.CartSyncService();
+                cartSyncService.syncCart(user, session);
                 if (buyNowCart != null)
                     session.setAttribute("buyNowCart", buyNowCart);
                 if (checkoutType != null)

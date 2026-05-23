@@ -54,9 +54,10 @@ public class NormalLogin extends HttpServlet {
                     }
                     HttpSession session = request.getSession(true);
                     session.setAttribute("user", account);
-
-                    if (cart != null)
-                        session.setAttribute("cart", cart);
+                    
+                    services.CartSyncService cartSyncService = new services.CartSyncService();
+                    cartSyncService.syncCart(account, session);
+                    
                     if (buyNowCart != null)
                         session.setAttribute("buyNowCart", buyNowCart);
                     if (checkoutType != null)
