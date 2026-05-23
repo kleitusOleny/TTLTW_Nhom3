@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Cart;
+import model.User;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,22 +27,28 @@ public class DeleteCart extends HttpServlet {
         String isAjax = request.getParameter("ajax");
         
         Cart cart = (Cart) request.getSession().getAttribute("cart");
+        User user = (User) request.getSession().getAttribute("user");
+        dao.CartDAO cartDAO = new dao.CartDAO();
         
         if (cart != null) {
             if (listIds != null && listIds.length > 0) {
                 for (String item : listIds) {
                     String[] splitIds = item.split(",");
                     for (String splitId : splitIds) {
-                        if (!splitId.trim().isEmpty()) {
-                            cart.removeItem(splitId.trim());
+                        String cleanId = splitId.trim();
+                        if (!cleanId.isEmpty()) {
+                            cart.removeItem(cleanId);
+                            if (user != null) cartDAO.removeCartItem(user.getId(), cleanId);
                         }
                     }
                 }
             }
             else if (ids != null && ids.length > 0) {
                 for (String singleId : ids) {
-                    if (!singleId.trim().isEmpty()) {
-                        cart.removeItem(singleId.trim());
+                    String cleanId = singleId.trim();
+                    if (!cleanId.isEmpty()) {
+                        cart.removeItem(cleanId);
+                        if (user != null) cartDAO.removeCartItem(user.getId(), cleanId);
                     }
                 }
             }

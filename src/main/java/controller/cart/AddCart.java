@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 import model.Cart;
 import model.CartItem;
 import model.Product;
+import model.User;
 import services.ProductService;
 
 import java.io.IOException;
@@ -28,6 +29,7 @@ public class AddCart extends HttpServlet {
         
         HttpSession session = request.getSession();
         Cart cart = (Cart) session.getAttribute("cart");
+        
         if (cart == null){
             cart = new Cart();
         }
@@ -35,6 +37,11 @@ public class AddCart extends HttpServlet {
         ProductService productService = new ProductService();
         Product product = productService.getProduct(productId);
         
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            dao.CartDAO cartDAO = new dao.CartDAO();
+            cartDAO.upsertCartItem(user.getId(), product.getId(), quantityToAdd);
+        }
         if (product != null) {
             int currentInCart = 0;
             for (CartItem item : cart.getItems()) {
