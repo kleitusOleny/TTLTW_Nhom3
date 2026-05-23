@@ -94,7 +94,7 @@ public class AuthenticationController extends HttpServlet {
                             session.removeAttribute("pendingUser");
                             session.setAttribute("user", realAccount);
                             session.removeAttribute("otpCode");
-                            response.sendRedirect(request.getContextPath() + "/home" + "?registerSuccess");
+                            response.sendRedirect(request.getContextPath() + "?registerSuccess");
                         } else {
                             log.error("Lỗi lưu dữ liệu");
                             request.setAttribute("otpError", "Lỗi lưu dữ liệu, vui lòng thử lại!");

@@ -224,6 +224,9 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 .bind("email", email).mapTo(Boolean.class).one());
     }
     public boolean isUsernameExist(String username){
+        if (username == null || username.trim().isEmpty()) {
+            return false; // tránh việc check lỗi hợp lệ khoảng trắng
+        }
         return jdbi.withHandle(handle -> handle.createQuery("select exists (select 1 from users where username =:username)")
                 .bind("username", username).mapTo(Boolean.class).one());
     }

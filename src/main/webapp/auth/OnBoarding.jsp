@@ -22,7 +22,7 @@
       <div class="lastname form-group">
         <label for="name">Họ *</label>
         <input type="text" id="lastname" name="lastname"
-               placeholder="Nhập đầy đủ họ của bạn"
+               placeholder="VD: Nguyễn, Ngô,..."
                value="${param.lastname}"
                class="${not empty lastNameError ? 'input-error' : ''}" required>
         <span class="error-msg">${lastNameError}</span>
@@ -32,7 +32,7 @@
       <div class="firstname form-group">
         <label for="name">Tên *</label>
         <input type="text" id="firstname" name="firstname"
-               placeholder="Nhập đầy đủ tên của bạn"
+               placeholder="VD: Ánh, Vi,..."
                value="${param.firstname}"
                class="${not empty firstNameError ? 'input-error' : ''}" required>
         <span class="error-msg">${firstNameError}</span>
@@ -43,13 +43,12 @@
     <div class="username-class form-group">
       <label for="username">Tên Đăng Nhập</label>
       <input type="text" id="username" name="username"
-             placeholder="Nhập tên đăng nhập (tùy chọn)"
+             placeholder="jukisyuri_25, nguyenanh123,..."
              value="${param.username}"
              class="${not empty usernameError ? 'input-error' : ''}">
       <span class="error-msg">${usernameError}</span>
       <span class="error-msg">${usernameExistError}</span>
       <span class="error-msg">${usernameFormatError}</span>
-      <span class="error-msg">${usernameNull}</span>
       <div class="reminder">
         <div class="remind-item username-remind">
           <input type="checkbox" id="remind-username" name="remind-username" disabled>
@@ -64,7 +63,7 @@
     <div class="phone-number form-group">
       <label for="phone-number">Số Điện Thoại *</label>
       <input type="tel" id="phone-number" name="phone-number"
-             placeholder="Nhập số điện thoại của bạn"
+             placeholder="(+84) 0399150382, 0798827263,..."
              value="${param['phone-number']}"
              class="${not empty phoneNumberError ? 'input-error' : ''}" required>
       <span class="error-msg">${phoneNumberError}</span>
