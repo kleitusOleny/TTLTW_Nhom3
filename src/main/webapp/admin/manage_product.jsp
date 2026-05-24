@@ -11,7 +11,6 @@
     <script src="<%= request.getContextPath() %>/popup.js"></script>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/admin/admin_css/manage_product_style.css">
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-<%--    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css"/>--%>
 </head>
 
 <body>
