@@ -7,8 +7,11 @@ import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;
 import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlBatch;
+import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 import org.jdbi.v3.sqlobject.transaction.Transaction;
+
+import java.util.List;
 
 @RegisterBeanMapper(ProductReceipt.class)
 @RegisterBeanMapper(ProductReceiptDetail.class)
@@ -43,4 +46,7 @@ public interface ProductReceiptDAO {
         // Bước 3: Tăng số lượng hàng trong kho
         updateProductQuantities(receipt.getDetails());
     }
+    
+    @SqlQuery("SELECT * FROM product_receipts WHERE is_delete = 0 ORDER BY create_at DESC")
+    List<ProductReceipt> findAllActive();
 }
