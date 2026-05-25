@@ -22,7 +22,9 @@ public class WebFilter implements Filter {
             "/banner-manager",
             "/manage-blog",
             "/manage-orders",
-            "/manage-promotions"
+            "/manage-promotions",
+            "/product-receipt-manager",
+            "/product-issue-manager"
     };
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
