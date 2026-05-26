@@ -32,8 +32,8 @@
             <div class="username-input">
                 <label for="username" class="label-with-icon">
                     <ion-icon name="person-outline"></ion-icon>
-                    Tài Khoản</label>
-                <input type="text" id="username" name="username" placeholder="Nhập tài khoản hoặc email hiện có"
+                    Nhập tên tài khoản hoặc email hiện có</label>
+                <input type="text" id="username" name="username" placeholder="anhnguyen12, anhnguyen25@gmail.com"
                        value="${param.username}"
                        class="${not empty usernameError or not empty inputError or not empty loginError ? 'input-error' : ''}" required>
                 <c:if test="${not empty inputError}">
@@ -53,7 +53,7 @@
                 </label>
                 <div class="input-wrapper">
                     <input type="password" id="password" name="password"
-                           placeholder="Nhập mật khẩu hiện có"
+                           placeholder="Anhnguyen@25"
                            class="${not empty inputError ? 'input-error' : ''}"
                            required>
                     <span id="eyeIcon">
@@ -76,22 +76,36 @@
                 <div id="register-remind">Chưa có tài khoản?</div>
                 <a href="register">Đăng Kí</a>
             </div>
-            <%--         Đăng nhập bằng google --%>
             <div class="social-login">
                 <div id="social-remind">Chọn phương thức khác để đăng nhập:</div>
-                <div id="g_id_onload"
-                     data-client_id="561993862196-rspl5j67m79f0857je2sdrv8f75m2ijs.apps.googleusercontent.com"
-                     data-login_uri="${pageContext.request.contextPath}/LoginGoogle?redirect=${param.redirect}"
-                     data-scope="https://www.googleapis.com/auth/user.birthday.read"
-                     data-auto_prompt="false">
-                </div>
-                <div class="g_id_signin"
-                     data-type="standard"
-                     data-size="large"
-                     data-theme="outline"
-                     data-text="sign_in_with"
-                     data-shape="rectangular"
-                     data-logo_alignment="left">
+                <div class="social-buttons-container">
+                    <%-- Đăng nhập bằng Google --%>
+                    <div id="g_id_onload"
+                         data-client_id="561993862196-rspl5j67m79f0857je2sdrv8f75m2ijs.apps.googleusercontent.com"
+                         data-login_uri="${pageContext.request.contextPath}/LoginGoogle?redirect=${param.redirect}"
+                         data-scope="https://www.googleapis.com/auth/user.birthday.read"
+                         data-auto_prompt="false">
+                    </div>
+                    <div class="g_id_signin"
+                         data-type="standard"
+                         data-size="large"
+                         data-theme="outline"
+                         data-text="signin_with"
+                         data-shape="rectangular"
+                         data-logo_alignment="left"
+                         data-width="280">
+                    </div>
+                    <%-- Đăng nhập bằng Facebook --%>
+                        <c:url var="fbRedirectUri" value="/login-facebook" />
+                        <a href="https://www.facebook.com/v19.0/dialog/oauth?client_id=1455204079314019&redirect_uri=${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${fbRedirectUri}&scope=email,public_profile&state=${not empty param.redirect ? param.redirect : ''}"
+                       class="fb-signin-btn">
+                        <span class="fb-icon-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
+                                <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
+                            </svg>
+                        </span>
+                        <span class="fb-text-wrapper">Đăng nhập bằng Facebook</span>
+                    </a>
                 </div>
             </div>
             <a href="${not empty param.redirect ? param.redirect : (not empty header.referer ? header.referer : 'index.jsp')}" id="backward">Quay Lại Trang Trước</a>

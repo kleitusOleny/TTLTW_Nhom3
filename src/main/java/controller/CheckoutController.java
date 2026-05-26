@@ -352,15 +352,17 @@ public class CheckoutController extends HttpServlet {
                         new Timestamp(System.currentTimeMillis() + (long) estimatedDays * 24 * 60 * 60 * 1000));
                 shipOrderDAO.save(shipOrder);
 
-                if ("buyNow".equals(checkoutType)) {
-                    session.removeAttribute("buyNowCart");
-                } else {
-                    session.removeAttribute("cart");
-                }
-                session.removeAttribute("pendingOrder");
-                session.removeAttribute("checkoutType");
-
-                handleDiscountsAfterOrder(order, user);
+//                if ("buyNow".equals(checkoutType)) {
+//                    session.removeAttribute("buyNowCart");
+//                } else {
+//                    session.removeAttribute("cart");
+//                    CartDAO cartDAO = new CartDAO();
+//                    cartDAO.clearCart(user.getId());
+//                }
+//                session.removeAttribute("pendingOrder");
+//                session.removeAttribute("checkoutType");
+//
+//                handleDiscountsAfterOrder(order, user);
 
                 if ("ewallet".equals(paymentMethod)) {
                     response.sendRedirect("payment?orderId=" + orderId);
@@ -389,6 +391,8 @@ public class CheckoutController extends HttpServlet {
                     session.removeAttribute("buyNowCart");
                 } else {
                     session.removeAttribute("cart");
+                    CartDAO cartDAO = new CartDAO();
+                    cartDAO.clearCart(user.getId());
                 }
                 session.removeAttribute("pendingOrder");
                 session.removeAttribute("checkoutType");

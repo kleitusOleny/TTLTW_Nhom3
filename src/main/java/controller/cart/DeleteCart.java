@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Cart;
+import model.User;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -21,20 +22,35 @@ public class DeleteCart extends HttpServlet {
     
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String id = request.getParameter("id");
-        String listId = request.getParameter("listId");
+        String[] listIds = request.getParameterValues("listId");
+        String[] ids = request.getParameterValues("id");
         String isAjax = request.getParameter("ajax");
         
         Cart cart = (Cart) request.getSession().getAttribute("cart");
-
+        User user = (User) request.getSession().getAttribute("user");
+        dao.CartDAO cartDAO = new dao.CartDAO();
+        
         if (cart != null) {
-            if (listId != null && !listId.isEmpty()) {
-                String[] ids = listId.split(",");
-                for (String itemId : ids) {
-                    cart.removeItem(itemId.trim());
+            if (listIds != null && listIds.length > 0) {
+                for (String item : listIds) {
+                    String[] splitIds = item.split(",");
+                    for (String splitId : splitIds) {
+                        String cleanId = splitId.trim();
+                        if (!cleanId.isEmpty()) {
+                            cart.removeItem(cleanId);
+                            if (user != null) cartDAO.removeCartItem(user.getId(), cleanId);
+                        }
+                    }
                 }
-            } else if (id != null) {
-                cart.removeItem(id);
+            }
+            else if (ids != null && ids.length > 0) {
+                for (String singleId : ids) {
+                    String cleanId = singleId.trim();
+                    if (!cleanId.isEmpty()) {
+                        cart.removeItem(cleanId);
+                        if (user != null) cartDAO.removeCartItem(user.getId(), cleanId);
+                    }
+                }
             }
         }
         

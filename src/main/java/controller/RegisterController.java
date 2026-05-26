@@ -5,6 +5,10 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
 import model.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import services.AuthServices;
 import services.UserValidationServices;
 
 import java.io.IOException;
@@ -12,10 +16,13 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @WebServlet(name = "RegisterController", value = "/register")
 public class RegisterController extends HttpServlet {
     UserDAO userDAO = new UserDAO();
+    AuthServices authServices = new AuthServices();
+    private static final Logger log = LoggerFactory.getLogger(RegisterController.class);
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.getRequestDispatcher("/auth/Register.jsp").forward(request, response);
@@ -23,57 +30,66 @@ public class RegisterController extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String emailInput = request.getParameter("email");
+        String email = emailInput.toLowerCase();
+
         String lastname = request.getParameter("lastname");
         String firstname = request.getParameter("firstname");
-
-        String email = request.getParameter("email");
         String username = request.getParameter("username");
         String plainPassword = request.getParameter("password");
         String phoneNumber = request.getParameter("phone-number");
         String birth = request.getParameter("birth");
         String confirmPassword = request.getParameter("confirm-password");
 
-        Map<String, String> allErrors = new HashMap<>();
-        UserValidationServices userValidationServices = new UserValidationServices();
-        allErrors.putAll(userValidationServices.validateEmail(email));
-        if (userDAO.isEmailExist(email)) {
-            allErrors.put("emailExistError", "Email này đã được dùng. Vui lòng chọn email khác");
-        }
-        allErrors.putAll(userValidationServices.validateFirstAndLastName(lastname, firstname));
-        allErrors.putAll(userValidationServices.validateUsername(username));
-        if (userDAO.isUsernameExist(username)) {
-            allErrors.put("usernameExistError", "Tên tài khoản này đã được dùng. Vui lòng chọn tên tài khoản khác");
-        }
-        allErrors.putAll(userValidationServices.validatePassword(plainPassword));
-        allErrors.putAll(userValidationServices.validatePhoneNumber(phoneNumber));
-        if (userDAO.isPhoneNumExist(phoneNumber)) {
-            allErrors.put("phoneNumExistError", "SĐT này đã được sử dụng. Vui lòng chọn sđt khác");
-        }
-        allErrors.putAll(userValidationServices.validateBirth(birth));
-        allErrors.putAll(userValidationServices.isPasswordEqualConfirmed(plainPassword, confirmPassword));
+        authServices.baseSetupMdc(request, email);
 
-        String registerUrl = "/auth/Register.jsp";
-        // Nếu là false thì pass
-        if (allErrors.isEmpty()) {
-            String fullName = lastname + " " + firstname;
-            LocalDate birthDay = LocalDate.parse(birth);
-            Timestamp ts = Timestamp.valueOf(birthDay.atStartOfDay());
+        try {
+            Map<String, String> allErrors = new HashMap<>();
+            UserValidationServices userValidationServices = new UserValidationServices();
+            allErrors.putAll(userValidationServices.validateEmail(email));
+            if (userDAO.isEmailExist(email)) {
+                allErrors.put("emailExistError", "Email này đã được dùng. Vui lòng chọn email khác");
+            }
+            allErrors.putAll(userValidationServices.validateFirstAndLastName(lastname, firstname));
+            allErrors.putAll(userValidationServices.validateUsername(username));
+            if (userDAO.isUsernameExist(username)) {
+                allErrors.put("usernameExistError", "Tên tài khoản này đã được dùng. Vui lòng chọn tên tài khoản khác");
+            }
+            allErrors.putAll(userValidationServices.validatePassword(plainPassword));
+            allErrors.putAll(userValidationServices.validatePhoneNumber(phoneNumber));
+            if (userDAO.isPhoneNumExist(phoneNumber)) {
+                allErrors.put("phoneNumExistError", "SĐT này đã được sử dụng. Vui lòng chọn sđt khác");
+            }
+            allErrors.putAll(userValidationServices.validateBirth(birth));
+            allErrors.putAll(userValidationServices.isPasswordEqualConfirmed(plainPassword, confirmPassword));
 
-            // user này chỉ là tạm thời (chỉ dùng để authentication)
-            User pendingUser = new User();
-            pendingUser.setFullName(fullName);
-            pendingUser.setEmail(email);
-            pendingUser.setUsername(username);
-            pendingUser.setPasswordHash(plainPassword);
-            pendingUser.setPhoneNumber(phoneNumber);
-            pendingUser.setBirthDay(ts);
+            String registerUrl = "/auth/Register.jsp";
+            // Nếu là false thì pass
+            if (allErrors.isEmpty()) {
+                log.info("Chờ xác thực tài khoản mới");
+                String fullName = lastname + " " + firstname;
+                LocalDate birthDay = LocalDate.parse(birth);
+                Timestamp ts = Timestamp.valueOf(birthDay.atStartOfDay());
 
-            HttpSession session = request.getSession();
-            session.setAttribute("pendingUser", pendingUser);
-            response.sendRedirect("authentication");
-        } else {
-            allErrors.forEach(request::setAttribute);
-            request.getRequestDispatcher(registerUrl).forward(request, response);
+                // user này chỉ là tạm thời (chỉ dùng để authentication)
+                User pendingUser = new User();
+                pendingUser.setFullName(fullName);
+                pendingUser.setEmail(email);
+                pendingUser.setUsername(username);
+                pendingUser.setPasswordHash(plainPassword);
+                pendingUser.setPhoneNumber(phoneNumber);
+                pendingUser.setBirthDay(ts);
+
+                HttpSession session = request.getSession();
+                session.setAttribute("pendingUser", pendingUser);
+                response.sendRedirect("authentication");
+            } else {
+                log.warn("Lỗi validation khi đăng ký");
+                allErrors.forEach(request::setAttribute);
+                request.getRequestDispatcher(registerUrl).forward(request, response);
+            }
+        } finally {
+            MDC.clear();
         }
     }
 }

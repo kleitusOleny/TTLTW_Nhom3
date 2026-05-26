@@ -3,6 +3,7 @@ package external_service.paypal;
 import dao.OrderDAO;
 import dao.PaymentDAO;
 import dao.ShipOrderDAO;
+import jakarta.servlet.http.HttpSession;
 import model.Order;
 import model.Payment;
 import model.ShipOrder;
@@ -83,6 +84,30 @@ public class PaypalReturn extends HttpServlet {
                     shipOrder.setEstimatedDeliveryDate(
                             new Timestamp(System.currentTimeMillis() + 3 * 24 * 60 * 60 * 1000));
                     shipOrderDAO.save(shipOrder);
+                }
+                
+                HttpSession session = request.getSession(false);
+                if (session != null) {
+                    String checkoutType = (String) session.getAttribute("checkoutType");
+                    if ("buyNow".equals(checkoutType)) {
+                        session.removeAttribute("buyNowCart");
+                    } else {
+                        session.removeAttribute("cart");
+                        dao.CartDAO cartDAO = new dao.CartDAO();
+                        cartDAO.clearCart(order.getUserId());
+                    }
+                    session.removeAttribute("pendingOrder");
+                    session.removeAttribute("checkoutType");
+                }
+            }else{
+                dao.OrderItemDAO orderItemDAO = new dao.OrderItemDAO();
+                services.ProductService productService = new services.ProductService();
+                java.util.List<model.OrderItem> items = orderItemDAO.getByOrderId(orderId);
+                if (items != null) {
+                    for (model.OrderItem item : items) {
+                        int currentStock = productService.getQuantity(item.getProductId());
+                        productService.updateQuantity(item.getProductId(), currentStock + item.getQuantity());
+                    }
                 }
             }
 

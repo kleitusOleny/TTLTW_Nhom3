@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Cart;
 import model.CartItem;
 import model.Product;
+import model.User;
 import services.ProductService;
 
 import java.io.IOException;
@@ -81,6 +82,12 @@ public class UpdateItem extends HttpServlet {
 //                break;
 //            }
 //        }
+        
+        User user = (User) request.getSession().getAttribute("user");
+        if (user != null) {
+            dao.CartDAO cartDAO = new dao.CartDAO();
+            cartDAO.updateCartItem(user.getId(), id, newQuantity);
+        }
         response.sendRedirect("my-cart");
 
 //        StringBuilder json = new StringBuilder();

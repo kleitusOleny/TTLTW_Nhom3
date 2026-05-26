@@ -134,6 +134,11 @@
             <artifactId>checkout-sdk</artifactId>
             <version>1.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>5.2.3</version>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>
