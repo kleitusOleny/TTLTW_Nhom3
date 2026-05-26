@@ -1,6 +1,6 @@
 package controller;
 
-import dao.BlogDAO;
+import services.BlogService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -13,11 +13,11 @@ import java.util.List;
 
 @WebServlet(name = "BlogController", value = "/blog")
 public class BlogController extends HttpServlet {
-    private BlogDAO blogDAO;
+    private BlogService blogService;
 
     @Override
     public void init() {
-        blogDAO = new BlogDAO();
+        blogService = new BlogService();
     }
 
     @Override
@@ -27,7 +27,6 @@ public class BlogController extends HttpServlet {
             String search = request.getParameter("search");
             String category = request.getParameter("category");
 
-            // Pagination settings
             int page = 1;
             int limit = 6; // Show 6 blogs per page
             if (request.getParameter("page") != null) {
@@ -39,9 +38,8 @@ public class BlogController extends HttpServlet {
             }
             int offset = (page - 1) * limit;
 
-            // Get paginated data
-            List<Blogs> blogs = blogDAO.searchBlogs(search, category, limit, offset);
-            int totalBlogs = blogDAO.countBlogs(search, category);
+            List<Blogs> blogs = blogService.searchBlogs(search, category, limit, offset);
+            int totalBlogs = blogService.countBlogs(search, category);
             int totalPages = (int) Math.ceil((double) totalBlogs / limit);
 
             request.setAttribute("blogs", blogs);
