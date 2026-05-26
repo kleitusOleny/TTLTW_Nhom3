@@ -188,39 +188,47 @@
                                     </div>
 
                                     <div class="tab-content" id="tab-reviews">
-                                        <div class="review-filter-bar"
-                                            style="background: #fffbf8; border: 1px solid #f9ede5; padding: 30px; margin-bottom: 20px; border-radius: 2px; display: flex; align-items: center; gap: 15px;">
-                                            <button class="filter-btn active" data-star="all"
-                                                onclick="filterReviews('all', this)"
-                                                style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
-                                                Tất cả
-                                            </button>
-                                            <button class="filter-btn" data-star="5" onclick="filterReviews(5, this)"
-                                                style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
-                                                5 Sao
-                                            </button>
-                                            <button class="filter-btn" data-star="4" onclick="filterReviews(4, this)"
-                                                style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
-                                                4 Sao
-                                            </button>
-                                            <button class="filter-btn" data-star="3" onclick="filterReviews(3, this)"
-                                                style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
-                                                3 Sao
-                                            </button>
-                                            <button class="filter-btn" data-star="2" onclick="filterReviews(2, this)"
-                                                style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
-                                                2 Sao
-                                            </button>
-                                            <button class="filter-btn" data-star="1" onclick="filterReviews(1, this)"
-                                                style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
-                                                1 Sao
-                                            </button>
+                                        <div class="review-actions-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                            <div class="review-filter-bar" style="background: #fffbf8; border: 1px solid #f9ede5; padding: 20px; border-radius: 2px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; flex: 1;">
+                                                <span style="font-weight: bold; margin-right: 10px;">Lọc theo:</span>
+                                                <button class="filter-btn active" data-star="all" onclick="filterReviews('all', this)"
+                                                    style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
+                                                    Tất cả (${totalReviews})
+                                                </button>
+                                                <button class="filter-btn" data-star="5" onclick="filterReviews(5, this)"
+                                                    style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
+                                                    5 Sao (${star5})
+                                                </button>
+                                                <button class="filter-btn" data-star="4" onclick="filterReviews(4, this)"
+                                                    style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
+                                                    4 Sao (${star4})
+                                                </button>
+                                                <button class="filter-btn" data-star="3" onclick="filterReviews(3, this)"
+                                                    style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
+                                                    3 Sao (${star3})
+                                                </button>
+                                                <button class="filter-btn" data-star="2" onclick="filterReviews(2, this)"
+                                                    style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
+                                                    2 Sao (${star2})
+                                                </button>
+                                                <button class="filter-btn" data-star="1" onclick="filterReviews(1, this)"
+                                                    style="padding: 5px 15px; border: 1px solid rgba(0,0,0,.09); background: #fff; cursor: pointer; border-radius: 2px;">
+                                                    1 Sao (${star1})
+                                                </button>
+                                            </div>
+                                            <div class="review-sort-bar" style="margin-left: 20px;">
+                                                <select id="review-sort-select" onchange="sortReviews(this.value)" style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; outline: none;">
+                                                    <option value="latest">Mới nhất</option>
+                                                    <option value="highest">Đánh giá Cao nhất</option>
+                                                    <option value="lowest">Đánh giá Thấp nhất</option>
+                                                </select>
+                                            </div>
                                         </div>
 
                                         <c:if test="${not empty reviews}">
                                             <div class="reviews-list">
                                                 <c:forEach var="r" items="${reviews}">
-                                                    <div class="review-item" data-star="${r.star}"
+                                                    <div class="review-item" data-star="${r.star}" data-timestamp="${r.createAtDate.time}"
                                                         style="display: flex; align-items: flex-start; padding: 20px 0; border-bottom: 1px solid rgba(0,0,0,.09);">
                                                         <div class="reviewer-avatar"
                                                             style="margin-right: 15px; width: 40px; text-align: center;">
@@ -229,8 +237,8 @@
                                                         </div>
                                                         <div class="review-body" style="flex: 1;">
                                                             <div class="reviewer-name"
-                                                                style="font-size: 12px; color: #333; margin-bottom: 5px;">
-                                                                ${r.fullName}</div>
+                                                                style="font-size: 14px; font-weight: bold; color: #333; margin-bottom: 5px;">
+                                                                ${r.userName}</div>
 
                                                             <div class="review-stars"
                                                                 style="color: #ee4d2d; font-size: 10px; margin-bottom: 5px;">
@@ -250,7 +258,7 @@
 
                                                             <div class="review-meta"
                                                                 style="color: rgba(0,0,0,.54); font-size: 12px; margin-bottom: 15px;">
-                                                                <fmt:formatDate value="${r.createAt}"
+                                                                <fmt:formatDate value="${r.createAtDate}"
                                                                     pattern="yyyy-MM-dd HH:mm" />
                                                             </div>
 
@@ -264,94 +272,53 @@
                                             </div>
                                         </c:if>
 
-                                        <%-- <script>--%>
-                                            <%-- function filterReviews(star, btn) {--%>
-                                                <%-- // Update active button--%>
-                                                    <%-- document.querySelectorAll('.filter-btn').forEach(b=> {--%>
-                                                        <%-- b.style.borderColor='rgba(0,0,0,.09)' ;--%>
-                                                            <%-- b.style.color='#333' ;--%>
-                                                                <%-- b.classList.remove('active');--%>
-                                                                    <%-- });--%>
-                                                                        <%-- btn.style.borderColor='#ee4d2d' ;--%>
-                                                                            <%-- btn.style.color='#ee4d2d' ;--%>
-                                                                                <%-- btn.classList.add('active');--%>
+                                        <script>
+                                            function filterReviews(star, btn) {
+                                                // Update active button
+                                                document.querySelectorAll('.filter-btn').forEach(b => {
+                                                    b.style.borderColor = 'rgba(0,0,0,.09)';
+                                                    b.style.color = '#333';
+                                                    b.classList.remove('active');
+                                                });
+                                                btn.style.borderColor = '#ee4d2d';
+                                                btn.style.color = '#ee4d2d';
+                                                btn.classList.add('active');
 
-                                                                                    <%-- // Filter items--%>
-                                                                                        <%-- const
-                                                                                            items=document.querySelectorAll('.review-item');--%>
-                                                                                            <%-- items.forEach(item=>
-                                                                                                {--%>
-                                                                                                <%-- const
-                                                                                                    itemStar=parseFloat(item.getAttribute('data-star'));--%>
-                                                                                                    <%-- if
-                                                                                                        (star==='all' )
-                                                                                                        {--%>
-                                                                                                        <%-- item.style.display='flex'
-                                                                                                            ;--%>
-                                                                                                            <%-- } else
-                                                                                                                {--%>
-                                                                                                                <%-- //
-                                                                                                                    Simple
-                                                                                                                    logic:
-                                                                                                                    show
-                                                                                                                    if
-                                                                                                                    star
-                                                                                                                    matches
-                                                                                                                    integer
-                                                                                                                    part
-                                                                                                                    (e.g.
-                                                                                                                    4.5
-                                                                                                                    matches
-                                                                                                                    4
-                                                                                                                    star
-                                                                                                                    filter?
-                                                                                                                    Or
-                                                                                                                    5?
-                                                                                                                    Usually
-                                                                                                                    floor
-                                                                                                                    or
-                                                                                                                    round.
-                                                                                                                    Let's
-                                                                                                                    use
-                                                                                                                    floor
-                                                                                                                    for "4 star and up"
-                                                                                                                    or
-                                                                                                                    exact
-                                                                                                                    match?--%>
-                                                                                                                    <%-- //
-                                                                                                                        User
-                                                                                                                        usually
-                                                                                                                        expects "5 Star"
-                                                                                                                        to
-                                                                                                                        mean
-                                                                                                                        5.0. "4 Star"
-                                                                                                                        to
-                                                                                                                        mean
-                                                                                                                        4.0-4.9.--%>
-                                                                                                                        <%-- //
-                                                                                                                            Let's
-                                                                                                                            use
-                                                                                                                            Math.floor(itemStar)==star--%>
-                                                                                                                            <%-- if
-                                                                                                                                (Math.floor(itemStar)==star)
-                                                                                                                                {--%>
-                                                                                                                                <%-- item.style.display='flex'
-                                                                                                                                    ;--%>
-                                                                                                                                    <%-- }
-                                                                                                                                        else
-                                                                                                                                        {--%>
-                                                                                                                                        <%-- item.style.display='none'
-                                                                                                                                            ;--%>
-                                                                                                                                            <%--
-                                                                                                                                                }--%>
-                                                                                                                                                <%--
-                                                                                                                                                    }--%>
-                                                                                                                                                    <%--
-                                                                                                                                                        });--%>
-                                                                                                                                                        <%--
-                                                                                                                                                            }--%>
-                                                                                                                                                            <%--
-                                                                                                                                                                </script>--%>
+                                                // Filter items
+                                                const items = document.querySelectorAll('.review-item');
+                                                items.forEach(item => {
+                                                    const itemStar = parseFloat(item.getAttribute('data-star'));
+                                                    if (star === 'all') {
+                                                        item.style.display = 'flex';
+                                                    } else {
+                                                        if (Math.floor(itemStar) == star) {
+                                                            item.style.display = 'flex';
+                                                        } else {
+                                                            item.style.display = 'none';
+                                                        }
+                                                    }
+                                                });
+                                            }
+
+                                            function sortReviews(sortType) {
+                                                const reviewsList = document.querySelector('.reviews-list');
+                                                if (!reviewsList) return;
+                                                const items = Array.from(reviewsList.querySelectorAll('.review-item'));
+
+                                                items.sort((a, b) => {
+                                                    if (sortType === 'highest') {
+                                                        return parseFloat(b.getAttribute('data-star')) - parseFloat(a.getAttribute('data-star'));
+                                                    } else if (sortType === 'lowest') {
+                                                        return parseFloat(a.getAttribute('data-star')) - parseFloat(b.getAttribute('data-star'));
+                                                    } else {
+                                                        // latest
+                                                        return parseInt(b.getAttribute('data-timestamp')) - parseInt(a.getAttribute('data-timestamp'));
+                                                    }
+                                                });
+
+                                                items.forEach(item => reviewsList.appendChild(item));
+                                            }
+                                        </script>
 
                                                                                                                                                                 <c:if
                                                                                                                                                                     test="${empty reviews}">
@@ -584,7 +551,31 @@
                                     });
                                 }
 
-                                document.addEventListener('DOMContentLoaded', syncGuestFavorites);
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    syncGuestFavorites();
+
+                                    // Xử lý chuyển đổi Tab (Mô tả - Đánh giá)
+                                    const tabLinks = document.querySelectorAll('.tab-link');
+                                    const tabContents = document.querySelectorAll('.tab-content');
+
+                                    tabLinks.forEach(link => {
+                                        link.addEventListener('click', function() {
+                                            // Xóa class active ở tất cả các tab
+                                            tabLinks.forEach(t => t.classList.remove('active'));
+                                            tabContents.forEach(c => c.classList.remove('active'));
+
+                                            // Thêm class active vào tab được click
+                                            this.classList.add('active');
+                                            
+                                            // Hiển thị nội dung tương ứng
+                                            const targetId = this.getAttribute('data-tab');
+                                            const targetElement = document.getElementById(targetId);
+                                            if (targetElement) {
+                                                targetElement.classList.add('active');
+                                            }
+                                        });
+                                    });
+                                });
                             </script>
                 </body>
 
