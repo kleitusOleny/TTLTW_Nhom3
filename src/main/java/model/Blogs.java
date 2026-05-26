@@ -36,7 +36,7 @@ public class Blogs {
     private LocalDate updateAt;
 
     @ColumnName("is_delete")
-    private boolean isDelete;
+    private int isDelete;
 
     public Blogs() {
     }
@@ -117,11 +117,11 @@ public class Blogs {
         this.updateAt = updateAt;
     }
 
-    public boolean isDelete() {
+    public int isDelete() {
         return isDelete;
     }
 
-    public void setDelete(boolean delete) {
+    public void setDelete(int delete) {
         isDelete = delete;
     }
 
@@ -137,5 +137,16 @@ public class Blogs {
             return uploadAt.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy"));
         }
         return "";
+    }
+
+    @ColumnName("link")
+    private String link;
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
     }
 }
