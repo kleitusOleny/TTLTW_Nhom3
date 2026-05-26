@@ -648,7 +648,7 @@
                                                 <article class="blog-card">
                                                     <div class="blog-image">
                                                         <a
-                                                            href="${pageContext.request.contextPath}/blog-detail?slug=${blog.slug}">
+                                                            href="${blog.link}" target="_blank">
                                                             <img src="${blog.blogImage != null ? blog.blogImage : 'img/ruou.jpg'}"
                                                                 alt="${blog.title}">
                                                         </a>
@@ -659,15 +659,11 @@
                                                     <div class="blog-content">
                                                         <h3 class="blog-title">
                                                             <a
-                                                                href="${pageContext.request.contextPath}/blog-detail?slug=${blog.slug}">
+                                                                href="${blog.link}" target="_blank">
                                                                 ${blog.title}
                                                             </a>
                                                         </h3>
-                                                        <p class="blog-excerpt">
-                                                            ${fn:length(blog.content) > 100 ? fn:substring(blog.content,
-                                                            0, 100).concat('...') : blog.content}
-                                                        </p>
-                                                        <a href="${pageContext.request.contextPath}/blog-detail?slug=${blog.slug}"
+                                                        <a href="${blog.link}" target="_blank"
                                                             class="read-more-btn">
                                                             Xem thêm <i class="fa-solid fa-arrow-right"></i>
                                                         </a>

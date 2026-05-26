@@ -14,7 +14,7 @@
                 <link rel="stylesheet" type="text/css"
                     href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
                 <link rel="stylesheet"
-                    href="${pageContext.request.contextPath}/AdminPages/admin_css/manager_blog_style.css">
+                    href="${pageContext.request.contextPath}/admin/admin_css/manager_blog_style.css">
             </head>
 
             <body>
@@ -22,11 +22,11 @@
                     <nav class="dashboard-sidebar">
                         <ul class="sidebar-items">
                             <div class="group-avatar">
-                                <%@ include file="/AdminPages/components/avatar.jsp" %>
-                                <%@ include file="/AdminPages/components/notify_icon.jsp" %>
+                                <%@ include file="/admin/components/avatar.jsp" %>
+                                <%@ include file="/admin/components/notify_icon.jsp" %>
                             </div>
                             <c:set var="activePage" value="blog" scope="request" />
-                            <%@ include file="/AdminPages/components/sidebar_items_component.jsp" %>
+                            <%@ include file="/admin/components/sidebar_items_component.jsp" %>
                         </ul>
                         <div class="text">━ Được update tới 2025 ━</div>
                     </nav>
@@ -75,11 +75,11 @@
                                                     <td class="cell-date">${blog.cardDate}</td>
                                                     <td class="cell-status">${blog.display ? 'Hiện' : 'Ẩn'}</td>
                                                     <td class="cell-action">
-                                                        <form
+                                                        <button type="button" class="edit-blog-btn btn" data-blog-id="${blog.id}" style="background-color: #f39c12; color: white; margin-right: 5px;">Sửa</button>
+                                                        <form id="delete-form-${blog.id}"
                                                             action="${pageContext.request.contextPath}/admin/delete-blog?id=${blog.id}"
-                                                            method="post" style="display: inline;"
-                                                            onsubmit="return confirm('Bạn có chắc chắn muốn xóa bài viết này không?')">
-                                                            <button type="submit" class="delete btn">Xoá</button>
+                                                            method="post" style="display: inline;">
+                                                            <button type="button" class="delete btn" onclick="showDeleteSingleModal('${blog.id}')">Xoá</button>
                                                         </form>
                                                     </td>
                                                 </tr>
@@ -99,41 +99,63 @@
                         <div id="news-message"
                             style="padding: 15px; margin-bottom: 15px; border-radius: 4px; display: none;"></div>
                         <div id="news-table-container">
-                            <table class="approve-table" style="width: 100%; border-collapse: collapse;">
-                                <thead>
-                                    <tr style="background-color: #f5f5f5;">
-                                        <th
-                                            style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 50px;">
-                                            Chọn
-                                        </th>
-                                        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Tiêu đề
-                                        </th>
-                                        <th
-                                            style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 200px;">
-                                            Nguồn
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="news-table-body">
-                                    <tr>
-                                        <td colspan="3" style="padding: 40px; text-align: center; color: #999;">
-                                            <ion-icon name="newspaper-outline"
-                                                style="font-size: 48px; display: block; margin: 0 auto 10px;"></ion-icon>
-                                            Nhấn "Lấy Tin Tức" để tải bài viết mới
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="group-button-action section" style="margin-top: 20px;">
-                            <button type="button" class="cancel element-button" id="close-modal-btn">Đóng</button>
-                            <button type="button" class="fix-btn element-button" id="approve-selected-btn"
-                                style="display: none;">Thêm mới
-                            </button>
+                            <form id="approve-news-form" action="${pageContext.request.contextPath}/admin/approve-news" method="post">
+                                <table class="approve-table" style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background-color: #f5f5f5; color: #333;">
+                                            <th
+                                                style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 50px;">
+                                                Chọn
+                                            </th>
+                                            <th style="padding: 10px; text-align: center; border: 1px solid #ddd; width: 100px;">
+                                                Hình ảnh
+                                            </th>
+                                            <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">
+                                                Tiêu đề & Link
+                                            </th>
+                                            <th
+                                                style="padding: 10px; text-align: left; border: 1px solid #ddd; width: 150px;">
+                                                Nguồn
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="news-table-body">
+                                        <tr>
+                                            <td colspan="4" style="padding: 40px; text-align: center; color: #999;">
+                                                <ion-icon name="newspaper-outline"
+                                                    style="font-size: 48px; display: block; margin: 0 auto 10px;"></ion-icon>
+                                                Nhấn "Lấy Tin Tức" để tải bài viết mới
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="group-button-action section" style="margin-top: 20px;">
+                                    <button type="button" class="cancel element-button" id="close-modal-btn">Đóng</button>
+                                    <button type="submit" class="fix-btn element-button" id="approve-selected-btn"
+                                        style="display: none;">Thêm mới
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
 
+
+                <div class="modal-overlay-deleteAll" id="delete-single-blog-modal">
+                    <div class="modal-content-deleteAll">
+                        <div class="group-text-deleteAll">
+                            <p class="p-deleteAll1">Bạn có chắc chắn muốn xóa bài viết này không?</p>
+                            <p class="p-deleteAll2">
+                                <ion-icon name="warning-outline" class="icon-warning"></ion-icon>
+                                Hành động này sẽ không thể hoàn tác
+                            </p>
+                        </div>
+                        <div class="group-button-action delete-all">
+                            <button type="button" class="element-button" id="close-delete-single-btn">Huỷ</button>
+                            <button type="button" class="deleteAll-button" id="confirm-delete-single-btn">Xoá</button>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="modal-overlay-deleteAll" id="deleteAll-blog-modal">
                     <div class="modal-content-deleteAll">
@@ -179,7 +201,7 @@
                     </div>
                 </div>
 
-                <%@ include file="/AdminPages/components/notify_modal.jsp" %>
+                <%@ include file="/admin/components/notify_modal.jsp" %>
                     <div class="modal-overlay-avatar" id="avatar-account-modal">
                         <div class="modal-content-avatar">
                             <button class="modal-close2" id="close-modal-btn9">
@@ -238,19 +260,22 @@
                             });
                         });
 
-                        function confirmDelete(id) {
-                            if (confirm('Bạn có chắc chắn muốn xóa bài viết này không?')) {
-                                fetch('${pageContext.request.contextPath}/admin/delete-blog?id=' + id, {
-                                    method: 'POST'
-                                }).then(response => {
-                                    if (response.ok) {
-                                        window.location.reload();
-                                    } else {
-                                        alert('Có lỗi xảy ra khi xóa bài viết');
-                                    }
-                                });
-                            }
+                        let currentDeleteFormId = null;
+                        function showDeleteSingleModal(id) {
+                            currentDeleteFormId = 'delete-form-' + id;
+                            document.getElementById('delete-single-blog-modal').classList.add('show');
                         }
+
+                        document.addEventListener("DOMContentLoaded", function () {
+                            document.getElementById('close-delete-single-btn').addEventListener('click', function() {
+                                document.getElementById('delete-single-blog-modal').classList.remove('show');
+                            });
+                            document.getElementById('confirm-delete-single-btn').addEventListener('click', function() {
+                                if (currentDeleteFormId) {
+                                    document.getElementById(currentDeleteFormId).submit();
+                                }
+                            });
+                        });
 
                         function openEditModal(id) {
                             console.log('Opening edit modal for blog ID:', id);
@@ -272,7 +297,7 @@
                                     document.getElementById('edit-status').value = data.display ? 'Hiện' : 'Ẩn';
 
                                     console.log('Opening modal...');
-                                    document.getElementById('edit_information-blog-modal').classList.add('active');
+                                    document.getElementById('edit_information-blog-modal').classList.add('show');
                                 })
                                 .catch(error => {
                                     console.error('Error fetching blog data:', error);
@@ -290,7 +315,7 @@
 
                             const tbody = document.getElementById('news-table-body');
                             const messageDiv = document.getElementById('news-message');
-                            tbody.innerHTML = '<tr><td colspan="3" style="padding: 40px; text-align: center;"><ion-icon name="hourglass-outline" style="font-size: 48px; display: block; margin: 0 auto 10px;"></ion-icon>Đang tải tin tức...</td></tr>';
+                            tbody.innerHTML = '<tr><td colspan="4" style="padding: 40px; text-align: center;"><ion-icon name="hourglass-outline" style="font-size: 48px; display: block; margin: 0 auto 10px;"></ion-icon>Đang tải tin tức...</td></tr>';
 
                             fetch('${pageContext.request.contextPath}/fetch-news')
                                 .then(response => response.json())
@@ -308,16 +333,26 @@
                                             const row = document.createElement('tr');
                                             row.style.borderBottom = '1px solid #ddd';
 
-                                            const title = article.title || article.Title || 'Không có tiêu đề';
-                                            const source = article.source_id || article.source_name || article.source || 'Không rõ';
+                                            const id = article.id;
+                                            const title = (article.title && article.title.trim()) ? article.title : (article.Title && article.Title.trim() ? article.Title : 'Không có tiêu đề');
+                                            const link = (article.link && article.link.trim()) ? article.link : '#';
+                                            const image = (article.image && article.image.trim() && article.image !== "null") ? article.image : 'https://via.placeholder.com/80x60?text=No+Image';
+                                            const source = (article.source_name && article.source_name.trim()) ? article.source_name : 'Không rõ';
 
-                                            row.innerHTML = `
-                                            <td style="padding: 10px; text-align: center; border: 1px solid #ddd;">
-                                                <input type="checkbox" class="news-checkbox" data-index="${index}">
-                                            </td>
-                                            <td style="padding: 10px; border: 1px solid #ddd;">${title}</td>
-                                            <td style="padding: 10px; border: 1px solid #ddd;">${source}</td>
-                                        `;
+                                            row.innerHTML = 
+                                            '<td style="padding: 10px; text-align: center; border: 1px solid #ddd; color: #333;">' +
+                                                '<input type="checkbox" name="newsIds" value="' + id + '" class="news-checkbox" data-index="' + index + '">' +
+                                            '</td>' +
+                                            '<td style="padding: 10px; text-align: center; border: 1px solid #ddd; color: #333;">' +
+                                                '<img src="' + image + '" alt="News Image" style="width: 80px; height: 60px; object-fit: cover; border-radius: 4px;">' +
+                                            '</td>' +
+                                            '<td style="padding: 10px; border: 1px solid #ddd; color: #333;">' +
+                                                '<a href="' + link + '" target="_blank" style="color: #007bff; text-decoration: none; font-weight: 500;">' +
+                                                    title +
+                                                '</a>' +
+                                            '</td>' +
+                                            '<td style="padding: 10px; border: 1px solid #ddd; color: #333;">' + source + '</td>';
+                                            
                                             tbody.appendChild(row);
                                         });
 
@@ -327,7 +362,7 @@
                                         messageDiv.style.backgroundColor = '#f8d7da';
                                         messageDiv.style.color = '#721c24';
                                         messageDiv.textContent = data.message;
-                                        tbody.innerHTML = '<tr><td colspan="3" style="padding: 40px; text-align: center; color: #999;">Không có tin tức mới</td></tr>';
+                                        tbody.innerHTML = '<tr><td colspan="4" style="padding: 40px; text-align: center; color: #999;">Không có tin tức mới</td></tr>';
                                         document.getElementById('approve-selected-btn').style.display = 'none';
                                     }
                                 })
@@ -336,32 +371,8 @@
                                     messageDiv.style.backgroundColor = '#f8d7da';
                                     messageDiv.style.color = '#721c24';
                                     messageDiv.textContent = 'Lỗi khi tải tin tức: ' + error;
-                                    tbody.innerHTML = '<tr><td colspan="3" style="padding: 40px; text-align: center; color: #d32f2f;">Có lỗi xảy ra</td></tr>';
+                                    tbody.innerHTML = '<tr><td colspan="4" style="padding: 40px; text-align: center; color: #d32f2f;">Có lỗi xảy ra</td></tr>';
                                 });
-                        });
-
-                        document.getElementById('approve-news-form').addEventListener('submit', function (e) {
-                            e.preventDefault();
-
-                            const checkboxes = document.querySelectorAll('.news-checkbox:checked');
-                            if (checkboxes.length === 0) {
-                                alert('Vui lòng chọn ít nhất một bài viết');
-                                return false;
-                            }
-
-                            const selectedNews = [];
-                            checkboxes.forEach(cb => {
-                                const index = parseInt(cb.dataset.index);
-                                selectedNews.push(fetchedNewsData[index]);
-                            });
-
-                            const input = document.createElement('input');
-                            input.type = 'hidden';
-                            input.name = 'newsData';
-                            input.value = JSON.stringify(selectedNews);
-                            this.appendChild(input);
-
-                            this.submit();
                         });
                     </script>
 

@@ -55,13 +55,8 @@
                                                     ${blogs[0].cardDate}
                                                 </div>
                                                 <h2 class="title">${blogs[0].title}</h2>
-                                                <p class="excerpt">
-                                                    ${fn:length(blogs[0].content) > 150 ? fn:substring(blogs[0].content,
-                                                    0, 150).concat('...') : blogs[0].content}
-                                                </p>
                                                 <a class="readmore"
-                                                    href="${pageContext.request.contextPath}/blog-detail?slug=${blogs[0].slug}">Đọc
-                                                    tiếp</a>
+                                                    href="${blogs[0].link}" target="_blank">Xem bài báo</a>
                                             </div>
                                         </article>
                                     </section>
@@ -79,13 +74,8 @@
                                                             ${blog.cardDate}
                                                         </div>
                                                         <h3 class="title">${blog.title}</h3>
-                                                        <p class="excerpt">
-                                                            ${fn:length(blog.content) > 100 ? fn:substring(blog.content,
-                                                            0, 100).concat('...') : blog.content}
-                                                        </p>
                                                         <a class="readmore"
-                                                            href="${pageContext.request.contextPath}/blog-detail?slug=${blog.slug}">Đọc
-                                                            tiếp</a>
+                                                            href="${blog.link}" target="_blank">Xem bài báo</a>
                                                     </div>
                                                 </article>
                                             </c:forEach>

@@ -3,35 +3,25 @@ package model;
 import org.jdbi.v3.core.mapper.reflect.ColumnName;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
 
-/**
- * ViewModel để hiển thị thông tin đánh giá đầy đủ
- * Bao gồm thông tin từ bảng evaluates, ct_evaluates, users và products
- */
 public class ReviewViewModel {
-    // Từ bảng ct_evaluates
     private int id;
     private String content;
     private double star;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
     private LocalDateTime isDelete;
-
-    // Từ bảng evaluates
     private String productId;
     private int userId;
-
-    // Từ bảng users
     private String userName;
     private String userEmail;
-
-    // Từ bảng products
     private String productName;
 
     public ReviewViewModel() {
     }
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -61,6 +51,11 @@ public class ReviewViewModel {
 
     public LocalDateTime getCreateAt() {
         return createAt;
+    }
+    
+    public Date getCreateAtDate() {
+        if (createAt == null) return null;
+        return Date.from(createAt.atZone(ZoneId.systemDefault()).toInstant());
     }
 
     @ColumnName("create_at")
@@ -135,7 +130,6 @@ public class ReviewViewModel {
         this.productName = productName;
     }
 
-    // Helper method to format stars as icons
     public String getStarDisplay() {
         StringBuilder sb = new StringBuilder();
         int fullStars = (int) star;
