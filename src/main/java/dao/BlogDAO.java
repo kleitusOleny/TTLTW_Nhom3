@@ -18,7 +18,7 @@ public class BlogDAO extends ADAO {
     public Blogs getById(int id) {
         return jdbi.withHandle(handle -> {
             return handle.createQuery(
-                    "SELECT * FROM blogs WHERE id = :id AND is_delete = 0")
+                    "SELECT * FROM blogs WHERE id = :id")
                     .bind("id", id)
                     .mapToBean(Blogs.class)
                     .findOne()
@@ -49,7 +49,7 @@ public class BlogDAO extends ADAO {
 
     public List<Blogs> getAll() {
         return jdbi.withHandle(handle -> {
-            return handle.createQuery("SELECT * FROM blogs WHERE is_delete = 0 ORDER BY upload_at DESC")
+            return handle.createQuery("SELECT * FROM blogs WHERE display = 1 OR is_delete = 1 ORDER BY upload_at DESC")
                     .mapToBean(Blogs.class)
                     .list();
         });
@@ -59,7 +59,7 @@ public class BlogDAO extends ADAO {
         StringBuilder sql = new StringBuilder("SELECT * FROM blogs WHERE display = 1 AND is_delete = 0");
 
         if (text != null && !text.trim().isEmpty()) {
-            sql.append(" AND (title LIKE :text OR content LIKE :text)");
+            sql.append(" AND (title LIKE :text OR link LIKE :text)");
         }
 
         if (category != null && !category.trim().isEmpty() && !"Tất cả".equalsIgnoreCase(category)) {
@@ -86,7 +86,7 @@ public class BlogDAO extends ADAO {
     public int countBlogs(String text, String category) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM blogs WHERE display = 1 AND is_delete = 0");
         if (text != null && !text.trim().isEmpty()) {
-            sql.append(" AND (title LIKE :text OR content LIKE :text)");
+            sql.append(" AND (title LIKE :text OR link LIKE :text)");
         }
         if (category != null && !category.trim().isEmpty() && !"Tất cả".equalsIgnoreCase(category)) {
             sql.append(" AND category = :category");
@@ -104,7 +104,7 @@ public class BlogDAO extends ADAO {
     public List<Blogs> searchBlogs(String text, String category, int limit, int offset) {
         StringBuilder sql = new StringBuilder("SELECT * FROM blogs WHERE display = 1 AND is_delete = 0");
         if (text != null && !text.trim().isEmpty()) {
-            sql.append(" AND (title LIKE :text OR content LIKE :text)");
+            sql.append(" AND (title LIKE :text OR link LIKE :text)");
         }
         if (category != null && !category.trim().isEmpty() && !"Tất cả".equalsIgnoreCase(category)) {
             sql.append(" AND category = :category");
@@ -147,7 +147,7 @@ public class BlogDAO extends ADAO {
 
     public void delete(int id) {
         jdbi.useHandle(handle -> {
-            handle.createUpdate("UPDATE blogs SET is_delete = 1 WHERE id = :id")
+            handle.createUpdate("UPDATE blogs SET is_delete = 1, display = 0 WHERE id = :id")
                     .bind("id", id)
                     .execute();
         });
@@ -155,13 +155,14 @@ public class BlogDAO extends ADAO {
 
     public void update(Blogs blog) {
         jdbi.useHandle(handle -> {
-            handle.createUpdate("UPDATE blogs SET title = :title, content = :content, blog_image = :image, " +
-                    "category = :category, display = :display, update_at = NOW() WHERE id = :id")
+            handle.createUpdate("UPDATE blogs SET title = :title, link = :link, blog_image = :image, " +
+                    "category = :category, display = :display, is_delete = :isDelete, update_at = NOW() WHERE id = :id")
                     .bind("title", blog.getTitle())
-                    .bind("content", blog.getContent())
+                    .bind("link", blog.getLink())
                     .bind("image", blog.getBlogImage())
                     .bind("category", blog.getCategory())
                     .bind("display", blog.isDisplay())
+                    .bind("isDelete", blog.isDelete())
                     .bind("id", blog.getId())
                     .execute();
         });
@@ -170,15 +171,32 @@ public class BlogDAO extends ADAO {
     public void insert(Blogs blog) {
         jdbi.useHandle(handle -> {
             handle.createUpdate(
-                    "INSERT INTO blogs (title, content, blog_image, category, display, upload_at, create_at, is_delete) "
+                    "INSERT INTO blogs (title, link, blog_image, category, display, upload_at, create_at, is_delete) "
                             +
-                            "VALUES (:title, :content, :image, :category, :display, NOW(), NOW(), 0)")
+                            "VALUES (:title, :link, :image, :category, :display, NOW(), NOW(), 0)")
                     .bind("title", blog.getTitle())
-                    .bind("content", blog.getContent())
+                    .bind("link", blog.getLink())
                     .bind("image", blog.getBlogImage())
                     .bind("category", blog.getCategory())
                     .bind("display", blog.isDisplay())
                     .execute();
+        });
+    }
+
+    public List<Blogs> getAllDisAccept() {
+        return jdbi.withHandle(handle -> {
+            return handle.createQuery("SELECT * FROM blogs WHERE display = 0 AND is_delete = 0 ORDER BY create_at DESC")
+                    .mapToBean(Blogs.class)
+                    .list();
+        });
+    }
+
+    public boolean existsByTitle(String title) {
+        return jdbi.withHandle(handle -> {
+            return handle.createQuery("SELECT COUNT(*) FROM blogs WHERE title = :title")
+                    .bind("title", title)
+                    .mapTo(Integer.class)
+                    .one() > 0;
         });
     }
 }
