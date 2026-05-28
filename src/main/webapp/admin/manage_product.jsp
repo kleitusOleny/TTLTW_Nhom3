@@ -72,7 +72,7 @@
                     </button>
 
                     <form id="form-import-excel" action="<%= request.getContextPath() %>/product-manager?action=importExcel" method="post" enctype="multipart/form-data" style="display: none;">
-                        <input type="file" name="excelFile" id="excelFile" accept=".xlsx, .xls" onchange="document.getElementById('form-import-excel').submit();">
+                        <input type="file" name="excelFile" id="excelFile" accept=".xlsx, .xls">
                     </form>
                     <button class="btn btn-success" onclick="document.getElementById('excelFile').click();">
                         <ion-icon name="document-text-outline"></ion-icon> Nhập Excel
@@ -272,6 +272,50 @@
     </div>
 </div>
 
+<!-- Modal Báo Lỗi Tùy Chọn (Không Dùng Alert) -->
+<div class="modal-overlay-form product-form-modal" id="modal-error-popup">
+    <div class="modal-content-form" style="max-width: 450px; text-align: center; padding: 30px;">
+        <div style="font-size: 50px; color: #e74c3c; margin-bottom: 15px;">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+        </div>
+        <h2 style="color: #e74c3c; margin-bottom: 10px;">Lỗi Định Dạng!</h2>
+        <p id="error-popup-message" style="font-size: 1rem; color: #555; margin-bottom: 20px; line-height: 1.5;"></p>
+        <button type="button" class="btn btn-danger" id="btn-close-error" style="padding: 10px 24px; min-width: 120px;">Đóng</button>
+    </div>
+</div>
+
+<!-- Modal Xác Nhận Nhập Kho Excel -->
+<div class="modal-overlay-form product-form-modal" id="modal-confirm-excel">
+    <div class="modal-content-form" style="max-width: 850px; width: 90%; padding: 25px;">
+        <button class="modal-close-form" id="close-confirm-excel-btn">X</button>
+        <h2 style="margin-bottom: 10px;">Xác Nhận Sản Phẩm Nhập Từ Excel</h2>
+        <p style="color: #666; margin-bottom: 20px; font-size: 0.95rem;">Dưới đây là danh sách sản phẩm phân tích được từ file Excel. Số lượng tồn kho của các sản phẩm trùng tên sẽ được tự động cộng dồn.</p>
+        
+        <div class="table-container" style="max-height: 350px; overflow-y: auto; margin-bottom: 25px; border: 1px solid #e1e8ed; border-radius: 6px;">
+            <table class="product-table" style="width: 100%; border-collapse: collapse; margin: 0;">
+                <thead>
+                    <tr style="background-color: #f5f8fa; border-bottom: 2px solid #e1e8ed; position: sticky; top: 0; z-index: 10;">
+                        <th style="padding: 12px; text-align: left; width: 45%; font-weight: 600;">Sản phẩm</th>
+                        <th style="padding: 12px; text-align: center; width: 25%; font-weight: 600;">Hành động</th>
+                        <th style="padding: 12px; text-align: center; width: 15%; font-weight: 600;">Tồn cũ</th>
+                        <th style="padding: 12px; text-align: center; width: 15%; font-weight: 600;">Tồn mới</th>
+                    </tr>
+                </thead>
+                <tbody id="excel-preview-body">
+                    <!-- Sẽ được render động bằng Javascript -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="form-actions" style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid #e1e8ed; padding-top: 15px; margin-top: 0;">
+            <button type="button" class="btn btn-secondary" id="btn-cancel-import" style="padding: 10px 20px;">Hủy Bỏ</button>
+            <button type="button" class="btn btn-primary" id="btn-confirm-import" style="background-color: #2ecc71; border-color: #2ecc71; padding: 10px 24px; display: flex; align-items: center; gap: 6px;">
+                <ion-icon name="checkmark-circle-outline" style="font-size: 1.2rem;"></ion-icon> Xác Nhận Nhập Kho
+            </button>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
 
@@ -441,6 +485,132 @@
                 }, 300);
             }, 4000);
         }
+
+        // --- Xử lý upload file Excel qua AJAX (Two-step wizard) ---
+        $('#excelFile').on('change', function () {
+            var fileInput = this;
+            if (fileInput.files.length === 0) return;
+
+            var file = fileInput.files[0];
+            var formData = new FormData();
+            formData.append('excelFile', file);
+
+            // Hiển thị trạng thái đang xử lý (loading)
+            var originalText = $('button:has(ion-icon[name="document-text-outline"])').html();
+            $('button:has(ion-icon[name="document-text-outline"])')
+                .prop('disabled', true)
+                .html('<ion-icon name="sync-outline" class="spin" style="animation: spin 1s linear infinite; display: inline-block;"></ion-icon> Đang phân tích...');
+
+            // Thêm style animation spin vào trang
+            if ($('#spin-css').length === 0) {
+                $('head').append('<style id="spin-css">@keyframes spin { 100% { transform:rotate(360deg); } } .spin { animation: spin 1s linear infinite; }</style>');
+            }
+
+            $.ajax({
+                url: 'product-manager?action=importExcel',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function (response) {
+                    // Reset giá trị để có thể chọn lại cùng file
+                    $(fileInput).val('');
+                    // Khôi phục nút bấm
+                    $('button:has(ion-icon[name="document-text-outline"])')
+                        .prop('disabled', false)
+                        .html(originalText);
+
+                    if (response.status === 'success') {
+                        var products = response.products;
+                        var tbody = $('#excel-preview-body');
+                        tbody.empty();
+
+                        if (!products || products.length === 0) {
+                            $('#error-popup-message').text('File Excel trống hoặc không chứa dòng sản phẩm hợp lệ!');
+                            $('#modal-error-popup').addClass('show');
+                            return;
+                        }
+
+                        products.forEach(function (p) {
+                            var statusBadge = '';
+                            if (p.isExisting) {
+                                statusBadge = '<span class="badge" style="background-color: #ffeaa7; color: #d63031; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; display: inline-block;">Cập nhật tồn kho</span>';
+                            } else {
+                                statusBadge = '<span class="badge" style="background-color: #dff9fb; color: #0984e3; padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; display: inline-block;">Thêm mới</span>';
+                            }
+
+                            var rowHtml = '<tr style="border-bottom: 1px solid #e1e8ed;">' +
+                                '<td style="padding: 12px; text-align: left; font-weight: 500; color: #2c3e50; font-size: 0.95rem;">' + p.productName + '</td>' +
+                                '<td style="padding: 12px; text-align: center;">' + statusBadge + '</td>' +
+                                '<td style="padding: 12px; text-align: center; font-weight: 600; color: #7f8c8d; font-size: 0.95rem;">' + p.oldQuantity + '</td>' +
+                                '<td style="padding: 12px; text-align: center; font-weight: 600; color: #2ecc71; font-size: 1rem;">' + p.newQuantity + '</td>' +
+                                '</tr>';
+                            tbody.append(rowHtml);
+                        });
+
+                        $('#modal-confirm-excel').addClass('show');
+                    } else {
+                        $('#error-popup-message').text(response.message || 'File không đúng định dạng hoặc không thể phân tích!');
+                        $('#modal-error-popup').addClass('show');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    $(fileInput).val('');
+                    $('button:has(ion-icon[name="document-text-outline"])')
+                        .prop('disabled', false)
+                        .html(originalText);
+                    
+                    $('#error-popup-message').text('Không thể gửi tệp tin hoặc kết nối máy chủ bị lỗi! Vui lòng kiểm tra lại định dạng file.');
+                    $('#modal-error-popup').addClass('show');
+                }
+            });
+        });
+
+        // Sự kiện đóng các Modal
+        $('#btn-close-error').on('click', function () {
+            $('#modal-error-popup').removeClass('show');
+        });
+
+        $('#btn-cancel-import, #close-confirm-excel-btn').on('click', function () {
+            $('#modal-confirm-excel').removeClass('show');
+            // Gửi request dọn dẹp session để an toàn
+            $.post('product-manager', { action: 'confirmImportExcel' }); // Gọi khống để dọn dẹp hoặc bỏ qua
+        });
+
+        // Xác nhận thực sự lưu xuống CSDL
+        $('#btn-confirm-import').on('click', function () {
+            var confirmBtn = $(this);
+            var originalConfirmHtml = confirmBtn.html();
+
+            confirmBtn.prop('disabled', true).html('<ion-icon name="sync-outline" class="spin" style="animation: spin 1s linear infinite; display: inline-block;"></ion-icon> Đang nhập kho...');
+
+            $.ajax({
+                url: 'product-manager?action=confirmImportExcel',
+                type: 'POST',
+                dataType: 'json',
+                success: function (response) {
+                    confirmBtn.prop('disabled', false).html(originalConfirmHtml);
+                    $('#modal-confirm-excel').removeClass('show');
+
+                    if (response.status === 'success') {
+                        showToast("Nhập kho sản phẩm từ Excel thành công!", "success");
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1200);
+                    } else {
+                        $('#error-popup-message').text(response.message || 'Lỗi khi cập nhật CSDL từ Excel!');
+                        $('#modal-error-popup').addClass('show');
+                    }
+                },
+                error: function () {
+                    confirmBtn.prop('disabled', false).html(originalConfirmHtml);
+                    $('#modal-confirm-excel').removeClass('show');
+                    $('#error-popup-message').text('Lỗi hệ thống khi lưu trữ dữ liệu!');
+                    $('#modal-error-popup').addClass('show');
+                }
+            });
+        });
 
         // Show server feedback toasts based on URL query parameters
         const urlParams = new URLSearchParams(window.location.search);
