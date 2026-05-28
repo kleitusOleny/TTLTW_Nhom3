@@ -130,4 +130,129 @@ public class EmailServices {
             return false;
         }
     }
+
+    public boolean sendOrderProblemEmail(String toEmail, int orderId, String status) {
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(username));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject("Cập nhật trạng thái đơn hàng #" + orderId);
+            message.setContent(
+                    "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto;'>"
+                            + "<div style='background-color: #fd7e14; padding: 20px; text-align: center;'>"
+                            + "<h1 style='color: #fff; margin: 0;'>Đơn hàng có sự thay đổi</h1></div>"
+                            + "<div style='padding: 30px; background-color: #f9f9f9;'>"
+                            + "<p>Chào bạn,</p>"
+                            + "<p>Đơn hàng <strong>#" + orderId + "</strong> của bạn vừa được cập nhật trạng thái thành: <strong>" + status + "</strong>.</p>"
+                            + "<p>Nếu có bất kỳ thắc mắc hoặc vấn đề gì về đơn hàng, vui lòng phản hồi lại email này để chúng tôi hỗ trợ kịp thời.</p>"
+                            + "<p>Trân trọng,<br/>Đội ngũ hỗ trợ</p>"
+                            + "</div></div>",
+                    "text/html; charset=UTF-8");
+            Transport.send(message);
+            return true;
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean sendRefundEmail(String toEmail, int orderId, double amount, String reason, String payMethod) {
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(username));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject("Thông báo hoàn tiền đơn hàng #" + orderId);
+            message.setContent(
+                    "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto;'>"
+                            + "<div style='background-color: #17a2b8; padding: 20px; text-align: center;'>"
+                            + "<h1 style='color: #fff; margin: 0;'>Hoàn tiền đơn hàng</h1></div>"
+                            + "<div style='padding: 30px; background-color: #f9f9f9;'>"
+                            + "<p>Chào bạn,</p>"
+                            + "<p>Đơn hàng <strong>#" + orderId + "</strong> của bạn đã được xử lý hoàn tiền.</p>"
+                            + "<table style='width:100%;border-collapse:collapse;margin:15px 0;'>"
+                            + "<tr><td style='padding:8px;border:1px solid #ddd;font-weight:bold;'>Số tiền hoàn:</td>"
+                            + "<td style='padding:8px;border:1px solid #ddd;color:#28a745;font-weight:bold;'>" + String.format("%,.0f", amount) + "₫</td></tr>"
+                            + "<tr><td style='padding:8px;border:1px solid #ddd;font-weight:bold;'>Phương thức:</td>"
+                            + "<td style='padding:8px;border:1px solid #ddd;'>" + payMethod + "</td></tr>"
+                            + "<tr><td style='padding:8px;border:1px solid #ddd;font-weight:bold;'>Lý do:</td>"
+                            + "<td style='padding:8px;border:1px solid #ddd;'>" + reason + "</td></tr>"
+                            + "</table>"
+                            + "<p>Số tiền sẽ được hoàn lại trong vòng <strong>3-7 ngày làm việc</strong> tùy theo phương thức thanh toán.</p>"
+                            + "<p>Nếu có bất kỳ thắc mắc nào, vui lòng phản hồi lại email này.</p>"
+                            + "<p>Trân trọng,<br/>Đội ngũ hỗ trợ</p>"
+                            + "</div></div>",
+                    "text/html; charset=UTF-8");
+            Transport.send(message);
+            return true;
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean sendAdminFeedbackEmail(String toEmail, int orderId, String subject, String content, String adminName) {
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(username, password);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(username));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject(subject + " - Đơn hàng #" + orderId);
+            String escapedContent = content.replace("\n", "<br/>");
+            message.setContent(
+                    "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: auto;'>"
+                            + "<div style='background-color: #6f42c1; padding: 20px; text-align: center;'>"
+                            + "<h1 style='color: #fff; margin: 0;'>Phản hồi từ cửa hàng</h1></div>"
+                            + "<div style='padding: 30px; background-color: #f9f9f9;'>"
+                            + "<p>Chào bạn,</p>"
+                            + "<p>Chúng tôi xin phản hồi về đơn hàng <strong>#" + orderId + "</strong> của bạn:</p>"
+                            + "<div style='background:#fff;border-left:4px solid #6f42c1;padding:15px;margin:15px 0;border-radius:4px;'>"
+                            + escapedContent
+                            + "</div>"
+                            + "<p style='color:#888;font-size:13px;'>Phản hồi bởi: " + adminName + "</p>"
+                            + "<p>Nếu có bất kỳ thắc mắc nào, vui lòng phản hồi lại email này.</p>"
+                            + "<p>Trân trọng,<br/>Đội ngũ hỗ trợ</p>"
+                            + "</div></div>",
+                    "text/html; charset=UTF-8");
+            Transport.send(message);
+            return true;
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
