@@ -418,6 +418,21 @@ public class ProductDAO extends ADAO {
         });
     }
 
+    public Product getProductByName(String name) {
+        return jdbi.withHandle(handle -> handle.createQuery(
+                "SELECT p.id, p.product_name, p.slug, p.price, p.capacity, p.alcohol, p.origin, p.quantity, p.detail, p.create_at, p.update_at, p.is_delete, " +
+                "t.type_name AS typeId, m.manufacturer_name AS manufacturerId, c.category_name AS categoryId, " +
+                "(SELECT url_img FROM p_img WHERE product_id = p.id LIMIT 1) AS imageUrl " +
+                "FROM products p " +
+                "LEFT JOIN product_types t ON p.type_id = t.id " +
+                "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
+                "LEFT JOIN categorys c ON p.category_id = c.id " +
+                "WHERE p.product_name = :name AND p.is_delete = 0 LIMIT 1")
+                .bind("name", name)
+                .mapToBean(Product.class)
+                .findFirst().orElse(null));
+    }
+
     public List<Product> countOutOfStocks() {
         return jdbi
                 .withHandle(handle -> handle.createQuery("SELECT * FROM products WHERE quantity <= 5 AND is_delete = 0")

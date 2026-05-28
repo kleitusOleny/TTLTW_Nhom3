@@ -87,6 +87,33 @@ public class Product implements Serializable {
     @ColumnName("status")
     private int status;
 
+    private int oldQuantity;
+    private int newQuantity;
+    private boolean isExisting;
+
+    public int getOldQuantity() {
+        return oldQuantity;
+    }
+
+    public void setOldQuantity(int oldQuantity) {
+        this.oldQuantity = oldQuantity;
+    }
+
+    public int getNewQuantity() {
+        return newQuantity;
+    }
+
+    public void setNewQuantity(int newQuantity) {
+        this.newQuantity = newQuantity;
+    }
+
+    public boolean getIsExisting() {
+        return isExisting;
+    }
+
+    public void setIsExisting(boolean isExisting) {
+        this.isExisting = isExisting;
+    }
 
     public Product() {
     }
