@@ -55,11 +55,26 @@ public class ProductManagerController extends HttpServlet {
             if ("add".equals(action) || "edit".equals(action)) {
                 // 1. Lấy dữ liệu chung
                 String name = req.getParameter("name");
-                double price = Double.parseDouble(req.getParameter("price"));
-                int quantity = Integer.parseInt(req.getParameter("stock"));
+                double price = 0.0;
+                try {
+                    price = Double.parseDouble(req.getParameter("price"));
+                } catch (Exception e) {}
+                
+                int quantity = 10;
+                try {
+                    quantity = Integer.parseInt(req.getParameter("stock"));
+                } catch (Exception e) {}
+                
                 String origin = req.getParameter("origin");
                 String capacity = req.getParameter("capacity");
-                double alcohol = Double.parseDouble(req.getParameter("alcohol"));
+                
+                double alcohol = 0.0;
+                String alcoholParam = req.getParameter("alcohol");
+                if (alcoholParam != null && !alcoholParam.trim().isEmpty()) {
+                    try {
+                        alcohol = Double.parseDouble(alcoholParam.trim());
+                    } catch (Exception e) {}
+                }
                 String detail = req.getParameter("detail");
                 
                 // Xử lý Upload ảnh
@@ -69,9 +84,16 @@ public class ProductManagerController extends HttpServlet {
                 // Nếu có file mới được upload
                 if (filePart != null && filePart.getSize() > 0) {
                     String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
-                    String uploadPath = getServletContext().getRealPath("") + File.separator + "assets" + File.separator + "products";
+                    String uploadPath = getServletContext().getRealPath("");
+                    if (uploadPath == null) {
+                        uploadPath = getServletContext().getRealPath("/");
+                    }
+                    if (uploadPath == null) {
+                        uploadPath = System.getProperty("user.dir");
+                    }
+                    uploadPath = uploadPath + File.separator + "assets" + File.separator + "products";
                     File uploadDir = new File(uploadPath);
-                    if (!uploadDir.exists()) uploadDir.mkdir();
+                    if (!uploadDir.exists()) uploadDir.mkdirs();
                     
                     String finalFileName = System.currentTimeMillis() + "_" + fileName;
                     filePart.write(uploadPath + File.separator + finalFileName);
@@ -84,7 +106,7 @@ public class ProductManagerController extends HttpServlet {
                 // Map dữ liệu
                 Product p = new Product();
                 p.setProductName(name);
-                p.setSlug(name.toLowerCase().replace(" ", "-"));
+                p.setSlug(name != null ? name.toLowerCase().replace(" ", "-") : "");
                 p.setOrigin(origin);
                 p.setPrice(price);
                 p.setCapacity(capacity);
