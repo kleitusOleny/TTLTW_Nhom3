@@ -22,6 +22,11 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import utils.ExcelUtil;
 
 import java.io.InputStream;
+import com.google.gson.Gson;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @WebServlet(name = "ProductManagerController", value = "/product-manager")
 @MultipartConfig(
@@ -142,12 +147,18 @@ public class ProductManagerController extends HttpServlet {
                     }
                 }
             } else if ("importExcel".equals(action)) {
+                resp.setContentType("application/json");
+                resp.setCharacterEncoding("UTF-8");
+                Map<String, Object> result = new HashMap<>();
+                
                 Part filePart = req.getPart("excelFile");
                 if (filePart != null && filePart.getSize() > 0) {
                     try (InputStream fileContent = filePart.getInputStream();
                          Workbook workbook = WorkbookFactory.create(fileContent)) {
                         
                         Sheet sheet = workbook.getSheetAt(0);
+                        List<Product> productList = new ArrayList<>();
+                        
                         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                             Row row = sheet.getRow(i);
                             if (row == null) continue;
@@ -159,15 +170,22 @@ public class ProductManagerController extends HttpServlet {
                             p.setProductName(name);
                             p.setSlug(name.toLowerCase().replace(" ", "-"));
                             
+                            double price = 0.0;
+                            int quantity = 0;
+                            double alcohol = 0.0;
                             try {
-                                p.setPrice(Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(1))));
-                                p.setQuantity((int) Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(2))));
-                                p.setAlcohol(Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(5))));
-                            } catch (NumberFormatException e) {
-                                p.setPrice(0.0);
-                                p.setQuantity(0);
-                                p.setAlcohol(0.0);
-                            }
+                                price = Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(1)));
+                            } catch (Exception e) {}
+                            try {
+                                quantity = (int) Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(2)));
+                            } catch (Exception e) {}
+                            try {
+                                alcohol = Double.parseDouble(ExcelUtil.getCellValueAsString(row.getCell(5)));
+                            } catch (Exception e) {}
+                            
+                            p.setPrice(price);
+                            p.setQuantity(quantity);
+                            p.setAlcohol(alcohol);
                             
                             p.setOrigin(ExcelUtil.getCellValueAsString(row.getCell(3)));
                             p.setCapacity(ExcelUtil.getCellValueAsString(row.getCell(4)));
@@ -177,13 +195,82 @@ public class ProductManagerController extends HttpServlet {
                             p.setCategoryId(ExcelUtil.getCellValueAsString(row.getCell(9)));
                             p.setImageUrl(ExcelUtil.getCellValueAsString(row.getCell(10)));
                             
-                            p.setId("P" + System.currentTimeMillis() % 100000 + i);
+                            // So khớp sản phẩm trong CSDL
+                            Product existing = productDAO.getProductByName(name);
+                            if (existing != null) {
+                                p.setIsExisting(true);
+                                p.setOldQuantity(existing.getQuantity());
+                                p.setNewQuantity(existing.getQuantity() + quantity);
+                                p.setId(existing.getId());
+                                if (p.getPrice() == 0.0) {
+                                    p.setPrice(existing.getPrice());
+                                }
+                            } else {
+                                p.setIsExisting(false);
+                                p.setOldQuantity(0);
+                                p.setNewQuantity(quantity);
+                                p.setId("P" + (System.currentTimeMillis() % 100000) + i);
+                            }
                             
-                            productDAO.insert(p);
+                            productList.add(p);
                         }
+                        
+                        // Lưu danh sách vào Session
+                        req.getSession().setAttribute("excelImportProducts", productList);
+                        
+                        result.put("status", "success");
+                        result.put("products", productList);
+                        resp.getWriter().write(new Gson().toJson(result));
+                        return;
                     } catch (Exception e) {
                         e.printStackTrace();
+                        result.put("status", "error");
+                        result.put("message", "File không đúng định dạng hoặc không thể phân tích dữ liệu!");
+                        resp.getWriter().write(new Gson().toJson(result));
+                        return;
                     }
+                } else {
+                    result.put("status", "error");
+                    result.put("message", "Vui lòng chọn một file Excel hợp lệ!");
+                    resp.getWriter().write(new Gson().toJson(result));
+                    return;
+                }
+            } else if ("confirmImportExcel".equals(action)) {
+                resp.setContentType("application/json");
+                resp.setCharacterEncoding("UTF-8");
+                Map<String, Object> result = new HashMap<>();
+                
+                try {
+                    List<Product> productList = (List<Product>) req.getSession().getAttribute("excelImportProducts");
+                    if (productList == null || productList.isEmpty()) {
+                        result.put("status", "error");
+                        result.put("message", "Không tìm thấy dữ liệu nhập Excel trong phiên làm việc của bạn!");
+                        resp.getWriter().write(new Gson().toJson(result));
+                        return;
+                    }
+                    
+                    for (Product p : productList) {
+                        if (p.getIsExisting()) {
+                            // Cập nhật số lượng mới (cộng dồn)
+                            productDAO.updateQuantity(p.getId(), p.getNewQuantity());
+                        } else {
+                            // Thêm mới hoàn toàn
+                            productDAO.insert(p);
+                        }
+                    }
+                    
+                    // Dọn dẹp session
+                    req.getSession().removeAttribute("excelImportProducts");
+                    
+                    result.put("status", "success");
+                    resp.getWriter().write(new Gson().toJson(result));
+                    return;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    result.put("status", "error");
+                    result.put("message", "Lỗi CSDL khi lưu trữ sản phẩm từ Excel: " + e.getMessage());
+                    resp.getWriter().write(new Gson().toJson(result));
+                    return;
                 }
             }
         } catch (Exception e) {
