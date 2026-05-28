@@ -30,7 +30,8 @@ public class ProductDAO extends ADAO {
                         "FROM products p " +
                         "LEFT JOIN product_types t ON p.type_id = t.id " +
                         "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
-                        "LEFT JOIN categorys c ON p.category_id = c.id ")
+                        "LEFT JOIN categorys c ON p.category_id = c.id " +
+                        "WHERE p.is_delete = 0")
                 .mapToBean(Product.class)
                 .list());
     }
@@ -370,6 +371,13 @@ public class ProductDAO extends ADAO {
                             "VALUES (:id, :productName, :slug, :typeId, :price, :capacity, :alcohol, :origin, :manufacturerId, :categoryId, :detail, :quantity, NOW(), 0)")
                     .bindBean(p)
                     .execute();
+            
+            if (p.getImageUrl() != null && !p.getImageUrl().trim().isEmpty()) {
+                handle.createUpdate("INSERT INTO p_img (product_id, url_img) VALUES (:productId, :urlImg)")
+                        .bind("productId", p.getId())
+                        .bind("urlImg", p.getImageUrl())
+                        .execute();
+            }
         });
     }
 
@@ -389,6 +397,24 @@ public class ProductDAO extends ADAO {
                     "WHERE id=:id")
                     .bindBean(p)
                     .execute();
+            
+            if (p.getImageUrl() != null && !p.getImageUrl().trim().isEmpty()) {
+                boolean exists = handle.createQuery("SELECT EXISTS(SELECT 1 FROM p_img WHERE product_id = :productId)")
+                        .bind("productId", p.getId())
+                        .mapTo(Boolean.class)
+                        .one();
+                if (exists) {
+                    handle.createUpdate("UPDATE p_img SET url_img = :urlImg WHERE product_id = :productId")
+                            .bind("productId", p.getId())
+                            .bind("urlImg", p.getImageUrl())
+                            .execute();
+                } else {
+                    handle.createUpdate("INSERT INTO p_img (product_id, url_img) VALUES (:productId, :urlImg)")
+                            .bind("productId", p.getId())
+                            .bind("urlImg", p.getImageUrl())
+                            .execute();
+                }
+            }
         });
     }
 
