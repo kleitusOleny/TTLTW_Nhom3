@@ -42,7 +42,18 @@ public class Order {
     @ColumnName("note")
     private String note;
 
+    @ColumnName("message")
+    private String message;
+
     private List<OrderItem> items;
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 
     public String getNote() {
         return note;
