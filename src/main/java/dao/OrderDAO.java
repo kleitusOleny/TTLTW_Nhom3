@@ -13,7 +13,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     public Order findById(int id) {
         return jdbi.withHandle(handle -> handle
-                .createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE id = :id AND is_delete IS NULL")
+                .createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE id = :id AND is_delete IS NULL")
                 .bind("id", id)
                 .mapToBean(Order.class)
                 .findFirst()
@@ -72,7 +72,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     public List<Order> search(String keyword) {
         return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, create_at, update_at, is_delete, loyalty_discount_id FROM orders
+                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders
                         WHERE is_delete IS NULL
                         AND (CAST(id AS CHAR) LIKE :kw OR CAST(user_id AS CHAR) LIKE :kw)
                         """)
@@ -83,7 +83,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     public List<Order> getByUserId(int userId) {
         return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, create_at, update_at, is_delete, loyalty_discount_id FROM orders
+                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders
                         WHERE user_id = :uid AND is_delete IS NULL
                         ORDER BY create_at DESC
                         """)
@@ -94,7 +94,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     public Order getLatestOrder(int userId) {
         return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("""
-                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, create_at, update_at, is_delete, loyalty_discount_id FROM orders
+                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders
                         WHERE user_id = :uid AND is_delete IS NULL
                         ORDER BY create_at DESC
                         LIMIT 1
@@ -134,7 +134,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     public List<OrderViewModel> getAllOrdersWithStatus() {
         return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT o.id, o.create_at, o.total_price,
+                        SELECT o.id, o.create_at, o.total_price, o.is_delete,
                                COALESCE(a.full_name, u.full_name) as customerName,
                                s.status as status,
                                pm.pay_strategy as payStrategy
@@ -143,7 +143,6 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
                         LEFT JOIN addresses a ON o.shipping_address_id = a.id
                         LEFT JOIN ship_orders s ON o.id = s.order_id
                         LEFT JOIN payments pm ON o.id = pm.order_id
-                        WHERE o.is_delete IS NULL
                         ORDER BY o.create_at DESC
                         """)
                 .mapToBean(OrderViewModel.class)
@@ -186,7 +185,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
                                END as note,
                                s.status as ship_status, s.carrier_name,
                                a.address_line as specific_address, a.ward, a.city,
-                               pm.pay_strategy,
+                               pm.pay_strategy, pm.status as payment_status,
                                (SELECT NULL) as district, (SELECT NULL) as province_city
                         FROM orders o
                         LEFT JOIN users u ON o.user_id = u.id
@@ -215,7 +214,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
     @Override
     public List<Order> findAll() {
         return jdbi.withHandle(
-                handle -> handle.createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE is_delete IS NULL")
+                handle -> handle.createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE is_delete IS NULL")
                         .mapToBean(Order.class)
                         .list());
     }
@@ -226,7 +225,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
             return Optional.empty();
         }
         Order order = jdbi.withHandle(handle -> handle
-                .createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE id = :id AND is_delete IS NULL")
+                .createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE id = :id AND is_delete IS NULL")
                 .bind("id", integer)
                 .mapToBean(Order.class)
                 .findFirst()
@@ -252,7 +251,8 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
                           total_price = :total_price,
                           update_at = :update_at,
                           is_delete = :is_delete,
-                          note = :note
+                          note = :note,
+                          message = :message
                       WHERE id = :id
                     """
                     : """
@@ -268,7 +268,8 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
                           create_at,
                           update_at,
                           is_delete,
-                          note
+                          note,
+                          message
                       )
                       VALUES
                       (
@@ -282,7 +283,8 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
                           :create_at,
                           :update_at,
                           :is_delete,
-                          :note
+                          :note,
+                          :message
                       )
                     """;
 
@@ -291,7 +293,8 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
                     .bind("shipping_address_id", entity.getShippingAddressId())
                     .bind("total_price", entity.getTotalPrice())
                     .bind("update_at", entity.getUpdateAt())
-                    .bind("note", entity.getNote());
+                    .bind("note", entity.getNote())
+                    .bind("message", entity.getMessage());
             if (isUpdate && exists) {
                 update.bind("id", entity.getId());
             } else {
