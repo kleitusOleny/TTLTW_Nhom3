@@ -322,16 +322,16 @@
                             </a>
 
                             <!-- Discount badge -->
-<%--                            <c:if test="${p.discountedPrice < p.price}">--%>
-<%--                                <c:set var="discountPercent"--%>
-<%--                                       value="${((p.price - p.discountedPrice) / p.price) * 100}"/>--%>
-<%--                                <div--%>
-<%--                                        style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">--%>
-<%--                                    ---%>
-<%--                                    <fmt:formatNumber value="${discountPercent}"--%>
-<%--                                                      maxFractionDigits="0"/>%--%>
-<%--                                </div>--%>
-<%--                            </c:if>--%>
+                            <c:if test="${p.discountedPrice < p.price}">
+                                <c:set var="discountPercent"
+                                       value="${((p.price - p.discountedPrice) / p.price) * 100}"/>
+                                <div
+                                        style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                    -
+                                    <fmt:formatNumber value="${discountPercent}"
+                                                      maxFractionDigits="0"/>%
+                                </div>
+                            </c:if>
                         </div>
                         <div class="product-info">
                             <h3 class="product-name">
@@ -371,21 +371,21 @@
                             </div>
 
                             <p class="product-price">
-<%--                                <c:choose>--%>
-<%--                                    <c:when test="${p.discountedPrice < p.price}">--%>
-<%--                                        <span style="color: #8c3333; font-weight: bold; font-size: 1.1rem; margin-right: 8px;">--%>
-<%--                                            <fmt:formatNumber value="${p.discountedPrice}" type="number" maxFractionDigits="0"/>₫--%>
-<%--                                        </span>--%>
-<%--                                        <span style="text-decoration: line-through; color: #999; font-size: 0.9rem;">--%>
-<%--                                            <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/>₫--%>
-<%--                                        </span>--%>
-<%--                                    </c:when>--%>
-<%--                                    <c:otherwise>--%>
-                                        <fmt:setLocale value="vi_VN"/>
+                                <fmt:setLocale value="vi_VN"/>
+                                <c:choose>
+                                    <c:when test="${p.discountedPrice < p.price}">
+                                        <span style="color: #8c3333; font-weight: bold; font-size: 1.1rem; margin-right: 8px;">
+                                            <fmt:formatNumber value="${p.discountedPrice}" type="number" maxFractionDigits="0"/>₫
+                                        </span>
+                                        <span style="text-decoration: line-through; color: #999; font-size: 0.9rem;">
+                                            <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/>₫
+                                        </span>
+                                    </c:when>
+                                    <c:otherwise>
                                         <fmt:formatNumber value="${p.price}" type="number"
                                                           maxFractionDigits="0"/>₫
-<%--                                    </c:otherwise>--%>
-<%--                                </c:choose>--%>
+                                    </c:otherwise>
+                                </c:choose>
                             </p>
 
                             <a href="add-cart?productId=${p.id}&quantity=1"

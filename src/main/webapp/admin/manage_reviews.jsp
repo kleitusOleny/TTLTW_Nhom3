@@ -8,7 +8,7 @@
                 <meta charset="UTF-8">
                 <title>Quản Lý Đánh Giá</title>
                 <link rel="stylesheet"
-                    href="${pageContext.request.contextPath}/AdminPages/admin_css/manage_reviews_style.css">
+                    href="${pageContext.request.contextPath}/admin/admin_css/manage_reviews_style.css">
             </head>
 
             <body>
@@ -16,11 +16,11 @@
                     <nav class="dashboard-sidebar">
                         <ul class="sidebar-items">
                             <div class="group-avatar">
-                                <%@ include file="/AdminPages/components/avatar.jsp" %>
-                                    <%@ include file="/AdminPages/components/notify_icon.jsp" %>
+                                <%@ include file="/admin/components/avatar.jsp" %>
+                                    <%@ include file="/admin/components/notify_icon.jsp" %>
                             </div>
                             <c:set var="activePage" value="review" scope="request" />
-                            <%@ include file="/AdminPages/components/sidebar_items_component.jsp" %>
+                            <%@ include file="/admin/components/sidebar_items_component.jsp" %>
                         </ul>
                         <div class="text">━ Được update tới 2025 ━</div>
                     </nav>

@@ -234,4 +234,27 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
         return jdbi.withHandle(handle -> handle.createQuery("select exists (select 1 from users where phone_number =:phoneNumber)")
                 .bind("phoneNumber", phoneNumber).mapTo(Boolean.class).one());
     }
+
+    public User findByPhoneNumber(String phoneNumber) {
+        return jdbi.withHandle(handle -> handle.createQuery("""
+                        SELECT
+                            id,
+                            email,
+                            username,
+                            password_hash,
+                            phone_number,
+                            full_name,
+                            birth_day,
+                            administrator,
+                            active,
+                            created_at,
+                            update_at
+                        FROM users
+                        WHERE phone_number=:phoneNumber
+                        """)
+                .bind("phoneNumber", phoneNumber)
+                .mapToBean(User.class)
+                .findFirst()
+                .orElse(null));
+    }
 }

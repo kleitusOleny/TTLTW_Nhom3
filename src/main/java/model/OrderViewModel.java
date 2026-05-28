@@ -12,6 +12,7 @@ public class OrderViewModel {
     private Double totalPrice;
     private String status;
     private String payStrategy;
+    private Timestamp isDelete;
 
     public OrderViewModel() {
     }
@@ -49,11 +50,20 @@ public class OrderViewModel {
     }
 
     public String getStatus() {
+        if (isDelete != null) return "Đã xóa";
         return status != null ? status : "Chờ xử lý";
     }
 
     public void setStatus(String status) {
         this.status = status;
+    }
+    
+    public Timestamp getIsDelete() {
+        return isDelete;
+    }
+    
+    public void setIsDelete(Timestamp isDelete) {
+        this.isDelete = isDelete;
     }
 
     public String getPayStrategy() {
@@ -95,6 +105,7 @@ public class OrderViewModel {
             case "đã hủy":
             case "cancelled":
             case "thanh toán thất bại":
+            case "đã xóa":
                 return "status-cancelled";
             case "đang xử lý":
             case "processing":
@@ -104,6 +115,7 @@ public class OrderViewModel {
     }
 
     public String getStatusText() {
+        if (isDelete != null) return "Đã xóa";
         if (status == null)
             return "Chờ xử lý";
         switch (status.toLowerCase()) {
