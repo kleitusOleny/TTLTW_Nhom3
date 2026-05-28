@@ -11,6 +11,41 @@
     <script src="<%= request.getContextPath() %>/popup.js"></script>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/admin/admin_css/manage_product_style.css">
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <style>
+        .error-msg {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 4px;
+            display: block;
+            font-weight: 500;
+        }
+        .invalid-field {
+            border-color: #e74c3c !important;
+            background-color: #fdf2f2 !important;
+        }
+        .toast-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transform: translateY(-20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .toast-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
 </head>
 
 <body>
@@ -273,17 +308,16 @@
             }
 
             if (confirm("Bạn muốn xóa " + selectedIds.length + " sản phẩm đã chọn?")) {
-                let promises = selectedIds.map(id => {
-                    return fetch('product-manager?action=delete&id=' + id, {method: 'POST'});
-                });
-
-                Promise.all(promises).then(() => {
-                    alert("Đã xóa thành công!");
-                    location.reload();
-                }).catch(err => {
-                    console.error(err);
-                    alert("Có lỗi xảy ra khi xóa!");
-                });
+                var idsStr = selectedIds.join(',');
+                $.post('product-manager', { action: 'delete-list', ids: idsStr })
+                    .done(function () {
+                        alert("Đã xóa thành công!");
+                        location.reload();
+                    })
+                    .fail(function (err) {
+                        console.error(err);
+                        alert("Có lỗi xảy ra khi xóa!");
+                    });
             }
         });
 
@@ -332,12 +366,24 @@
         });
 
         function setSelectedByText(selectId, textToFind) {
+            if (!textToFind) {
+                $(selectId).val('');
+                return;
+            }
+            var found = false;
+            var cleanTextToFind = String(textToFind).trim().toLowerCase();
             $(selectId + ' option').each(function () {
-                if ($(this).text().trim() === textToFind) {
+                var optionText = $(this).text().trim().toLowerCase();
+                var optionValue = $(this).val().trim().toLowerCase();
+                if (optionText === cleanTextToFind || optionValue === cleanTextToFind) {
                     $(this).prop('selected', true);
+                    found = true;
                     return false;
                 }
             });
+            if (!found) {
+                $(selectId).val('');
+            }
         }
 
         $.fn.dataTable.ext.search.push(
@@ -373,6 +419,120 @@
             table.search('');
             table.columns().search('');
             table.draw();
+        });
+
+        function showToast(message, type = 'error') {
+            $('.toast-notification').remove();
+            var bgColor = type === 'success' ? '#2ecc71' : '#e74c3c';
+            var icon = type === 'success' ? 'checkmark-circle-outline' : 'alert-circle-outline';
+
+            var toast = $('<div class="toast-notification"><ion-icon name="' + icon + '"></ion-icon> ' + message + '</div>');
+            toast.css('background-color', bgColor);
+            $('body').append(toast);
+
+            setTimeout(function() {
+                toast.addClass('show');
+            }, 50);
+
+            setTimeout(function() {
+                toast.removeClass('show');
+                setTimeout(function() {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        }
+
+        // Show server feedback toasts based on URL query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('success')) {
+            showToast("Thao tác thực hiện thành công!", "success");
+        } else if (urlParams.has('error')) {
+            showToast("Đã có lỗi xảy ra! Vui lòng thử lại sau.", "error");
+        }
+
+        // Form Validation on Submit
+        $('#add-product-form').on('submit', function (e) {
+            var isValid = true;
+
+            // Clear existing errors
+            $('.error-msg').remove();
+            $('.invalid-field').removeClass('invalid-field');
+
+            // 1. Tên sản phẩm
+            var name = $('#p-name').val().trim();
+            if (name === "") {
+                isValid = false;
+                $('#p-name').addClass('invalid-field').after('<span class="error-msg">Tên sản phẩm không được để trống hoặc chỉ có khoảng trắng!</span>');
+            }
+
+            // 2. Loại rượu
+            var type = $('#p-type').val();
+            if (type === "") {
+                isValid = false;
+                $('#p-type').addClass('invalid-field').after('<span class="error-msg">Vui lòng chọn loại rượu!</span>');
+            }
+
+            // 3. Danh mục
+            var category = $('#p-category').val();
+            if (category === "") {
+                isValid = false;
+                $('#p-category').addClass('invalid-field').after('<span class="error-msg">Vui lòng chọn danh mục!</span>');
+            }
+
+            // 4. Nhà sản xuất
+            var manufacturer = $('#p-manufacturer').val();
+            if (manufacturer === "") {
+                isValid = false;
+                $('#p-manufacturer').addClass('invalid-field').after('<span class="error-msg">Vui lòng chọn nhà sản xuất!</span>');
+            }
+
+            // 5. Giá bán
+            var priceVal = $('#p-price').val();
+            if (priceVal === "") {
+                isValid = false;
+                $('#p-price').addClass('invalid-field').after('<span class="error-msg">Vui lòng nhập giá bán!</span>');
+            } else {
+                var price = parseFloat(priceVal);
+                if (isNaN(price) || price <= 0) {
+                    isValid = false;
+                    $('#p-price').addClass('invalid-field').after('<span class="error-msg">Giá bán phải lớn hơn 0 VND!</span>');
+                }
+            }
+
+            // 6. Số lượng tồn
+            var stockVal = $('#p-stock').val();
+            if (stockVal === "") {
+                isValid = false;
+                $('#p-stock').addClass('invalid-field').after('<span class="error-msg">Vui lòng nhập số lượng tồn kho!</span>');
+            } else {
+                var stock = parseInt(stockVal, 10);
+                if (isNaN(stock) || stock < 0) {
+                    isValid = false;
+                    $('#p-stock').addClass('invalid-field').after('<span class="error-msg">Số lượng tồn kho không được âm!</span>');
+                }
+            }
+
+            // 7. Nồng độ cồn (nếu nhập)
+            var alcoholVal = $('#p-alcohol').val().trim();
+            if (alcoholVal !== "") {
+                var alcohol = parseFloat(alcoholVal);
+                if (isNaN(alcohol) || alcohol < 0 || alcohol > 100) {
+                    isValid = false;
+                    $('#p-alcohol').addClass('invalid-field').after('<span class="error-msg">Nồng độ cồn phải là số từ 0 đến 100%!</span>');
+                }
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+                showToast("Vui lòng kiểm tra lại thông tin nhập liệu!");
+
+                var firstInvalid = $('.invalid-field').first();
+                if (firstInvalid.length > 0) {
+                    $('.modal-content-form').animate({
+                        scrollTop: firstInvalid.offset().top - $('.modal-content-form').offset().top + $('.modal-content-form').scrollTop() - 40
+                    }, 500);
+                }
+            }
         });
     });
 </script>
