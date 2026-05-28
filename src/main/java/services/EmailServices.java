@@ -26,18 +26,22 @@ public class EmailServices {
     String username = dotenv.get("EMAIL", System.getenv("EMAIL"));
     String password = dotenv.get("APP_PASSWORD", System.getenv("APP_PASSWORD"));
 
-    public boolean sendOtpEmail(String toEmail, String otp) {
+    private Session baseMailSmtpSetup() {
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
 
-        Session session = Session.getInstance(props, new Authenticator() {
+        return Session.getInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, password);
             }
         });
+    }
+
+    public boolean sendOtpEmail(String toEmail, String otp) {
+        Session session = baseMailSmtpSetup();
 
         try {
             Message message = new MimeMessage(session);
@@ -54,17 +58,7 @@ public class EmailServices {
     }
 
     public boolean sendPaymentReminderEmail(String toEmail, int orderId, double amount) {
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-
-        Session session = Session.getInstance(props, new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password);
-            }
-        });
+        Session session = baseMailSmtpSetup();
 
         try {
             Message message = new MimeMessage(session);
@@ -93,17 +87,7 @@ public class EmailServices {
     }
 
     public boolean sendPaymentFailedEmail(String toEmail, int orderId, double amount) {
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-
-        Session session = Session.getInstance(props, new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(username, password);
-            }
-        });
+        Session session = baseMailSmtpSetup();
 
         try {
             Message message = new MimeMessage(session);
