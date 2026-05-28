@@ -27,7 +27,7 @@
     </div>
     <div class="login-page">
         <h2>Đăng Nhập</h2>
-        <c:set var="isBlocked" value="${not empty loginError && fn:contains(loginError, '5 lần')}" />
+        <c:set var="isBlocked" value="${not empty loginError && fn:contains(loginError, 'quá nhiều')}" />
         <form id="login-form" action="${pageContext.request.contextPath}/login" method="POST">
             <input type="hidden" name="redirect" value="${fn:escapeXml(param.redirect)}">
             <div class="username-input">

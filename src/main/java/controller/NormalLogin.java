@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import services.AuthServices;
+import services.EmailServices;
 import services.UserService;
 import services.UserValidationServices;
 
@@ -117,6 +118,13 @@ public class NormalLogin extends HttpServlet {
                 } else {
                     log.warn("Đăng nhập thất bại: Sai thông tin đăng nhập");
                     authService.recordFailedLogin(targetEmail, clientIp);
+                    if (authService.isLoginBlocked(targetEmail, clientIp)) {
+                        EmailServices emailServices = new EmailServices();
+                        new Thread(() -> {
+                            emailServices.sendWarningBruteForcingMail(targetEmail, clientIp);
+                        }).start();
+                        System.out.println("Đã gửi cảnh báo đến: " + targetEmail);
+                    }
                     request.setAttribute("loginError", "Bạn đã nhập sai tên tài khoản hoặc mật khẩu");
                     request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
                 }
