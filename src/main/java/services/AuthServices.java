@@ -4,9 +4,12 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import dao.SecurityAttemptDAO;
 import dao.UserDAO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import model.AuthTypes;
+import model.SecurityAttempt;
 import model.User;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.MDC;
@@ -20,6 +23,12 @@ import java.util.UUID;
 public class AuthServices {
     private final UserDAO userDAO = new UserDAO();
     private final UserService userService = new UserService();
+
+    private final AuthTypes actionTypeLogin = AuthTypes.LOGIN;
+    private final AuthTypes actionTypeRegister = AuthTypes.REGISTER;
+    private final AuthTypes actionTypeFp = AuthTypes.FORGOT_PASSWORD;
+
+    private final SecurityAttemptDAO securityAttemptDAO = new SecurityAttemptDAO();
     private static final String CLIENT_ID = "561993862196-rspl5j67m79f0857je2sdrv8f75m2ijs.apps.googleusercontent.com";
 
     public String getEmailFromGoogleToken(String idTokenString){
@@ -74,6 +83,36 @@ public class AuthServices {
         } else {
             return null;
         }
+    }
+
+    // Dù user có login bằng username cũng lấy được email
+    public String resolveEmail(String loginKey) {
+        // loginKey ở đây có thể là username hoặc là email
+        // nếu loginKey chứa @ thì là email (vì đặt tên username đã validation chuyện này)
+        if (loginKey.contains("@")) {
+            return loginKey.toLowerCase();
+        }
+        User user = userDAO.findByUsername(loginKey);
+        if (user != null && user.getEmail() != null) {
+            return user.getEmail().toLowerCase();
+        }
+        return loginKey.toLowerCase();
+    }
+
+    // kiểm tra xem cặp IP/Email này có đang bị khóa không
+    public boolean isLoginBlocked(String email, String ipAddress) {
+        int failedAttempts = securityAttemptDAO.getFailedAttempts(email, ipAddress, actionTypeLogin);
+        return failedAttempts >= 5;
+    }
+
+    // hàm check khi điền sai mật khẩu/tài khoản để tăng số lần đếm
+    public void recordFailedLogin(String email, String ipAddress) {
+        securityAttemptDAO.increaseAttempt(email, ipAddress, actionTypeLogin);
+    }
+
+    // hàm check khi đăng nhập thành công để reset bộ đếm về 0
+    public void resetFailedLogin(String email, String ipAddress) {
+        securityAttemptDAO.resetAttempts(email, ipAddress, actionTypeLogin);
     }
 
     public User register(String fullName, String email, String username, String plainPassword, String phoneNumber, Timestamp birthday) {

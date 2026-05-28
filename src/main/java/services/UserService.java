@@ -167,6 +167,7 @@ public class UserService {
 
     public String getClientIp(HttpServletRequest request) {
         String[] headerNames = {
+                "CF-Connecting-IP", // cloudflare
                 "X-Forwarded-For",
                 "Proxy-Client-IP",
                 "WL-Proxy-Client-IP"

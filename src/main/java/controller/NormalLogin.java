@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import services.AuthServices;
+import services.UserService;
 import services.UserValidationServices;
 
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class NormalLogin extends HttpServlet {
     UserValidationServices userValidationServices = new UserValidationServices();
     AuthServices authServices = new AuthServices();
+    UserService userService = new UserService();
     private static final Logger log = LoggerFactory.getLogger(NormalLogin.class);
 
     @Override
@@ -42,6 +44,15 @@ public class NormalLogin extends HttpServlet {
             User account;
             AuthServices authService = new AuthServices();
             if (allErrors.isEmpty()) {
+                String loginKey = username.trim();
+                String clientIp = userService.getClientIp(request);
+                String targetEmail = authService.resolveEmail(loginKey);
+                if (authService.isLoginBlocked(targetEmail, clientIp)) {
+                    log.warn("IP {} cố gắng đăng nhập vào {} nhưng đã bị khóa tạm thời.", clientIp, username);
+                    request.setAttribute("loginError", "Bạn đã nhập sai quá nhiều. Vui lòng thử lại sau 15 phút.");
+                    request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
+                    return;
+                }
                 account = authService.login(username, pass);
                 String emailOrUsername;
                 if (username.contains("@")) {
@@ -53,6 +64,8 @@ public class NormalLogin extends HttpServlet {
                 if (account != null) {
                     if (account.getActive() == 1) {
                         log.info("Đăng nhập thành công");
+                        authService.resetFailedLogin(targetEmail, clientIp);
+                        // ================
                         HttpSession oldSession = request.getSession(false);
                         Cart cart = null;
                         Cart buyNowCart = null;
@@ -103,6 +116,7 @@ public class NormalLogin extends HttpServlet {
                     }
                 } else {
                     log.warn("Đăng nhập thất bại: Sai thông tin đăng nhập");
+                    authService.recordFailedLogin(targetEmail, clientIp);
                     request.setAttribute("loginError", "Bạn đã nhập sai tên tài khoản hoặc mật khẩu");
                     request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
                 }
