@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/auth/auth_css/login.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 <div class="main-container">
@@ -27,6 +28,8 @@
     </div>
     <div class="login-page">
         <h2>Đăng Nhập</h2>
+        <c:set var="isBlocked" value="${not empty loginError && fn:contains(loginError, 'quá nhiều')}" />
+        <c:set var="showCaptcha" value="${failedAttempts >= 3 && failedAttempts < 5}" />
         <form id="login-form" action="${pageContext.request.contextPath}/login" method="POST">
             <input type="hidden" name="redirect" value="${fn:escapeXml(param.redirect)}">
             <div class="username-input">
@@ -35,7 +38,8 @@
                     Nhập tên tài khoản hoặc email hiện có</label>
                 <input type="text" id="username" name="username" placeholder="anhnguyen12, anhnguyen25@gmail.com"
                        value="${param.username}"
-                       class="${not empty usernameError or not empty inputError or not empty loginError ? 'input-error' : ''}" required>
+                       class="${not empty usernameError or not empty inputError or not empty loginError ? 'input-error' : ''}"
+                       ${isBlocked ? 'disabled' : ''} required>
                 <c:if test="${not empty inputError}">
                     <span class="error-msg">${inputError}</span>
                 </c:if>
@@ -55,7 +59,7 @@
                     <input type="password" id="password" name="password"
                            placeholder="Anhnguyen@25"
                            class="${not empty inputError ? 'input-error' : ''}"
-                           required>
+                           ${isBlocked ? 'disabled' : ''} required>
                     <span id="eyeIcon">
                         <ion-icon name="eye-off-outline"></ion-icon>
                     </span>
@@ -67,11 +71,13 @@
                     <span class="error-msg">${loginError}</span>
                 </c:if>
             </div>
-
+            <c:if test="${showCaptcha == true}">
+                <div class="g-recaptcha" data-sitekey="6LfbNAItAAAAAFdmKqwOuF4XNDyT40RtO2B459S7"></div>
+            </c:if>
             <div class="remember-me-input">
                 <a href="authentication">Quên Mật Khẩu</a>
             </div>
-            <button>Đăng Nhập</button>
+            <button ${isBlocked ? 'disabled' : ''}>Đăng Nhập</button>
             <div class="register-account">
                 <div id="register-remind">Chưa có tài khoản?</div>
                 <a href="register">Đăng Kí</a>
@@ -175,6 +181,19 @@
     }
     input.input-error {
         border: 1px solid red;
+    }
+
+    /* các thành phần bị khóa (disabled) */
+    input[disabled], button[disabled] {
+        background-color: #f1f3f5 !important;
+        color: #adb5bd !important;
+        border: 1px solid #ced4da !important;
+        cursor: not-allowed !important;
+        opacity: 0.7;
+    }
+    button[disabled] {
+        box-shadow: none !important;
+        pointer-events: none;
     }
 </style>
 </body>

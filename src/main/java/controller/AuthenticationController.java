@@ -1,8 +1,10 @@
 package controller;
 
+import dao.SecurityAttemptDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
+import model.AuthTypes;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,10 @@ public class AuthenticationController extends HttpServlet {
     AuthServices authService = new AuthServices();
     EmailServices emailServices = new EmailServices();
     UserService userService = new UserService();
+    SecurityAttemptDAO securityAttemptDAO = new SecurityAttemptDAO();
+    private final AuthTypes actionTypeAuthentication = AuthTypes.AUTHENTICATION;
     private static final Logger log = LoggerFactory.getLogger(AuthenticationController.class);
+    private static final long OTP_COOLDOWN_TIME = 60000;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -52,8 +57,8 @@ public class AuthenticationController extends HttpServlet {
                 }
                 else {
                     Long lastOtpTime = (Long) session.getAttribute("otpTime");
-                    if (lastOtpTime != null && (System.currentTimeMillis() - lastOtpTime < 60000)) {
-                        long secondsLeft = (60000 - (System.currentTimeMillis() - lastOtpTime)) / 1000;
+                    if (lastOtpTime != null && (System.currentTimeMillis() - lastOtpTime < OTP_COOLDOWN_TIME)) {
+                        long secondsLeft = (OTP_COOLDOWN_TIME - (System.currentTimeMillis() - lastOtpTime)) / 1000;
                         request.setAttribute("emailError", "Vui lòng đợi " + secondsLeft + " giây nữa để gửi lại mã");
                     }
                     else {
@@ -81,8 +86,17 @@ public class AuthenticationController extends HttpServlet {
 
                 // ------------------------ Button cho xác nhận ---------------------------------
             } else if ("finish-otp".equals(action)) {
+                String clientIp = userService.getClientIp(request);
+                // Check ngay đầu
+                if (authService.isBlocked(finalEmail, clientIp, actionTypeAuthentication, 3, 60)) {
+                    session.removeAttribute("otpCode");
+                    request.setAttribute("otpError", "Bạn đã nhập sai mã OTP quá nhiều lần. Vui lòng thử lại sau 15 phút.");
+                    request.getRequestDispatcher("/auth/Authentication.jsp").forward(request, response);
+                    return;
+                }
                 String storedOtp = (String) session.getAttribute("otpCode");
                 if (otpInput != null && otpInput.equals(storedOtp)) {
+                    securityAttemptDAO.resetAttempts(finalEmail, clientIp, actionTypeAuthentication);
                     if (account != null) {
                         // luồng từ register
                         User realAccount = authService.register(
@@ -106,8 +120,14 @@ public class AuthenticationController extends HttpServlet {
                         response.sendRedirect(request.getContextPath() + "/forgotpassword");
                     }
                 } else {
-                    log.info("Xác thực OTP thành công cho luồng Quên mật khẩu");
-                    request.setAttribute("otpError", "Mã OTP không chính xác!");
+                    securityAttemptDAO.increaseAttempt(finalEmail, clientIp, actionTypeAuthentication);
+                    log.warn("Xác thực OTP thất bại cho email: {} từ IP: {}", finalEmail, clientIp);
+                    if (authService.isBlocked(finalEmail, clientIp, actionTypeAuthentication, 3, 60)) {
+                        session.removeAttribute("otpCode");
+                        request.setAttribute("otpError", "Bạn đã nhập sai quá nhiều lần. Mã OTP đã bị hủy, vui lòng thử lại sau 15 phút.");
+                    } else {
+                        request.setAttribute("otpError", "Mã OTP không chính xác!");
+                    }
                     request.getRequestDispatcher("/auth/Authentication.jsp").forward(request, response);
                 }
             }
