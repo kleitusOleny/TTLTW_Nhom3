@@ -13,6 +13,7 @@
   <title>Register</title>
   <link rel="stylesheet" href="${pageContext.request.contextPath}/auth/auth_css/register.css">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 <div class="register-page">
@@ -159,6 +160,10 @@
         <label for="license-confirm">Xác nhận bạn sẽ tuân thủ chính sách</label>
       </div>
     </div>
+    <div class="g-recaptcha" data-sitekey="6LfbNAItAAAAAFdmKqwOuF4XNDyT40RtO2B459S7" style="margin-bottom: 10px; margin-top:10px"></div>
+    <c:if test="${not empty registerError}">
+      <span class="error-msg">${registerError}</span>
+    </c:if>
     <button type="submit">Đăng Kí</button>
     <div class="social-login">
       <div id="social-remind">Chọn phương thức khác để đăng nhập:</div>

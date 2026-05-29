@@ -16,19 +16,20 @@ public class SecurityAttemptDAO extends ADAO {
                 .execute() > 0);
     }
 
-    public int getFailedAttempts(String email, String ipAddress, AuthTypes actionType) {
+    public int getFailedAttempts(String email, String ipAddress, AuthTypes actionType, int minute) {
         String sql = """
             SELECT attempts 
             FROM security_attempts 
             WHERE target_email = :email 
               AND ip_address = :ip 
               AND action_type = :action
-              AND last_attempt > NOW() - INTERVAL 15 MINUTE
+              AND last_attempt > NOW() - INTERVAL :minute MINUTE
             """;
         return jdbi.withHandle(handle -> handle.createQuery(sql)
                 .bind("email", email)
                 .bind("ip", ipAddress)
                 .bind("action", actionType.name())
+                .bind("minute", minute)
                 .mapTo(Integer.class)
                 .findFirst()
                 .orElse(0));
@@ -46,5 +47,23 @@ public class SecurityAttemptDAO extends ADAO {
                 .bind("ip", ipAddress)
                 .bind("action", actionType.name())
                 .execute());
+    }
+
+    public int countRegisterAttemptsByIp(String ipAddress, int hour) {
+        String sql = """
+        SELECT SUM(attempts) 
+        FROM security_attempts 
+        WHERE ip_address = :ip 
+          AND action_type = :action
+          AND last_attempt > NOW() - INTERVAL :hour HOUR
+        """;
+
+        return jdbi.withHandle(handle -> handle.createQuery(sql)
+                .bind("ip", ipAddress)
+                .bind("action", AuthTypes.REGISTER.name())
+                .bind("hour", hour)
+                .mapTo(Integer.class)
+                .findFirst()
+                .orElse(0));
     }
 }

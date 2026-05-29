@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/auth/auth_css/login.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 <div class="main-container">
@@ -28,6 +29,7 @@
     <div class="login-page">
         <h2>Đăng Nhập</h2>
         <c:set var="isBlocked" value="${not empty loginError && fn:contains(loginError, 'quá nhiều')}" />
+        <c:set var="showCaptcha" value="${failedAttempts >= 3 && failedAttempts < 5}" />
         <form id="login-form" action="${pageContext.request.contextPath}/login" method="POST">
             <input type="hidden" name="redirect" value="${fn:escapeXml(param.redirect)}">
             <div class="username-input">
@@ -69,7 +71,9 @@
                     <span class="error-msg">${loginError}</span>
                 </c:if>
             </div>
-
+            <c:if test="${showCaptcha == true}">
+                <div class="g-recaptcha" data-sitekey="6LfbNAItAAAAAFdmKqwOuF4XNDyT40RtO2B459S7"></div>
+            </c:if>
             <div class="remember-me-input">
                 <a href="authentication">Quên Mật Khẩu</a>
             </div>
