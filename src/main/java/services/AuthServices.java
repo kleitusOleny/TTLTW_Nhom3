@@ -9,7 +9,6 @@ import dao.UserDAO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import model.AuthTypes;
-import model.SecurityAttempt;
 import model.User;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.MDC;
@@ -23,10 +22,6 @@ import java.util.UUID;
 public class AuthServices {
     private final UserDAO userDAO = new UserDAO();
     private final UserService userService = new UserService();
-
-    private final AuthTypes actionTypeLogin = AuthTypes.LOGIN;
-    private final AuthTypes actionTypeRegister = AuthTypes.REGISTER;
-    private final AuthTypes actionTypeFp = AuthTypes.FORGOT_PASSWORD;
 
     private final SecurityAttemptDAO securityAttemptDAO = new SecurityAttemptDAO();
     private static final String CLIENT_ID = "561993862196-rspl5j67m79f0857je2sdrv8f75m2ijs.apps.googleusercontent.com";
@@ -100,19 +95,9 @@ public class AuthServices {
     }
 
     // kiểm tra xem cặp IP/Email này có đang bị khóa không
-    public boolean isLoginBlocked(String email, String ipAddress) {
-        int failedAttempts = securityAttemptDAO.getFailedAttempts(email, ipAddress, actionTypeLogin);
-        return failedAttempts >= 5;
-    }
-
-    // hàm check khi điền sai mật khẩu/tài khoản để tăng số lần đếm
-    public void recordFailedLogin(String email, String ipAddress) {
-        securityAttemptDAO.increaseAttempt(email, ipAddress, actionTypeLogin);
-    }
-
-    // hàm check khi đăng nhập thành công để reset bộ đếm về 0
-    public void resetFailedLogin(String email, String ipAddress) {
-        securityAttemptDAO.resetAttempts(email, ipAddress, actionTypeLogin);
+    public boolean isBlocked(String email, String ipAddress, AuthTypes actionType, int attempts, int minuteForFailed) {
+        int failedAttempts = securityAttemptDAO.getFailedAttempts(email, ipAddress, actionType, minuteForFailed);
+        return failedAttempts >= attempts;
     }
 
     public User register(String fullName, String email, String username, String plainPassword, String phoneNumber, Timestamp birthday) {
