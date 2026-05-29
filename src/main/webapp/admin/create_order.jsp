@@ -226,18 +226,18 @@
                                                 <div class="form-group">
                                                     <label>Họ và tên <span class="required">*</span></label>
                                                     <input type="text" name="customerName" id="customerName" required
-                                                        placeholder="Nguyễn Văn A">
+                                                        placeholder="Nguyễn Văn A" value="${fullName != null ? fullName : ''}">
                                                 </div>
                                                 <div class="form-row">
                                                     <div class="form-group">
                                                         <label>Số điện thoại <span class="required">*</span></label>
                                                         <input type="tel" name="customerPhone" id="customerPhone"
-                                                            required placeholder="0909 123 456">
+                                                            required placeholder="0909 123 456" value="${phone != null ? phone : ''}">
                                                     </div>
                                                     <div class="form-group">
                                                         <label>Email</label>
                                                         <input type="email" name="customerEmail" id="customerEmail"
-                                                            placeholder="email@example.com">
+                                                            placeholder="email@example.com" value="${email != null ? email : ''}">
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
@@ -251,9 +251,32 @@
                                                     <textarea name="orderNote" id="orderNote" rows="2"
                                                         placeholder="Ghi chú cho đơn hàng (tùy chọn)"></textarea>
                                                 </div>
+                                                <input type="hidden" name="verifiedUserId" id="verifiedUserId" value="${userId != null ? userId : ''}">
+                                                <div style="margin-top:10px;">
+                                                    <button type="button" id="verifyUserBtn" onclick="verifyUser()"
+                                                        style="padding:8px 18px;background:#0872fa;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;font-size:13px;">
+                                                        <ion-icon name="shield-checkmark-outline"></ion-icon> Xác minh người dùng
+                                                    </button>
+                                                    
+                                                    <c:if test="${found != null}">
+                                                        <c:choose>
+                                                            <c:when test="${found}">
+                                                                <div id="verifyResult" style="margin-top:10px;padding:12px;border-radius:8px;font-size:14px;background-color:#d4edda;border:1px solid #28a745;color:#155724;">
+                                                                    <strong>Đã xác minh!</strong> Người dùng: <strong>${fullName}</strong> (ID: ${userId})<br/>Email: ${email} | SĐT: ${phone}
+                                                                </div>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <div id="verifyResult" style="margin-top:10px;padding:12px;border-radius:8px;font-size:14px;background-color:#fff3cd;border:1px solid #ffc107;color:#856404;">
+                                                                    <strong>Không tìm thấy.</strong> ${message}
+                                                                </div>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </c:if>
+                                                    <c:if test="${found == null}">
+                                                        <div id="verifyResult" style="margin-top:10px;display:none;padding:12px;border-radius:8px;font-size:14px;"></div>
+                                                    </c:if>
+                                                </div>
                                             </div>
-
-                                            <!-- Phương thức thanh toán -->
                                             <div class="section-card">
                                                 <div class="section-header">
                                                     <h3><ion-icon name="wallet-outline"></ion-icon> Phương thức thanh
@@ -505,6 +528,27 @@
                             if (typeof setupModal === 'function') {
                                 setupModal('avatar-promotion-modal', 'avatar-modal-btn', 'close-modal-btn9');
                             }
+
+                            // Phase 2: Xác thực user
+                            window.verifyUser = function() {
+                                const email = document.getElementById('customerEmail').value.trim();
+                                const phone = document.getElementById('customerPhone').value.trim();
+                                const resultDiv = document.getElementById('verifyResult');
+
+                                if (!email && !phone) {
+                                    resultDiv.style.display = 'block';
+                                    resultDiv.style.backgroundColor = '#fff3cd';
+                                    resultDiv.style.border = '1px solid #ffc107';
+                                    resultDiv.style.color = '#856404';
+                                    resultDiv.innerHTML = 'Vui lòng nhập email hoặc số điện thoại để xác minh.';
+                                    return;
+                                }
+
+                                const params = new URLSearchParams();
+                                if (email) params.append('email', email);
+                                if (phone) params.append('phone', phone);
+                                window.location.href = contextPath + '/admin/verify-user?' + params.toString();
+                            };
 
                             console.log('Create order page initialized');
                         });
