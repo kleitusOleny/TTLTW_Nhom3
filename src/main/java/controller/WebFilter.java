@@ -1,5 +1,6 @@
 package controller;
 
+import dao.RolePermissionDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import model.User;
@@ -8,6 +9,7 @@ import java.io.IOException;
 
 @jakarta.servlet.annotation.WebFilter("/*")
 public class WebFilter implements Filter {
+    RolePermissionDAO rolePermissionDAO = new RolePermissionDAO();
     private static final String[] PROTECTED_AUTH_URLS = {
             "/login",
             "/register",
@@ -64,7 +66,7 @@ public class WebFilter implements Filter {
             return;
         }
         User user = (session != null) ? (User) session.getAttribute("user") : null;
-        if (isAdminPath && (user == null || user.getAdministrator() == 0)) {
+        if (isAdminPath && (user == null || !rolePermissionDAO.getPermissionsByUserId(user.getId()).contains("dashboard:read"))) {
             response.sendRedirect(request.getContextPath() + "/home");
             return;
         }

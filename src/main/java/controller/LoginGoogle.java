@@ -1,5 +1,6 @@
 package controller;
 
+import dao.RolePermissionDAO;
 import dao.UserDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -21,6 +22,7 @@ public class LoginGoogle extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(LoginGoogle.class);
     AuthServices authServices = new AuthServices();
     UserDAO userDao = new UserDAO();
+    RolePermissionDAO rolePermissionDAO = new RolePermissionDAO();
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException, ServletException {
@@ -48,10 +50,10 @@ public class LoginGoogle extends HttpServlet {
                     checkoutType = (String) oldSession.getAttribute("checkoutType");
                     oldSession.invalidate();
                 }
-                
+
                 HttpSession session = request.getSession(true);
                 session.setAttribute("user", user);
-                
+
                 services.CartSyncService cartSyncService = new services.CartSyncService();
                 cartSyncService.syncCart(user, session);
                 if (buyNowCart != null)
@@ -60,7 +62,7 @@ public class LoginGoogle extends HttpServlet {
                     session.setAttribute("checkoutType", checkoutType);
 
                     String redirect = request.getParameter("redirect");
-                    if (user.getAdministrator() == 1) {
+                    if (rolePermissionDAO.getPermissionsByUserId(user.getId()).contains("dashboard:read")) {
                         response.sendRedirect("dashboard");
                     } else if (redirect != null && !redirect.isEmpty()) {
                         if ("checkout".equals(redirect) || redirect.endsWith("/checkout")) {

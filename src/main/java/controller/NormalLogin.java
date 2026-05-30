@@ -1,5 +1,6 @@
 package controller;
 
+import dao.RolePermissionDAO;
 import dao.SecurityAttemptDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -24,6 +25,7 @@ public class NormalLogin extends HttpServlet {
     SecurityAttemptDAO securityAttemptDAO = new SecurityAttemptDAO();
     private final AuthTypes actionTypeLogin = AuthTypes.LOGIN;
     private static final Logger log = LoggerFactory.getLogger(NormalLogin.class);
+    RolePermissionDAO rolePermissionDAO = new RolePermissionDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -101,7 +103,7 @@ public class NormalLogin extends HttpServlet {
                         session.setAttribute("checkoutType", checkoutType);
 
                         String redirect = request.getParameter("redirect");
-                        if (account.getAdministrator() == 1) {
+                        if (rolePermissionDAO.getPermissionsByUserId(account.getId()).contains("dashboard:read")) {
                             response.sendRedirect("dashboard");
                         } else if (redirect != null && !redirect.isEmpty()) {
                             if ("checkout".equals(redirect) || redirect.endsWith("/checkout")) {
