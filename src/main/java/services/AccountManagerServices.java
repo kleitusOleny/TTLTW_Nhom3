@@ -23,13 +23,12 @@ public class AccountManagerServices {
         user.setPhoneNumber(null);
         user.setFullName(null);
         user.setBirthDay(null);
-        user.setAdministrator(0);
         user.setActive(1);
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         return userDAO.save(user)!=null;
     }
 
-    public void updateAccount(int id, String email, String plainPassword, String fullName, String birth, String username, String phoneNumber, String isActive, String isAdministrator) throws ParseException {
+    public void updateAccount(int id, String email, String plainPassword, String fullName, String birth, String username, String phoneNumber, String isActive) throws ParseException {
         User currentUser = userDAO.findById(id).orElse(null);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -47,7 +46,6 @@ public class AccountManagerServices {
             currentUser.setUsername(username);
             currentUser.setPhoneNumber(phoneNumber);
             currentUser.setActive(Integer.parseInt(isActive));
-            currentUser.setAdministrator(Integer.parseInt(isAdministrator));
             currentUser.setUpdateAt(new Timestamp(System.currentTimeMillis()));
             userDAO.save(currentUser);
         }

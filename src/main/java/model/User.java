@@ -27,9 +27,6 @@ public class User implements Serializable {
     @ColumnName("birth_day")
     private Timestamp birthDay;
 
-    @ColumnName("administrator")
-    private int administrator;
-
     @ColumnName("active")
     private int active;
 
@@ -110,14 +107,6 @@ public class User implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
-    public int getAdministrator() {
-        return administrator;
-    }
-
-    public void setAdministrator(int administrator) {
-        this.administrator = administrator;
-    }
-
     public int getActive() {
         return active;
     }
@@ -144,7 +133,6 @@ public class User implements Serializable {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", birthDay=" + birthDay +
-                ", administrator=" + administrator +
                 ", active=" + active +
                 ", createdAt=" + createdAt +
                 ", updateAt=" + updateAt +
