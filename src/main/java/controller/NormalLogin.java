@@ -15,6 +15,7 @@ import services.*;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @WebServlet(name = "NormalLogin", value = "/login")
@@ -91,9 +92,11 @@ public class NormalLogin extends HttpServlet {
                         checkoutType = (String) oldSession.getAttribute("checkoutType");
                         oldSession.invalidate();
                     }
+                    // Khu vực session
                     HttpSession session = request.getSession(true);
+                    List<String> userPermissions = rolePermissionDAO.getPermissionsByUserId(account.getId());
                     session.setAttribute("user", account);
-                    
+                    session.setAttribute("userPermissions", userPermissions);
                     services.CartSyncService cartSyncService = new services.CartSyncService();
                     cartSyncService.syncCart(account, session);
                     
@@ -103,7 +106,7 @@ public class NormalLogin extends HttpServlet {
                         session.setAttribute("checkoutType", checkoutType);
 
                         String redirect = request.getParameter("redirect");
-                        if (rolePermissionDAO.getPermissionsByUserId(account.getId()).contains("dashboard:read")) {
+                        if (userPermissions.contains("dashboard:read")) {
                             response.sendRedirect("dashboard");
                         } else if (redirect != null && !redirect.isEmpty()) {
                             if ("checkout".equals(redirect) || redirect.endsWith("/checkout")) {
