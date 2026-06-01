@@ -1,0 +1,62 @@
+.role-badge {
+    padding: 6px 14px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    display: inline-block;
+    text-align: center;
+    min-width: 140px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-admin {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.badge-sales {
+    background-color: #e0e7ff;
+    color: #3730a3;
+    border: 1px solid #c7d2fe;
+}
+
+.badge-orders {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.badge-warehouse {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+}
+
+.badge-default {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.product-table td {
+    vertical-align: middle;
+}
+
+.cell-action {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.form-group select {
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--text-main);
+}
+
+.form-group select option {
+    padding: 8px;
+    font-weight: 500;
+}

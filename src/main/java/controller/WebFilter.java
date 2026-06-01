@@ -55,6 +55,7 @@ public class WebFilter implements Filter {
             "/manage-promotions",
             "/product-receipt-manager",
             "/product-issue-manager",
+            "/staffs-manager",
             "/admin/"
     };
     @Override
