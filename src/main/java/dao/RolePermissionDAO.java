@@ -2,6 +2,7 @@ package dao;
 
 import model.Permission;
 import model.Role;
+import model.User;
 
 import java.util.List;
 
@@ -32,6 +33,25 @@ public class RolePermissionDAO extends ADAO {
         return jdbi.withHandle(handle -> handle.createQuery(sql)
                 .bind("userId", userId)
                 .mapToBean(Role.class)
+                .list());
+    }
+
+    public List<User> findAllStaffs() {
+        String sql = """
+            SELECT 
+                u.id, 
+                u.email, 
+                u.full_name, 
+                u.active, 
+                r.id AS role_id,
+                r.description AS description 
+            FROM user_roles ur 
+            JOIN users u ON ur.user_id = u.id 
+            JOIN roles r ON ur.role_id = r.id
+            """;
+
+        return jdbi.withHandle(handle -> handle.createQuery(sql)
+                .mapToBean(User.class)
                 .list());
     }
 

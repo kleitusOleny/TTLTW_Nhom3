@@ -36,6 +36,12 @@ public class User implements Serializable {
     @ColumnName("update_at")
     private Timestamp updateAt;
 
+    @ColumnName("description")
+    private String description;
+
+    @ColumnName("role_id")
+    private int roleId;
+
     public String getFullName() {
         return fullName;
     }
@@ -121,6 +127,22 @@ public class User implements Serializable {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
     }
 
     @Override
