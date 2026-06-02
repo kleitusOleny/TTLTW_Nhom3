@@ -71,22 +71,24 @@ public class RolePermissionDAO extends ADAO {
                 .list());
     }
 
-    public int assignRoleToUser(int userId, int roleId) {
+    public boolean assignRoleToUser(int userId, int roleId) {
         String sql = "INSERT INTO user_roles (user_id, role_id) VALUES (:userId, :roleId)";
 
-        return jdbi.withHandle(handle -> handle.createUpdate(sql)
+        int rowsAdded = jdbi.withHandle(handle -> handle.createUpdate(sql)
                 .bind("userId", userId)
                 .bind("roleId", roleId)
                 .execute());
+        return rowsAdded > 0;
     }
 
-    public int removeRoleFromUser(int userId, int roleId) {
+    public boolean removeRoleFromUser(int userId, int roleId) {
         String sql = "DELETE FROM user_roles WHERE user_id = :userId AND role_id = :roleId";
 
-        return jdbi.withHandle(handle -> handle.createUpdate(sql)
+        int rowsDeleted =  jdbi.withHandle(handle -> handle.createUpdate(sql)
                 .bind("userId", userId)
                 .bind("roleId", roleId)
                 .execute());
+        return rowsDeleted > 0;
     }
 
     public int addPermissionToRole(int roleId, int permissionId) {
@@ -104,5 +106,25 @@ public class RolePermissionDAO extends ADAO {
         return jdbi.withHandle(handle -> handle.createUpdate(sql)
                 .bind("roleId", roleId)
                 .execute());
+    }
+
+    public boolean updateUserRole(int userId, int oldRoleId, int newRoleId) {
+        try {
+            jdbi.useTransaction(handle -> {
+                String deleteSql = "DELETE FROM user_roles WHERE user_id = :userId AND role_id = :oldRoleId";
+                String insertSql = "INSERT INTO user_roles (user_id, role_id) VALUES (:userId, :newRoleId)";
+                handle.createUpdate(deleteSql)
+                        .bind("userId", userId)
+                        .bind("oldRoleId", oldRoleId)
+                        .execute();
+                handle.createUpdate(insertSql)
+                        .bind("userId", userId)
+                        .bind("newRoleId", newRoleId)
+                        .execute();
+            });
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

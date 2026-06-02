@@ -35,6 +35,8 @@ public class WebFilter implements Filter {
         urlPermissionMap.put("/admin/delete-promotion", "promotion:delete");
         urlPermissionMap.put("/category-manager", "category:read");
         urlPermissionMap.put("/manage-manufacturer", "manufacturer:read");
+
+        urlPermissionMap.put("/staffs-manager", "staff:upsert");
     }
     private static final String[] PROTECTED_AUTH_URLS = {
             "/login",

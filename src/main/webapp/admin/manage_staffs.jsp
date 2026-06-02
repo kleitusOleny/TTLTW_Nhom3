@@ -40,7 +40,7 @@
     <div class="dashboard-content">
         <main class="dashboard-main-content">
             <div class="main-header">
-                <h1>Quản Lý Nhân Sự (Moderators)</h1>
+                <h1>Quản Lý Nhân Sự</h1>
                 <div class="header-actions">
                     <button class="btn btn-primary add-staff-btn">
                         <ion-icon name="add-outline"></ion-icon>
@@ -129,8 +129,13 @@
             <ion-icon name="close-outline"></ion-icon>
         </button>
         <h2>Bổ Nhiệm Nhân Sự Mới</h2>
-
-        <form id="staff-action-form" action="staff-manager" method="POST">
+        <c:if test="${not empty sessionScope.userIsNotExist}">
+            <div style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; padding: 10px 12px; border-radius: 6px; margin-bottom: 16px; font-size: 14px; font-weight: 600;">
+                ⚠ ${sessionScope.userIsNotExist}
+            </div>
+            <c:remove var="userIsNotExist" scope="session" />
+        </c:if>
+        <form id="staff-action-form" action="staffs-manager" method="POST">
             <input type="hidden" id="form-action" name="action" value="add">
             <input type="hidden" id="staff-user-id" name="userId" value="">
             <input type="hidden" id="old-role-id" name="oldRoleId" value="">
@@ -166,7 +171,13 @@
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const modal = document.getElementById('modal-staff-form');
+        const urlParams = new URLSearchParams(window.location.search);
 
+        if (urlParams.has('invalidData')) {
+            if (modal) {
+                modal.classList.add('show');
+            }
+        }
         var table = $('#staff-datatable').DataTable({
             "paging": true,
             "pageLength": 10,
@@ -217,7 +228,7 @@
         if (confirm("Bạn có chắc chắn muốn CÁCH CHỨC tài khoản [" + email + "] không? Họ sẽ mất toàn bộ quyền truy cập vùng quản trị.")) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = 'staff-manager';
+            form.action = 'staffs-manager';
 
             const params = { action: 'delete', userId: userId, oldRoleId: roleId };
             for (const key in params) {
