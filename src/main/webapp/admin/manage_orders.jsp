@@ -8,36 +8,95 @@
                 <meta charset="UTF-8">
                 <title>Orders Manage</title>
                 <link rel="stylesheet"
-                    href="${pageContext.request.contextPath}/AdminPages/admin_css/manage_promotion_style.css">
+                    href="${pageContext.request.contextPath}/admin/admin_css/manage_promotion_style.css">
                 <style>
+                    /* Modern Table Design */
+                    .table-container {
+                        background: #fff;
+                        border-radius: 12px;
+                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+                        overflow: hidden;
+                        margin-top: 20px;
+                        border: 1px solid #eef2f5;
+                    }
+                    
+                    table.promotion-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        font-family: 'Inter', 'Segoe UI', sans-serif;
+                    }
+                    
+                    table.promotion-table thead th {
+                        background-color: #f8fafc;
+                        color: #64748b;
+                        font-weight: 600;
+                        padding: 16px 20px;
+                        text-align: left;
+                        border-bottom: 2px solid #e2e8f0;
+                        font-size: 13px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        white-space: nowrap;
+                    }
+
+                    table.promotion-table tbody td {
+                        padding: 16px 20px;
+                        vertical-align: middle;
+                        border-bottom: 1px solid #f1f5f9;
+                        color: #334155;
+                        font-size: 14px;
+                    }
+
+                    table.promotion-table tbody tr:hover {
+                        background-color: #f8fafc;
+                        transition: background-color 0.2s ease;
+                    }
+
+                    /* Checkbox styling */
+                    .cell-tick input[type="checkbox"] {
+                        width: 18px;
+                        height: 18px;
+                        cursor: pointer;
+                        accent-color: #3b82f6;
+                    }
+
+                    /* Status */
                     .status-delivered {
                         color: #28a745;
-                        /* Green */
                         font-weight: bold;
                     }
 
                     .status-shipping {
                         color: #28a745;
-                        /* Green */
                         font-weight: bold;
                     }
 
                     .status-preparing {
                         color: #fd7e14;
-                        /* Orange */
                         font-weight: bold;
                     }
 
                     .status-cancelled {
                         color: #dc3545;
-                        /* Red */
                         font-weight: bold;
                     }
 
                     .status-processing {
                         color: #6c757d;
-                        /* Grey */
                         font-weight: bold;
+                    }
+
+                    /* Action Buttons Alignment */
+                    .cell-action {
+                        display: flex;
+                        gap: 8px;
+                        flex-wrap: nowrap;
+                    }
+                    
+                    /* ID Column styling */
+                    .cell-id {
+                        font-weight: 600;
+                        color: #0f172a;
                     }
                 </style>
             </head>
@@ -72,19 +131,25 @@
                                 </div>
                             </div>
 
-                            <c:if test="${not empty successMessage}">
-                                <div class="alert alert-success"
-                                    style="background: #d4edda; color: #155724; padding: 12px 20px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                                    <ion-icon name="checkmark-circle-outline"></ion-icon>
-                                    ${successMessage}
-                                </div>
+                            <c:if test="${not empty sessionScope.successMessage or not empty requestScope.successMessage}">
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function () {
+                                        showCustomAlert('${not empty sessionScope.successMessage ? sessionScope.successMessage : requestScope.successMessage}');
+                                    });
+                                </script>
+                                <c:if test="${not empty sessionScope.successMessage}">
+                                    <c:remove var="successMessage" scope="session"/>
+                                </c:if>
                             </c:if>
-                            <c:if test="${not empty errorMessage}">
-                                <div class="alert alert-error"
-                                    style="background: #f8d7da; color: #721c24; padding: 12px 20px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                                    <ion-icon name="alert-circle-outline"></ion-icon>
-                                    ${errorMessage}
-                                </div>
+                            <c:if test="${not empty sessionScope.errorMessage or not empty requestScope.errorMessage}">
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", function () {
+                                        showCustomAlert('${not empty sessionScope.errorMessage ? sessionScope.errorMessage : requestScope.errorMessage}');
+                                    });
+                                </script>
+                                <c:if test="${not empty sessionScope.errorMessage}">
+                                    <c:remove var="errorMessage" scope="session"/>
+                                </c:if>
                             </c:if>
 
                             <div class="table-container">
@@ -117,6 +182,8 @@
                                                 <td class="cell-action">
                                                     <button class="view btn"
                                                         onclick="openViewModal(${o.id})">Xem</button>
+                                                    <button class="edit btn"
+                                                        onclick="openEditModal(${o.id})">Sửa</button>
                                                     <button class="delete btn"
                                                         onclick="confirmDelete(${o.id})">Xoá</button>
                                                 </td>
@@ -336,13 +403,11 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Actions (Update Status & Print) -->
-                                <div
-                                    style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; border-top: 1px solid #eee; padding-top: 20px;">
+                                <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; border-top: 1px solid #eee; padding-top: 20px; flex-wrap: wrap;">
                                     <form id="update-order-form"
                                         action="<%=request.getContextPath()%>/admin/update-order" method="post"
-                                        style="display: flex; align-items: center; gap: 10px; margin: 0;">
+                                        style="display: flex; align-items: center; gap: 10px; margin: 0;"
+                                        onsubmit="event.preventDefault(); showCustomConfirm('Bạn có chắc chắn muốn thay đổi trạng thái của đơn hàng này?', () => this.submit());">
                                         <input type="hidden" id="update-order-id" name="id">
                                         <select name="statusSelect" id="modal-status-select"
                                             style="padding: 8px 15px; border-radius: 4px; border: 1px solid #ddd; background-color: #eee; color: #333; cursor: pointer; font-weight: bold; margin-right: 10px;">
@@ -354,14 +419,27 @@
                                             <option value="Đã hủy">Đã hủy</option>
                                             <option value="Thanh toán thất bại">Thanh toán thất bại</option>
                                         </select>
-                                        <button type="submit" class="fix-btn element-button"
+                                        <button type="submit" id="update-order-btn" class="fix-btn element-button"
                                             style="padding: -2px 25px; background-color: #a94442; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-transform: uppercase; box-shadow: none;">
                                             Cập nhật
                                         </button>
                                     </form>
+                                    <button type="button" id="btn-refund-order"
+                                        onclick="openRefundModal()"
+                                        style="padding: 10px 20px; background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-transform: uppercase; transition: background-color 0.2s;"
+                                        onmouseover="this.style.backgroundColor='#e2e8f0'" onmouseout="this.style.backgroundColor='#f1f5f9'">
+                                        Hoàn tiền
+                                    </button>
+                                    <button type="button" id="btn-feedback-order"
+                                        onclick="openFeedbackModal()"
+                                        style="padding: 10px 20px; background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-transform: uppercase; transition: background-color 0.2s;"
+                                        onmouseover="this.style.backgroundColor='#e2e8f0'" onmouseout="this.style.backgroundColor='#f1f5f9'">
+                                        Phản hồi
+                                    </button>
                                     <button type="button"
                                         onclick="window.open('${pageContext.request.contextPath}/admin/print-invoice?id=' + document.getElementById('update-order-id').value, '_blank')"
-                                        style="padding: 10px 25px; background-color: #a94442; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-transform: uppercase;">
+                                        style="padding: 10px 20px; background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; text-transform: uppercase; transition: background-color 0.2s;"
+                                        onmouseover="this.style.backgroundColor='#e2e8f0'" onmouseout="this.style.backgroundColor='#f1f5f9'">
                                         In hóa đơn
                                     </button>
                                 </div>
@@ -399,6 +477,92 @@
                         </a>
                     </div>
                 </div>
+
+                <!-- Custom Alert Modal -->
+                <div class="modal-overlay" id="custom-alert-modal">
+                    <div class="modal-content" style="max-width: 400px; text-align: center; padding: 30px;">
+                        <h2 style="color: #dc3545; font-size: 24px; font-weight: bold; margin-bottom: 20px;">Thông báo</h2>
+                        <p id="custom-alert-message" style="font-size: 16px; color: #333; margin-bottom: 30px;"></p>
+                        <button onclick="closeCustomAlert()" class="button add" style="width: 100%; justify-content: center; background: #28a745; color: white; border: none; border-radius: 8px; padding: 12px 0; font-size: 16px; font-weight: bold; cursor: pointer;">Đóng</button>
+                    </div>
+                </div>
+
+                <!-- Custom Confirm Modal -->
+                <div class="modal-overlay" id="custom-confirm-modal">
+                    <div class="modal-content" style="max-width: 400px; text-align: center; padding: 30px;">
+                        <h2 style="color: #a94442; font-size: 24px; font-weight: bold; margin-bottom: 20px;">Xác nhận</h2>
+                        <p id="custom-confirm-message" style="font-size: 16px; color: #333; margin-bottom: 30px;"></p>
+                        <div style="display: flex; gap: 15px; justify-content: center;">
+                            <button onclick="closeCustomConfirm()" class="button" style="flex: 1; justify-content: center; background: #6c757d; color: white; border: none; border-radius: 8px; padding: 12px 0; font-size: 16px; font-weight: bold; cursor: pointer;">Hủy</button>
+                            <button id="custom-confirm-btn" class="button add" style="flex: 1; justify-content: center; background: #dc3545; color: white; border: none; border-radius: 8px; padding: 12px 0; font-size: 16px; font-weight: bold; cursor: pointer;">Xác nhận</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Order Modal -->
+                <div class="modal-overlay" id="editOrderModal">
+                    <div class="modal-content" style="width: 600px; max-width: 95vw; padding: 30px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                            <h2 style="color: #a94442; margin: 0;">Chỉnh sửa đơn hàng #<span id="edit-order-id-display"></span></h2>
+                            <span onclick="closeEditModal()" style="font-size:28px;cursor:pointer;color:#aaa;">&times;</span>
+                        </div>
+                        <input type="hidden" id="edit-order-id">
+                        <div style="margin-bottom:15px;">
+                            <label style="font-weight:bold;display:block;margin-bottom:5px;">Ghi chú đơn hàng</label>
+                            <textarea id="edit-note" rows="3" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box;"></textarea>
+                        </div>
+                        <div style="margin-bottom:15px;">
+                            <label style="font-weight:bold;display:block;margin-bottom:5px;">Đơn vị vận chuyển</label>
+                            <input type="text" id="edit-carrier" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                        <div style="margin-bottom:20px;">
+                            <label style="font-weight:bold;display:block;margin-bottom:5px;">Phí vận chuyển (₫)</label>
+                            <input type="number" id="edit-shipping-fee" min="0" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                        <div style="display:flex;gap:10px;justify-content:flex-end;">
+                            <button onclick="closeEditModal()" style="padding:10px 25px;background:#6c757d;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Hủy</button>
+                            <button onclick="submitEditOrder()" style="padding:10px 25px;background:#28a745;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;">Lưu thay đổi</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Refund Modal -->
+                <div class="modal-overlay" id="refundModal">
+                    <div class="modal-content" style="max-width: 450px; padding: 30px; text-align: center;">
+                        <h2 style="color: #17a2b8; font-size: 22px; margin-bottom: 20px;">Hoàn tiền đơn hàng</h2>
+                        <p style="font-size:14px;color:#666;margin-bottom:15px;">Đơn hàng #<strong id="refund-order-id-display"></strong></p>
+                        <input type="hidden" id="refund-order-id">
+                        <div style="text-align:left;margin-bottom:15px;">
+                            <label style="font-weight:bold;display:block;margin-bottom:5px;">Lý do hoàn tiền</label>
+                            <textarea id="refund-reason" rows="3" placeholder="Nhập lý do hoàn tiền..." style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box;"></textarea>
+                        </div>
+                        <div style="display:flex;gap:15px;justify-content:center;">
+                            <button onclick="closeRefundModal()" style="flex:1;padding:12px;background:#6c757d;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">Hủy</button>
+                            <button onclick="submitRefund()" style="flex:1;padding:12px;background:#17a2b8;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">Xác nhận hoàn tiền</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback Modal -->
+                <div class="modal-overlay" id="feedbackModal">
+                    <div class="modal-content" style="max-width: 500px; padding: 30px;">
+                        <h2 style="color: #6f42c1; font-size: 22px; margin-bottom: 20px; text-align: center;">Gửi phản hồi cho khách hàng</h2>
+                        <p style="font-size:14px;color:#666;margin-bottom:15px;text-align:center;">Đơn hàng #<strong id="feedback-order-id-display"></strong> — <span id="feedback-customer-email"></span></p>
+                        <input type="hidden" id="feedback-order-id">
+                        <div style="margin-bottom:15px;">
+                            <label style="font-weight:bold;display:block;margin-bottom:5px;">Tiêu đề</label>
+                            <input type="text" id="feedback-subject" value="Phản hồi về đơn hàng" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box;">
+                        </div>
+                        <div style="margin-bottom:20px;">
+                            <label style="font-weight:bold;display:block;margin-bottom:5px;">Nội dung phản hồi <span style="color:red;">*</span></label>
+                            <textarea id="feedback-content" rows="5" placeholder="Nhập nội dung phản hồi tới khách hàng..." style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;box-sizing:border-box;"></textarea>
+                        </div>
+                        <div style="display:flex;gap:15px;justify-content:center;">
+                            <button onclick="closeFeedbackModal()" style="flex:1;padding:12px;background:#6c757d;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">Hủy</button>
+                            <button onclick="submitFeedback()" style="flex:1;padding:12px;background:#6f42c1;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:bold;">Gửi phản hồi</button>
+                        </div>
+                    </div>
+                </div>
                 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
                 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
                 <link href="https://fonts.googleapis.com/css2?family=Philosopher&display=swap" rel="stylesheet">
@@ -407,6 +571,40 @@
                 <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
                 <script src="../popup.js"></script>
                 <script>
+                    let customAlertCallback = null;
+                    function showCustomAlert(message, callback) {
+                        document.getElementById('custom-alert-message').textContent = message;
+                        document.getElementById('custom-alert-modal').classList.add('show');
+                        customAlertCallback = callback;
+                    }
+                    function closeCustomAlert() {
+                        document.getElementById('custom-alert-modal').classList.remove('show');
+                        if (customAlertCallback) {
+                            customAlertCallback();
+                            customAlertCallback = null;
+                        }
+                    }
+
+                    let customConfirmCallback = null;
+                    function showCustomConfirm(message, callback) {
+                        document.getElementById('custom-confirm-message').textContent = message;
+                        document.getElementById('custom-confirm-modal').classList.add('show');
+                        customConfirmCallback = callback;
+                    }
+                    function closeCustomConfirm() {
+                        document.getElementById('custom-confirm-modal').classList.remove('show');
+                        customConfirmCallback = null;
+                    }
+                    document.addEventListener("DOMContentLoaded", function () {
+                        document.getElementById('custom-confirm-btn').addEventListener('click', function() {
+                            document.getElementById('custom-confirm-modal').classList.remove('show');
+                            if (customConfirmCallback) {
+                                customConfirmCallback();
+                                customConfirmCallback = null;
+                            }
+                        });
+                    });
+
                     // Initialize DataTable
                     $(document).ready(function () {
                         $('#order-table-main').DataTable({
@@ -460,14 +658,13 @@
                             }).then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
-                                        alert(data.message);
-                                        window.location.reload();
+                                        showCustomAlert(data.message, () => window.location.reload());
                                     } else {
-                                        alert(data.message);
+                                        showCustomAlert(data.message);
                                     }
                                 }).catch(error => {
                                     console.error('Error:', error);
-                                    alert('Lỗi kết nối tới server.');
+                                    showCustomAlert('Lỗi kết nối tới server.');
                                 });
                         });
 
@@ -484,7 +681,7 @@
                             });
 
                             if (ids.length === 0) {
-                                alert("Vui lòng chọn ít nhất một đơn hàng!");
+                                showCustomAlert("Vui lòng chọn ít nhất một đơn hàng!");
                                 document.getElementById('deleteAll-order-modal').classList.remove('show');
                                 return;
                             }
@@ -498,20 +695,19 @@
                             }).then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
-                                        alert(data.message);
-                                        window.location.reload();
+                                        showCustomAlert(data.message, () => window.location.reload());
                                     } else {
-                                        alert(data.message);
+                                        showCustomAlert(data.message);
                                     }
                                 }).catch(error => {
                                     console.error('Error:', error);
-                                    alert("Lỗi kết nối tới server.");
+                                    showCustomAlert("Lỗi kết nối tới server.");
                                 });
                         });
                     });
 
                     function confirmDelete(id) {
-                        if (confirm('Bạn có chắc chắn muốn xóa đơn hàng này?')) {
+                        showCustomConfirm('Bạn có chắc chắn muốn xóa đơn hàng này?', () => {
                             // Call delete API
                             fetch('${pageContext.request.contextPath}/admin/delete-order', {
                                 method: 'POST',
@@ -522,21 +718,119 @@
                             }).then(response => response.json())
                                 .then(data => {
                                     if (data.success) {
-                                        alert(data.message);
-                                        window.location.reload();
+                                        showCustomAlert(data.message, () => window.location.reload());
                                     } else {
-                                        alert(data.message);
+                                        showCustomAlert(data.message);
                                     }
                                 }).catch(error => {
                                     console.error('Error:', error);
-                                    alert("Lỗi kết nối tới server.");
+                                    showCustomAlert("Lỗi kết nối tới server.");
                                 });
-                        }
+                        });
                     }
 
                     function openViewModal(id) {
                         location.href = '${pageContext.request.contextPath}/admin/get-order?id=' + id;
                     }
+
+                    // Phase 1: Edit Order Modal
+                    function openEditModal(id) {
+                        document.getElementById('edit-order-id').value = id;
+                        document.getElementById('edit-order-id-display').textContent = id;
+                        document.getElementById('edit-note').value = '';
+                        document.getElementById('edit-carrier').value = '';
+                        document.getElementById('edit-shipping-fee').value = '0';
+                        document.getElementById('editOrderModal').classList.add('show');
+                    }
+                    function closeEditModal() {
+                        document.getElementById('editOrderModal').classList.remove('show');
+                    }
+                    function submitEditOrder() {
+                        const orderId = document.getElementById('edit-order-id').value;
+                        const note = document.getElementById('edit-note').value;
+                        const carrier = document.getElementById('edit-carrier').value;
+                        const shippingFee = document.getElementById('edit-shipping-fee').value;
+
+                        const params = {
+                            orderId: orderId,
+                            note: note,
+                            carrierName: carrier,
+                            shippingFee: shippingFee
+                        };
+                        submitPostForm('${pageContext.request.contextPath}/admin/edit-order', params);
+                    }
+
+                    // Phase 3: Refund Modal
+                    function openRefundModal() {
+                        const orderId = document.getElementById('update-order-id').value;
+                        document.getElementById('refund-order-id').value = orderId;
+                        document.getElementById('refund-order-id-display').textContent = orderId;
+                        document.getElementById('refund-reason').value = '';
+                        document.getElementById('refundModal').classList.add('show');
+                    }
+                    function closeRefundModal() {
+                        document.getElementById('refundModal').classList.remove('show');
+                    }
+                    function submitRefund() {
+                        const orderId = document.getElementById('refund-order-id').value;
+                        const reason = document.getElementById('refund-reason').value;
+
+                        submitPostForm('${pageContext.request.contextPath}/admin/refund-order', { orderId: orderId, reason: reason });
+                    }
+
+                    // Phase 4: Feedback Modal
+                    function openFeedbackModal() {
+                        const orderId = document.getElementById('update-order-id').value;
+                        document.getElementById('feedback-order-id').value = orderId;
+                        document.getElementById('feedback-order-id-display').textContent = orderId;
+                        const emailEl = document.getElementById('modal-customer-email');
+                        document.getElementById('feedback-customer-email').textContent = emailEl ? emailEl.textContent : '';
+                        document.getElementById('feedback-subject').value = 'Phản hồi về đơn hàng';
+                        document.getElementById('feedback-content').value = '';
+                        document.getElementById('feedbackModal').classList.add('show');
+                    }
+                    function closeFeedbackModal() {
+                        document.getElementById('feedbackModal').classList.remove('show');
+                    }
+                    function submitFeedback() {
+                        const orderId = document.getElementById('feedback-order-id').value;
+                        const subject = document.getElementById('feedback-subject').value;
+                        const content = document.getElementById('feedback-content').value;
+
+                        if (!content.trim()) {
+                            showCustomAlert('Nội dung phản hồi không được để trống!');
+                            return;
+                        }
+
+                        submitPostForm('${pageContext.request.contextPath}/admin/send-feedback', { orderId: orderId, subject: subject, content: content });
+                    }
+
+                    function submitPostForm(action, params) {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = action;
+                        for (const key in params) {
+                            if (params.hasOwnProperty(key) && params[key] !== null && params[key] !== '') {
+                                const input = document.createElement('input');
+                                input.type = 'hidden';
+                                input.name = key;
+                                input.value = params[key];
+                                form.appendChild(input);
+                            }
+                        }
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+
+                    // Close modals on overlay click
+                    ['editOrderModal', 'refundModal', 'feedbackModal'].forEach(function(id) {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            el.addEventListener('click', function(e) {
+                                if (e.target === el) el.classList.remove('show');
+                            });
+                        }
+                    });
                 </script>
 
                 <c:if test="${not empty orderInfo}">
@@ -549,10 +843,50 @@
 
                             const status = '${orderInfo.ship_status}' || 'Đang xử lý';
                             const statusSelect = document.getElementById('modal-status-select');
+                            const isAdmin = ${sessionScope.user.administrator == 1 ? 'true' : 'false'};
                             if (statusSelect) {
                                 const matchedOption = Array.from(statusSelect.options).find(option => option.value === status);
                                 if (matchedOption) {
                                     statusSelect.value = status;
+                                }
+
+                                const statusOrder = ['Đang xử lý', 'Chuẩn bị đơn hàng', 'Đang giao hàng', 'Giao hàng thành công', 'Đã giao'];
+                                const currentIndex = statusOrder.indexOf(status);
+                                
+                                Array.from(statusSelect.options).forEach(opt => {
+                                    if (status === 'Đã hủy') {
+                                        opt.disabled = false;
+                                        opt.style.color = '#333';
+                                    } else {
+                                        if (opt.value === 'Đã hủy' || opt.value === 'Thanh toán thất bại') {
+                                            if (status === 'Giao hàng thành công' || status === 'Đã giao') {
+                                                opt.disabled = true;
+                                                opt.style.color = '#aaa';
+                                            } else {
+                                                opt.disabled = false;
+                                                opt.style.color = '#333';
+                                            }
+                                        } else {
+                                            const optIndex = statusOrder.indexOf(opt.value);
+                                            if (optIndex >= currentIndex) {
+                                                opt.disabled = false;
+                                                opt.style.color = '#333';
+                                            } else {
+                                                opt.disabled = true;
+                                                opt.style.color = '#aaa';
+                                            }
+                                        }
+                                    }
+                                });
+                                statusSelect.options[statusSelect.selectedIndex].style.color = '#333';
+                                
+                                const updateBtn = document.getElementById('update-order-btn');
+                                if (!isAdmin && (status === 'Đã hủy' || status === 'Thanh toán thất bại' || status === 'Giao hàng thành công' || status === 'Đã giao' || status === 'Đã xóa')) {
+                                    if (updateBtn) updateBtn.style.display = 'none';
+                                    statusSelect.disabled = true;
+                                } else {
+                                    if (updateBtn) updateBtn.style.display = 'block';
+                                    statusSelect.disabled = false;
                                 }
                             }
 
@@ -606,6 +940,30 @@
                             }
 
                             const modal = document.getElementById('orderDetailModal');
+
+                            // Hiển thị trạng thái thanh toán
+                            const paymentStatusEl = document.getElementById('modal-payment-status');
+                            if (paymentStatusEl) {
+                                const payStatus = '${orderInfo.payment_status}' || 'N/A';
+                                paymentStatusEl.textContent = payStatus;
+                                if (payStatus === 'Đã thanh toán' || payStatus === 'Success' || payStatus === 'Completed') {
+                                    paymentStatusEl.style.backgroundColor = '#28a745';
+                                    paymentStatusEl.style.color = '#fff';
+                                } else if (payStatus === 'Đã hoàn tiền') {
+                                    paymentStatusEl.style.backgroundColor = '#17a2b8';
+                                    paymentStatusEl.style.color = '#fff';
+                                } else if (payStatus === 'Pending' || payStatus === 'Chờ thanh toán') {
+                                    paymentStatusEl.style.backgroundColor = '#ffc107';
+                                    paymentStatusEl.style.color = '#333';
+                                } else if (payStatus === 'Expired' || payStatus === 'Failed') {
+                                    paymentStatusEl.style.backgroundColor = '#dc3545';
+                                    paymentStatusEl.style.color = '#fff';
+                                } else {
+                                    paymentStatusEl.style.backgroundColor = '#6c757d';
+                                    paymentStatusEl.style.color = '#fff';
+                                }
+                            }
+
                             if (modal) {
                                 modal.classList.add('show');
                             }

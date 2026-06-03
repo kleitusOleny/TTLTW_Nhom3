@@ -560,8 +560,7 @@
 }
 
 .modal-content,
-.modal-content-deleteAll,
-.modal-content-edit_information {
+.modal-content-deleteAll {
     background-color: white;
     border-radius: 16px;
     padding: 2.5rem;
@@ -844,8 +843,7 @@
     margin-bottom: 10px;
 }
 
-.modal-content h2,
-.modal-content-edit_information h2 {
+.modal-content h2 {
     color: #333;
     margin-bottom: 20px;
     font-size: 1.5rem;
@@ -1085,6 +1083,97 @@ table.dataTable>tbody>tr>td {
     border: 1px solid #c3e6cb;
 }
 
+/* Apply Search Bar */
+.apply-search-bar {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid #e0e0e8;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 15px;
+    transition: all 0.2s ease;
+}
+
+.apply-search-bar:focus-within {
+    border-color: #0872fa;
+    box-shadow: 0 0 0 3px rgba(8, 114, 250, 0.1);
+}
+
+.apply-search-bar ion-icon {
+    color: #888;
+    font-size: 1.1rem;
+    margin-right: 8px;
+}
+
+.apply-search-bar input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 0.9rem;
+    color: #333;
+    background: transparent;
+}
+
+.apply-search-bar input::placeholder {
+    color: #bbb;
+}
+
+/* Apply Toolbar (Select All / Deselect All) */
+.apply-list-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.apply-toolbar-btn {
+    background: #f1f2f6;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #555;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.apply-toolbar-btn:hover {
+    background: #e4e5eb;
+    color: #333;
+}
+
+.apply-count {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 600;
+}
+
+/* Button Loading State */
+.btn-loading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-loading::after {
+    content: '';
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 .d-none {
     display: none !important;
 }
@@ -1105,4 +1194,271 @@ table.dataTable>tbody>tr>td {
 
 .apply-lists::-webkit-scrollbar-thumb:hover {
     background: #aaa;
+}
+
+/* ================================================== */
+/* Premium Modal Form Styles (Add / Edit Promotion)   */
+/* ================================================== */
+
+/* --- Modal Panel --- */
+.modal-content-edit_information {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 0;
+    width: 560px;
+    max-width: 92vw;
+    max-height: 88vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    transform: translateY(18px) scale(0.97);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.3s ease;
+}
+
+.modal-overlay-edit_information.show .modal-content-edit_information {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+/* Scrollbar inside modal */
+.modal-content-edit_information::-webkit-scrollbar {
+    width: 5px;
+}
+.modal-content-edit_information::-webkit-scrollbar-track {
+    background: transparent;
+}
+.modal-content-edit_information::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border-radius: 10px;
+}
+.modal-content-edit_information::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+}
+
+/* --- Header (matches admin sidebar #21232d) --- */
+.modal-content-edit_information h2 {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #21232d;
+    color: #ffffff;
+    margin: 0;
+    padding: 20px 30px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    border-bottom: none;
+    border-radius: 14px 14px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-content-edit_information h2::before {
+    content: '';
+    display: inline-block;
+    width: 4px;
+    height: 20px;
+    background: #08c249;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+/* --- Form Body --- */
+.modal-content-edit_information form {
+    padding: 26px 30px 22px;
+}
+
+/* --- Form Grid --- */
+.modal-content-edit_information .form-row {
+    display: flex;
+    gap: 18px;
+    margin-bottom: 2px;
+}
+
+.modal-content-edit_information .form-col {
+    flex: 1;
+    min-width: 0;
+}
+
+/* --- Form Group --- */
+.modal-content-edit_information .form-group {
+    margin-bottom: 18px;
+}
+
+.modal-content-edit_information .form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #444;
+    margin-bottom: 7px;
+    letter-spacing: 0.2px;
+}
+
+.modal-content-edit_information .form-group label span {
+    color: #dc3545;
+    margin-left: 2px;
+}
+
+/* --- Form Controls (Input / Select) --- */
+.modal-content-edit_information .form-control {
+    width: 100%;
+    box-sizing: border-box;
+    font-family: 'Mulish', sans-serif;
+    font-size: 0.92rem;
+    padding: 11px 14px;
+    border: 1.5px solid #d0d0d0;
+    border-radius: 8px;
+    background-color: #fafafa;
+    color: #333;
+    transition: border-color 0.2s ease,
+                background-color 0.2s ease,
+                box-shadow 0.2s ease;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* Select arrow */
+.modal-content-edit_information select.form-control {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+.modal-content-edit_information .form-control:hover {
+    border-color: #a0a0a0;
+    background-color: #fff;
+}
+
+.modal-content-edit_information .form-control:focus {
+    border-color: #6341ff;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(99, 65, 255, 0.08);
+}
+
+/* Placeholder */
+.modal-content-edit_information .form-control::placeholder {
+    color: #b0b0b8;
+    font-weight: 400;
+}
+
+/* --- Action Buttons (inside modal) --- */
+.modal-content-edit_information .group-button-action {
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.modal-content-edit_information .element-button {
+    padding: 12px 26px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.modal-content-edit_information .cancel {
+    background: #9daab4;
+    color: #fff;
+    box-shadow: none;
+}
+
+.modal-content-edit_information .cancel:hover {
+    background: #8e96a4;
+    transform: translateY(-1px);
+}
+
+.modal-content-edit_information .fix-btn {
+    background: linear-gradient(135deg, #08c249 0%, #06a13d 100%);
+    color: #fff;
+    box-shadow: 0 4px 14px rgba(8, 194, 73, 0.3);
+}
+
+.modal-content-edit_information .fix-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(8, 194, 73, 0.4);
+}
+
+/* --- Status Badge Refinement --- */
+.status-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: none;
+}
+
+.status-badge.active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-badge.inactive {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+/* --- Delete Confirm Modal --- */
+#delete-confirm-modal .modal-content {
+    text-align: center;
+}
+
+#delete-confirm-modal .modal-content h2 {
+    color: #dc3545;
+    font-size: 1.3rem;
+}
+
+#delete-confirm-modal .modal-content p {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+#delete-confirm-modal .del {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    box-shadow: 0 4px 14px rgba(220, 53, 69, 0.3);
+}
+
+#delete-confirm-modal .del:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+}
+
+/* --- Responsive --- */
+@media (max-width: 640px) {
+    .modal-content-edit_information {
+        width: 95vw;
+        border-radius: 12px;
+    }
+
+    .modal-content-edit_information h2 {
+        padding: 16px 20px;
+        font-size: 1.15rem;
+        border-radius: 12px 12px 0 0;
+    }
+
+    .modal-content-edit_information form {
+        padding: 20px;
+    }
+
+    .modal-content-edit_information .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
 }

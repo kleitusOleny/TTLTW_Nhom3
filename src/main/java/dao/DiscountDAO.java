@@ -8,9 +8,15 @@ import java.util.Optional;
 
 public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
 
+    public void autoUpdateExpiredDiscounts() {
+        jdbi.useHandle(handle -> handle.createUpdate("UPDATE discounts SET is_delete = 1 WHERE discount_to < NOW() AND is_delete = 0")
+                .execute());
+    }
+
     @Override
     public List<Discount> findAll() {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts WHERE is_delete = 0")
+        autoUpdateExpiredDiscounts();
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts")
                 .mapToBean(Discount.class)
                 .list());
     }
@@ -21,6 +27,18 @@ public class DiscountDAO extends ADAO implements IDAO<Discount, Integer> {
                 handle.createQuery("""
                                     SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts
                                     WHERE id = :id AND is_delete = 0
+                                """)
+                        .bind("id", id)
+                        .mapToBean(Discount.class)
+                        .findFirst()
+        );
+    }
+
+    public Optional<Discount> findByIdAdmin(Integer id) {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("""
+                                    SELECT apply_type, id, discount_code,discount_type,discount_value,discount_from,discount_to, is_active, create_at, update_at, is_delete, quantity FROM discounts
+                                    WHERE id = :id
                                 """)
                         .bind("id", id)
                         .mapToBean(Discount.class)
