@@ -4,9 +4,11 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import dao.SecurityAttemptDAO;
 import dao.UserDAO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import model.AuthTypes;
 import model.User;
 import org.mindrot.jbcrypt.BCrypt;
 import org.slf4j.MDC;
@@ -20,6 +22,8 @@ import java.util.UUID;
 public class AuthServices {
     private final UserDAO userDAO = new UserDAO();
     private final UserService userService = new UserService();
+
+    private final SecurityAttemptDAO securityAttemptDAO = new SecurityAttemptDAO();
     private static final String CLIENT_ID = "561993862196-rspl5j67m79f0857je2sdrv8f75m2ijs.apps.googleusercontent.com";
 
     public String getEmailFromGoogleToken(String idTokenString){
@@ -74,6 +78,26 @@ public class AuthServices {
         } else {
             return null;
         }
+    }
+
+    // Dù user có login bằng username cũng lấy được email
+    public String resolveEmail(String loginKey) {
+        // loginKey ở đây có thể là username hoặc là email
+        // nếu loginKey chứa @ thì là email (vì đặt tên username đã validation chuyện này)
+        if (loginKey.contains("@")) {
+            return loginKey.toLowerCase();
+        }
+        User user = userDAO.findByUsername(loginKey);
+        if (user != null && user.getEmail() != null) {
+            return user.getEmail().toLowerCase();
+        }
+        return loginKey.toLowerCase();
+    }
+
+    // kiểm tra xem cặp IP/Email này có đang bị khóa không
+    public boolean isBlocked(String email, String ipAddress, AuthTypes actionType, int attempts, int minuteForFailed) {
+        int failedAttempts = securityAttemptDAO.getFailedAttempts(email, ipAddress, actionType, minuteForFailed);
+        return failedAttempts >= attempts;
     }
 
     public User register(String fullName, String email, String username, String plainPassword, String phoneNumber, Timestamp birthday) {

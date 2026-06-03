@@ -1,15 +1,16 @@
 package controller;
 
+import dao.SecurityAttemptDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
+import model.AuthTypes;
 import model.Cart;
 import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import services.AuthServices;
-import services.UserValidationServices;
+import services.*;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,6 +20,9 @@ import java.util.Map;
 public class NormalLogin extends HttpServlet {
     UserValidationServices userValidationServices = new UserValidationServices();
     AuthServices authServices = new AuthServices();
+    UserService userService = new UserService();
+    SecurityAttemptDAO securityAttemptDAO = new SecurityAttemptDAO();
+    private final AuthTypes actionTypeLogin = AuthTypes.LOGIN;
     private static final Logger log = LoggerFactory.getLogger(NormalLogin.class);
 
     @Override
@@ -30,18 +34,37 @@ public class NormalLogin extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         authServices.baseSetupMdc(request, "searching for email that doesn't exist");
         try {
             String username = request.getParameter("username");
             String pass = request.getParameter("password");
-
+            String recaptchaResponse = request.getParameter("g-recaptcha-response");
             Map<String, String> allErrors = new HashMap<>(
                     userValidationServices.validateBothUsernameAndEmail(username, pass));
 
             User account;
             AuthServices authService = new AuthServices();
             if (allErrors.isEmpty()) {
+                String loginKey = username.trim();
+                String clientIp = userService.getClientIp(request);
+                String targetEmail = authService.resolveEmail(loginKey);
+
+                int failedAttempts = securityAttemptDAO.getFailedAttempts(targetEmail, clientIp, actionTypeLogin, 15);
+                request.setAttribute("failedAttempts", failedAttempts);
+
+                if (authService.isBlocked(targetEmail, clientIp, actionTypeLogin, 5, 15)) {
+                    log.warn("IP {} cố gắng đăng nhập vào {} nhưng đã bị khóa tạm thời.", clientIp, username);
+                    request.setAttribute("loginError", "Bạn đã nhập sai quá nhiều. Vui lòng thử lại sau 15 phút.");
+                    request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
+                    return;
+                }
+                if (failedAttempts >= 3 && failedAttempts < 5) {
+                    if (!CaptchaVerifier.verify(recaptchaResponse)) {
+                        request.setAttribute("loginError", "Vui lòng xác minh bạn không phải là người máy!");
+                        request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
+                        return;
+                    }
+                }
                 account = authService.login(username, pass);
                 String emailOrUsername;
                 if (username.contains("@")) {
@@ -53,6 +76,8 @@ public class NormalLogin extends HttpServlet {
                 if (account != null) {
                     if (account.getActive() == 1) {
                         log.info("Đăng nhập thành công");
+                        securityAttemptDAO.resetAttempts(targetEmail, clientIp, actionTypeLogin);
+                        // ================
                         HttpSession oldSession = request.getSession(false);
                         Cart cart = null;
                         Cart buyNowCart = null;
@@ -103,7 +128,19 @@ public class NormalLogin extends HttpServlet {
                     }
                 } else {
                     log.warn("Đăng nhập thất bại: Sai thông tin đăng nhập");
-                    request.setAttribute("loginError", "Bạn đã nhập sai tên tài khoản hoặc mật khẩu");
+                    securityAttemptDAO.increaseAttempt(targetEmail, clientIp, actionTypeLogin);
+                    int newAttempts = securityAttemptDAO.getFailedAttempts(targetEmail, clientIp, actionTypeLogin, 15);
+                    request.setAttribute("failedAttempts", newAttempts);
+
+                    if (newAttempts >= 5) {
+                        EmailServices emailServices = new EmailServices();
+                        new Thread(() -> {
+                            emailServices.sendWarningBruteForcingMail(targetEmail, clientIp);
+                        }).start();
+                        request.setAttribute("loginError", "Bạn đã nhập sai quá nhiều. Vui lòng thử lại sau 15 phút.");
+                    } else {
+                        request.setAttribute("loginError", "Bạn đã nhập sai tên tài khoản hoặc mật khẩu");
+                    }
                     request.getRequestDispatcher("/auth/Login.jsp").forward(request, response);
                 }
             } else {
