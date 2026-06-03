@@ -147,11 +147,17 @@
                                         onclick="location.href='${pageContext.request.contextPath}/store'">Mua
                                         lại</button>
                                     <c:if test="${status == 'Giao hàng thành công'}">
-                                        <button class="btn"
-                                            onclick="location.href='${pageContext.request.contextPath}/evaluate?orderId=${order.id}'">
-                                            Đánh
-                                            giá
-                                        </button>
+                                        <c:if test="${!order.evaluated}">
+                                            <button class="btn"
+                                                onclick="location.href='${pageContext.request.contextPath}/evaluate?orderId=${order.id}'">
+                                                Đánh giá
+                                            </button>
+                                        </c:if>
+                                        <c:if test="${order.evaluated}">
+                                            <button class="btn" style="background-color: #28a745; color: white; cursor: not-allowed;" disabled>
+                                                <i class="fa-solid fa-check"></i> Đã đánh giá
+                                            </button>
+                                        </c:if>
                                         <button class="btn"
                                             onclick="openRefundModal(${order.id})">
                                             Hoàn trả / Hoàn tiền
