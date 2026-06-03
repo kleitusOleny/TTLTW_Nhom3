@@ -55,6 +55,7 @@
                                             <th class="col-product">Sản Phẩm</th>
                                             <th class="col-star">Số Sao</th>
                                             <th class="col-content">Nội Dung Đánh Giá</th>
+                                            <th class="col-image">Hình Ảnh</th>
                                             <th class="col-date">Thời Gian</th>
                                             <th class="col-status">Trạng Thái</th>
                                             <th class="col-action">Hành Động</th>
@@ -95,6 +96,16 @@
                                                         ${r.content}
                                                     </div>
                                                 </td>
+                                                <td class="cell-image" style="text-align: center;">
+                                                    <c:choose>
+                                                        <c:when test="${not empty r.imagePath}">
+                                                            <img src="${pageContext.request.contextPath}/${r.imagePath}" alt="Review" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span style="color: #999; font-style: italic; font-size: 12px;">Không có</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </td>
                                                 <td class="cell-date">
                                                     <fmt:parseDate value="${r.createAt}" pattern="yyyy-MM-dd'T'HH:mm"
                                                         var="parsedDate" type="both" />
@@ -112,7 +123,7 @@
                                                 </td>
                                                 <td class="cell-action">
                                                     <button class="view btn"
-                                                        onclick="viewReview(${r.id}, '${r.userName}', '${r.productName}', ${r.star}, '${r.content}')">
+                                                        onclick="viewReview(${r.id}, '${r.userName}', '${r.productName}', ${r.star}, '${r.content}', '<fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy HH:mm" />', '${r.imagePath}')">
                                                         <ion-icon name="eye-outline"></ion-icon>
                                                     </button>
                                                     <button class="edit btn"
@@ -159,9 +170,19 @@
                                 <label>Số sao:</label>
                                 <span id="view-star"></span>
                             </div>
+                            <div class="detail-row">
+                                <label>Thời gian:</label>
+                                <span id="view-date"></span>
+                            </div>
                             <div class="detail-row full-width">
                                 <label>Nội dung:</label>
                                 <p id="view-content" class="content-full"></p>
+                            </div>
+                            <div class="detail-row full-width">
+                                <label>Hình ảnh:</label>
+                                <div id="view-image" class="image-gallery">
+                                    <span class="no-image-text" style="color: #666; font-style: italic;">Không có hình ảnh</span>
+                                </div>
                             </div>
                         </div>
                         <div class="group-button-action section">
@@ -188,6 +209,23 @@
                     </div>
                 </div>
 
+                <!-- Modal Xác nhận xóa 1 -->
+                <div class="modal-overlay-deleteAll" id="delete-single-review-modal">
+                    <div class="modal-content-deleteAll">
+                        <div class="group-text-deleteAll">
+                            <p class="p-deleteAll1">Bạn có chắc chắn muốn xoá đánh giá này?</p>
+                            <p class="p-deleteAll2">
+                                <ion-icon name="warning-outline" class="icon-warning"></ion-icon>
+                                Hành động này sẽ không thể hoàn tác
+                            </p>
+                        </div>
+                        <div class="group-button-action delete-all">
+                            <button type="button" class="element-button" id="close-single-delete-btn">Huỷ</button>
+                            <button type="button" class="deleteAll-button" id="confirm-single-delete-btn">Xoá</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Modal Sửa Đánh Giá -->
                 <div class="modal-overlay-edit_information" id="edit_information-review-modal">
                     <div class="modal-content-edit_information">
@@ -203,9 +241,9 @@
                                     <label>Sản phẩm:</label>
                                     <span>${reviewEdit.productName}</span>
                                 </div>
-                                <div class="star-section">
+                                <div class="star-section readonly">
                                     <label for="star_edit">Số Sao</label>
-                                    <select id="star_edit" name="star" required>
+                                    <select id="star_edit" name="star" disabled>
                                         <option value="1" ${reviewEdit.star==1 ? 'selected' : '' }>1 sao</option>
                                         <option value="2" ${reviewEdit.star==2 ? 'selected' : '' }>2 sao</option>
                                         <option value="3" ${reviewEdit.star==3 ? 'selected' : '' }>3 sao</option>
@@ -213,15 +251,14 @@
                                         <option value="5" ${reviewEdit.star==5 ? 'selected' : '' }>5 sao</option>
                                     </select>
                                 </div>
-                                <div class="content-section">
+                                <div class="content-section readonly">
                                     <label for="content_edit">Nội dung đánh giá</label>
                                     <textarea id="content_edit" name="content" rows="5"
-                                        required>${reviewEdit.content}</textarea>
+                                        readonly>${reviewEdit.content}</textarea>
                                 </div>
                             </div>
                             <div class="group-button-action section">
-                                <button type="button" class="cancel element-button" id="close-modal-btn7">Huỷ</button>
-                                <button type="submit" class="fix-btn element-button">Lưu thay đổi</button>
+                                <button type="button" class="cancel element-button" id="close-modal-btn7">Đóng</button>
                             </div>
                         </form>
                     </div>
@@ -289,9 +326,10 @@
                         });
                     });
 
-                    function viewReview(id, userName, productName, star, content) {
+                    function viewReview(id, userName, productName, star, content, dateStr, imagePath) {
                         document.getElementById('view-user-name').textContent = userName;
                         document.getElementById('view-product-name').textContent = productName;
+                        document.getElementById('view-date').textContent = dateStr;
 
                         // Generate star display
                         let starHtml = '';
@@ -306,12 +344,31 @@
                         document.getElementById('view-star').innerHTML = starHtml;
 
                         document.getElementById('view-content').textContent = content;
+
+                        const imageContainer = document.getElementById('view-image');
+                        if (imagePath && imagePath.trim() !== '') {
+                            imageContainer.innerHTML = '<img src="' + '${pageContext.request.contextPath}/' + imagePath + '" style="max-width: 100%; border-radius: 5px; margin-top: 10px; max-height: 200px; object-fit: contain;" />';
+                        } else {
+                            imageContainer.innerHTML = '<span class="no-image-text" style="color: #666; font-style: italic;">Không có hình ảnh</span>';
+                        }
+
                         document.getElementById('view-review-modal').classList.add('show');
                     }
 
+                    let reviewToDelete = null;
                     function confirmDelete(id) {
-                        if (confirm('Bạn có chắc chắn muốn xóa đánh giá này không?')) {
-                            fetch('${pageContext.request.contextPath}/admin/delete-review?id=' + id, {
+                        reviewToDelete = id;
+                        document.getElementById('delete-single-review-modal').classList.add('show');
+                    }
+
+                    document.getElementById('close-single-delete-btn').addEventListener('click', function() {
+                        document.getElementById('delete-single-review-modal').classList.remove('show');
+                        reviewToDelete = null;
+                    });
+
+                    document.getElementById('confirm-single-delete-btn').addEventListener('click', function() {
+                        if (reviewToDelete) {
+                            fetch('${pageContext.request.contextPath}/admin/delete-review?id=' + reviewToDelete, {
                                 method: 'POST'
                             }).then(response => {
                                 if (response.ok) {
@@ -321,7 +378,7 @@
                                 }
                             });
                         }
-                    }
+                    });
 
                     function confirmRestore(id) {
                         if (confirm('Bạn có chắc chắn muốn khôi phục đánh giá này không?')) {
