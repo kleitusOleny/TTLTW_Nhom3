@@ -25,6 +25,9 @@ public class CTEvaluates {
     @ColumnName("is_delete")
     private LocalDateTime isDelete;
 
+    @ColumnName("image_path")
+    private String imagePath;
+
     public CTEvaluates() {
     }
 
@@ -82,5 +85,13 @@ public class CTEvaluates {
 
     public Date getCreateAtAsDate() {
         return createAt == null ? null : Timestamp.valueOf(createAt);
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 }
