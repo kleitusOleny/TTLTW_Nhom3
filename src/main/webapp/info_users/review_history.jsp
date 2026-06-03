@@ -76,19 +76,3 @@
                     </div>
                 </c:if>
             </div>
-            <script>
-                const container = document.getElementById('reviews-container');
-                container.addEventListener("wheel", function (e) {
-                    const scrollTop = container.scrollTop;
-                    const scrollHeight = container.scrollHeight;
-                    const offsetHeight = container.offsetHeight;
-                    const delta = e.deltaY;
-
-                    if (
-                        (delta > 0 && scrollTop + offsetHeight >= scrollHeight) ||
-                        (delta < 0 && scrollTop <= 0)
-                    ) {
-                        e.preventDefault();
-                    }
-                }, { passive: false });
-            </script>
