@@ -3,13 +3,7 @@ package controller.admin;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import dao.AddressDAO;
-import dao.OrderDAO;
-import dao.OrderItemDAO;
-import dao.PaymentDAO;
-import dao.ProductDAO;
-import dao.ShipOrderDAO;
-import dao.UserDAO;
+import dao.*;
 import model.Address;
 import model.CreateOrderRequest;
 import model.Order;
@@ -46,6 +40,7 @@ public class AdminOrderController extends HttpServlet {
     private AddressDAO addressDAO;
     private PaymentDAO paymentDAO;
     private Gson gson;
+    private final RolePermissionDAO rolePermissionDAO = new RolePermissionDAO();
 
     @Override
     public void init() {
@@ -169,7 +164,7 @@ public class AdminOrderController extends HttpServlet {
                 }
 
                 User currentUser = (User) request.getSession().getAttribute("user");
-                boolean isAdmin = currentUser != null && currentUser.getAdministrator() == 1;
+                boolean isAdmin = currentUser != null && rolePermissionDAO.getPermissionsByUserId(currentUser.getId()).contains("dashboard:read");
                 Map<String, Object> orderInfo = orderDAO.getOrderInfo(id);
 
                 if (orderInfo != null && !isAdmin) {

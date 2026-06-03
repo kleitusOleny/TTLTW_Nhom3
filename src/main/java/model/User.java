@@ -27,9 +27,6 @@ public class User implements Serializable {
     @ColumnName("birth_day")
     private Timestamp birthDay;
 
-    @ColumnName("administrator")
-    private int administrator;
-
     @ColumnName("active")
     private int active;
 
@@ -38,6 +35,12 @@ public class User implements Serializable {
 
     @ColumnName("update_at")
     private Timestamp updateAt;
+
+    @ColumnName("description")
+    private String description;
+
+    @ColumnName("role_id")
+    private int roleId;
 
     public String getFullName() {
         return fullName;
@@ -110,14 +113,6 @@ public class User implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
-    public int getAdministrator() {
-        return administrator;
-    }
-
-    public void setAdministrator(int administrator) {
-        this.administrator = administrator;
-    }
-
     public int getActive() {
         return active;
     }
@@ -134,6 +129,22 @@ public class User implements Serializable {
         this.createdAt = createdAt;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -144,7 +155,6 @@ public class User implements Serializable {
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", fullName='" + fullName + '\'' +
                 ", birthDay=" + birthDay +
-                ", administrator=" + administrator +
                 ", active=" + active +
                 ", createdAt=" + createdAt +
                 ", updateAt=" + updateAt +
