@@ -34,6 +34,7 @@
                     <div class="order-filter">
                         <div class="filter-tabs">
                             <button class="filter-btn active" onclick="filterOrders(this, 'all')">Tất cả</button>
+                            <button class="filter-btn" onclick="filterOrders(this, 'Đang xử lý')">Đang xử lý</button>
                             <button class="filter-btn" onclick="filterOrders(this, 'Chuẩn bị đơn hàng')">Chuẩn bị đơn
                                 hàng</button>
                             <button class="filter-btn" onclick="filterOrders(this, 'Đang giao hàng')">Đang giao
@@ -79,11 +80,25 @@
                                     </c:choose>
                                 </div>
                                 <div class="order-body" style="border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                                        <p style="margin: 0; color: #555;"><strong>Ngày đặt:</strong> 
-                                            <fmt:formatDate value="${order.createAt}" pattern="dd/MM/yyyy HH:mm" />
-                                        </p>
-                                        <p style="margin: 0; font-size: 16px;"><strong>Tổng tiền:</strong>
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+                                        <div>
+                                            <p style="margin: 0; color: #555;"><strong>Ngày đặt:</strong> 
+                                                <fmt:formatDate value="${order.createAt}" pattern="dd/MM/yyyy HH:mm" />
+                                            </p>
+                                            <c:if test="${shipOrder != null}">
+                                                <p style="margin: 5px 0 0; color: #555;"><strong>Đơn vị giao:</strong> ${not empty shipOrder.carrierName ? shipOrder.carrierName : 'Chưa cập nhật'}
+                                                </p>
+                                                <p style="margin: 5px 0 0; color: #555;"><strong>Dự kiến giao:</strong> 
+                                                    <c:choose>
+                                                        <c:when test="${not empty shipOrder.estimatedDeliveryDate}">
+                                                            <fmt:formatDate value="${shipOrder.estimatedDeliveryDate}" pattern="dd/MM/yyyy" />
+                                                        </c:when>
+                                                        <c:otherwise>Chưa cập nhật</c:otherwise>
+                                                    </c:choose>
+                                                </p>
+                                            </c:if>
+                                        </div>
+                                        <p style="margin: 0; font-size: 16px; text-align: right;"><strong>Tổng tiền:</strong><br/>
                                             <span style="color: #a94442; font-weight: bold; font-size: 18px;">
                                                 <fmt:setLocale value="vi_VN" />
                                                 <fmt:formatNumber value="${order.totalPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0" />
