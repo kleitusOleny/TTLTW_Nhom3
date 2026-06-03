@@ -265,6 +265,11 @@
                                                             <div class="review-content"
                                                                 style="font-size: 14px; color: rgba(0,0,0,.87); line-height: 1.4;">
                                                                 <div>${r.content}</div>
+                                                                <c:if test="${not empty r.imagePath}">
+                                                                    <div class="review-image" style="margin-top: 15px;">
+                                                                        <img src="${pageContext.request.contextPath}/${r.imagePath}" alt="Review image" style="max-width: 150px; max-height: 150px; border-radius: 4px; border: 1px solid #eee; object-fit: contain;">
+                                                                    </div>
+                                                                </c:if>
                                                             </div>
                                                         </div>
                                                     </div>

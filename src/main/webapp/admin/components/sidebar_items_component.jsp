@@ -41,3 +41,7 @@
                         class="a-with-icon ${activePage == 'review' ? 'selected' : ''}">
                         <ion-icon name=${activePage=='review' ? 'star' : 'star-outline' }></ion-icon>
                         Quản Lí Đánh Giá</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/manage-files"
+                        class="a-with-icon ${activePage == 'files' ? 'selected' : ''}">
+                        <ion-icon name=${activePage=='files' ? 'folder' : 'folder-outline' }></ion-icon>
+                        Quản Lí File & Hình Ảnh</a></li>

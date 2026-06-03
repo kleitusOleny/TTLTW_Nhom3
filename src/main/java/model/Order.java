@@ -45,7 +45,18 @@ public class Order {
     @ColumnName("message")
     private String message;
 
+    @ColumnName("is_evaluated")
+    private boolean isEvaluated;
+
     private List<OrderItem> items;
+
+    public boolean isEvaluated() {
+        return isEvaluated;
+    }
+
+    public void setEvaluated(boolean evaluated) {
+        isEvaluated = evaluated;
+    }
 
     public String getMessage() {
         return message;

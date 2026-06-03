@@ -6,7 +6,7 @@
 
                 <div class="favorites-container">
                     <div class="favorites-header">
-                        <h2><i class="fa-solid fa-heart"></i> Sản phẩm yêu thích của tôi</h2>
+                        <h2>Sản phẩm yêu thích của tôi</h2>
                         <span class="text-muted" id="favorites-count">${fn:length(favouritesList)} sản phẩm</span>
                     </div>
 

@@ -31,6 +31,22 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.rh-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.rh-list::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+ 
+.rh-list::-webkit-scrollbar-thumb {
+    background: #c7a17a; 
+    border-radius: 4px;
 }
 
 .rh-card {

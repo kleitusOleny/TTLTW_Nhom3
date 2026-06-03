@@ -32,11 +32,6 @@
     gap: 12px;
 }
 
-#address-card h2::before {
-    content: '\f2bb';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-}
 
 .address-list {
     display: grid;
