@@ -44,10 +44,11 @@ public class RolePermissionDAO extends ADAO {
                 u.full_name, 
                 u.active, 
                 r.id AS role_id,
-                r.description AS description 
+                GROUP_CONCAT(r.description SEPARATOR ',') AS description 
             FROM user_roles ur 
             JOIN users u ON ur.user_id = u.id 
             JOIN roles r ON ur.role_id = r.id
+            GROUP BY u.id, u.email, u.full_name, u.active
             """;
 
         return jdbi.withHandle(handle -> handle.createQuery(sql)
@@ -71,14 +72,20 @@ public class RolePermissionDAO extends ADAO {
                 .list());
     }
 
-    public boolean assignRoleToUser(int userId, int roleId) {
+    public void assignRoleToUser(int userId, int roleId) {
         String sql = "INSERT INTO user_roles (user_id, role_id) VALUES (:userId, :roleId)";
 
-        int rowsAdded = jdbi.withHandle(handle -> handle.createUpdate(sql)
+        jdbi.withHandle(handle -> handle.createUpdate(sql)
                 .bind("userId", userId)
                 .bind("roleId", roleId)
                 .execute());
-        return rowsAdded > 0;
+    }
+
+    public void removeAllRolesFromUser(int userId) {
+        String sql = "DELETE FROM user_roles WHERE user_id = :userId";
+        jdbi.withHandle(handle -> handle.createUpdate(sql)
+                .bind("userId", userId)
+                .execute());
     }
 
     public boolean removeRoleFromUser(int userId, int roleId) {
@@ -106,25 +113,5 @@ public class RolePermissionDAO extends ADAO {
         return jdbi.withHandle(handle -> handle.createUpdate(sql)
                 .bind("roleId", roleId)
                 .execute());
-    }
-
-    public boolean updateUserRole(int userId, int oldRoleId, int newRoleId) {
-        try {
-            jdbi.useTransaction(handle -> {
-                String deleteSql = "DELETE FROM user_roles WHERE user_id = :userId AND role_id = :oldRoleId";
-                String insertSql = "INSERT INTO user_roles (user_id, role_id) VALUES (:userId, :newRoleId)";
-                handle.createUpdate(deleteSql)
-                        .bind("userId", userId)
-                        .bind("oldRoleId", oldRoleId)
-                        .execute();
-                handle.createUpdate(insertSql)
-                        .bind("userId", userId)
-                        .bind("newRoleId", newRoleId)
-                        .execute();
-            });
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
     }
 }

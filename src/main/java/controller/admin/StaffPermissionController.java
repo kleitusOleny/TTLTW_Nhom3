@@ -15,86 +15,67 @@ import java.util.List;
 
 @WebServlet(name = "StaffPermissionController", value = "/staffs-manager")
 public class StaffPermissionController extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         RolePermissionDAO rolePermissionDAO = new RolePermissionDAO();
         List<User> userList = rolePermissionDAO.findAllStaffs();
         List<Role> roleList = rolePermissionDAO.getAllRoles();
+
         if (userList != null && roleList != null) {
             request.setAttribute("allRoles", roleList);
             request.setAttribute("listAccountStaffs", userList);
             request.getRequestDispatcher("/admin/manage_staffs.jsp").forward(request, response);
         } else {
-            response.sendRedirect(request.getContextPath() + "/staffs-manager");
+            response.sendRedirect(request.getContextPath() + "/dashboard");
         }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-
         String action = request.getParameter("action");
         RolePermissionDAO rolePermissionDAO = new RolePermissionDAO();
 
-        if ("edit".equals(action)) {
-            try {
+        try {
+            // thêm mới và cập nhật quyền
+            if ("add".equals(action) || "edit".equals(action)) {
+                int userId;
+                if ("add".equals(action)) {
+                    String email = request.getParameter("email");
+                    UserDAO userDAO = new UserDAO();
+                    User user = userDAO.findByEmail(email);
+
+                    if (user == null) {
+                        request.getSession().setAttribute("userIsNotExist", "Không tồn tại email này trong hệ thống!");
+                        response.sendRedirect(request.getContextPath() + "/staffs-manager?invalidData");
+                        return;
+                    }
+                    userId = user.getId();
+                } else {
+                    userId = Integer.parseInt(request.getParameter("userId"));
+                }
+                String[] selectedRoleIds = request.getParameterValues("roleIds");
+                rolePermissionDAO.removeAllRolesFromUser(userId);
+                if (selectedRoleIds != null) {
+                    for (String roleIdStr : selectedRoleIds) {
+                        int roleId = Integer.parseInt(roleIdStr);
+                        rolePermissionDAO.assignRoleToUser(userId, roleId);
+                    }
+                }
+                response.sendRedirect(request.getContextPath() + "/staffs-manager?success");
+            }
+            // cách chức nhân sự
+            else if ("delete".equals(action)) {
                 int userId = Integer.parseInt(request.getParameter("userId"));
-                int oldRoleId = Integer.parseInt(request.getParameter("oldRoleId"));
-                int newRoleId = Integer.parseInt(request.getParameter("roleId"));
-
-                boolean isSuccess = rolePermissionDAO.updateUserRole(userId, oldRoleId, newRoleId);
-                if (isSuccess) {
-                    response.sendRedirect(request.getContextPath() + "/staffs-manager?updateSuccess");
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/staffs-manager?updateError");
-                }
-            } catch (NumberFormatException e) {
-                response.sendRedirect(request.getContextPath() + "/staffs-manager?invalidData");
+                rolePermissionDAO.removeAllRolesFromUser(userId);
+                response.sendRedirect(request.getContextPath() + "/staffs-manager?revokeSuccess");
             }
-        } else if ("delete".equals(action)) {
-            try {
-                int userId = Integer.parseInt(request.getParameter("userId"));
-                int oldRoleId = Integer.parseInt(request.getParameter("oldRoleId"));
-
-                boolean isSuccess = rolePermissionDAO.removeRoleFromUser(userId, oldRoleId);
-                if (isSuccess) {
-                    response.sendRedirect(request.getContextPath() + "/staffs-manager?revokeSuccess");
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/staffs-manager?revokeError");
-                }
-            } catch (NumberFormatException e) {
-                response.sendRedirect(request.getContextPath() + "/staffs-manager?invalidData");
+            else {
+                response.sendRedirect(request.getContextPath() + "/staffs-manager");
             }
-        } else if ("add".equals(action)) {
-            try {
-                UserDAO userDAO = new UserDAO();
-                String email = request.getParameter("email");
-                String roleAssignStr = request.getParameter("roleId");
-
-                if (email == null || roleAssignStr == null || roleAssignStr.isEmpty()) {
-                    response.sendRedirect(request.getContextPath() + "/staffs-manager?invalidData");
-                    return;
-                }
-                int newRoleId = Integer.parseInt(roleAssignStr);
-                User user = userDAO.findByEmail(email);
-                if (user == null) {
-                    request.getSession().setAttribute("userIsNotExist", "Không tồn tại người dùng này trong hệ thống!");
-                    response.sendRedirect(request.getContextPath() + "/staffs-manager?invalidData");
-                    return;
-                }
-                int userId = user.getId();
-
-                boolean isSuccess = rolePermissionDAO.assignRoleToUser(userId, newRoleId);
-                if (isSuccess) {
-                    response.sendRedirect(request.getContextPath() + "/staffs-manager?addSuccess");
-                } else {
-                    response.sendRedirect(request.getContextPath() + "/staffs-manager?addError");
-                }
-            } catch (NumberFormatException e) {
-                response.sendRedirect(request.getContextPath() + "/staffs-manager?invalidData");
-            }
-        } else {
-            response.sendRedirect(request.getContextPath() + "/staffs-manager");
+        } catch (Exception e) {
+            response.sendRedirect(request.getContextPath() + "/staffs-manager?error");
         }
     }
 }
