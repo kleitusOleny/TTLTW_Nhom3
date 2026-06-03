@@ -79,6 +79,7 @@
                             <td class="cell-fullname">${user.fullName}</td>
                             <td class="cell-create">${user.createdAt}</td>
                             <td class="cell-action">
+                                <a href="${pageContext.request.contextPath}/account-manager/detail?id=${user.id}" class="detail btn" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 14px;">Chi tiết</a>
                                 <button class="edit btn edit-btn-trigger" data-target="modal-edit-${user.id}">Sửa</button>
                                 <c:choose>
                                     <c:when test="${user.active == 1}">
