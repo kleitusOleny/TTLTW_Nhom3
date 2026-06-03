@@ -112,7 +112,7 @@
                                             <div style="display: flex; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px dashed #eee;">
                                                 <img src="${pageContext.request.contextPath}/${item.url_img}" alt="${item.product_name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #eee; margin-right: 15px;">
                                                 <div style="flex-grow: 1;">
-                                                    <p style="margin: 0; font-weight: 500; color: #333; font-size: 14px;">${item.product_name}</p>
+                                                    <p style="margin: 0; font-weight: bold; color: #333; font-size: 15px;">${item.product_name}</p>
                                                     <p style="margin: 5px 0 0; color: #777; font-size: 13px;">x${item.quantity}</p>
                                                 </div>
                                                 <div style="text-align: right; font-weight: 500; color: #a94442;">
@@ -158,9 +158,18 @@
                                         chi
                                         tiết
                                     </button>
-                                    <button class="btn"
-                                        onclick="location.href='${pageContext.request.contextPath}/store'">Mua
-                                        lại</button>
+                                    <form action="${pageContext.request.contextPath}/order-detail" method="POST" style="display:inline;">
+                                        <input type="hidden" name="action" value="reorder">
+                                        <input type="hidden" name="orderId" value="${order.id}">
+                                        <button type="submit" class="btn">Mua lại</button>
+                                    </form>
+                                    <c:if test="${status == 'Đang xử lý' or status == 'Chuẩn bị đơn hàng'}">
+                                        <form action="${pageContext.request.contextPath}/orders" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
+                                            <input type="hidden" name="action" value="cancelOrder">
+                                            <input type="hidden" name="orderId" value="${order.id}">
+                                            <button type="submit" class="btn" style="background-color: #dc3545; color: white;">Hủy đơn hàng</button>
+                                        </form>
+                                    </c:if>
                                     <c:if test="${status == 'Giao hàng thành công'}">
                                         <c:if test="${!order.evaluated}">
                                             <button class="btn"

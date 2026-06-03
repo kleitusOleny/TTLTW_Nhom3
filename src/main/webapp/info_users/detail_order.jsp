@@ -25,10 +25,16 @@
                             <p><strong>Họ và tên:</strong> ${shippingAddress.fullName}</p>
                             <p><strong>Email:</strong> ${sessionScope.user.email}</p>
                             <p><strong>Điện thoại:</strong> ${shippingAddress.phoneNumber}</p>
-                            <p><strong>Địa chỉ:</strong> ${shippingAddress.addressLine}, ${shippingAddress.ward}, ${shippingAddress.dictins},
+                            <p><strong>Địa chỉ:</strong> ${shippingAddress.addressLine}, ${shippingAddress.ward}, ${shippingAddress.district},
                                 ${shippingAddress.city}</p>
                             <p><strong>Ghi chú:</strong> ${order.note}</p>
                             <p><strong>Hình thức thanh toán:</strong> ${payment.payStrategy}</p>
+                            <c:if test="${not empty payment.id}">
+                                <p><strong>Mã thanh toán:</strong> ${payment.id}</p>
+                            </c:if>
+                            <c:if test="${not empty shipOrder.trackingNumber}">
+                                <p><strong>Mã vận chuyển:</strong> ${shipOrder.trackingNumber}</p>
+                            </c:if>
                         </div>
 
                         <div class="section">
@@ -49,7 +55,7 @@
                                         <tr>
                                             <td><img class="product-img" src="${product.imageUrl}"
                                                     alt="${product.productName}"></td>
-                                            <td>${product.productName}</td>
+                                            <td><strong>${product.productName}</strong></td>
                                             <td>${item.quantity}</td>
                                             <td>
                                                 <fmt:setLocale value="vi_VN" />
@@ -113,9 +119,19 @@
                         </div>
 
                         <div class="actions">
-                            <button class="btn" onclick="location.href='${pageContext.request.contextPath}/store'">Mua
-                                lại</button>
+                            <form action="${pageContext.request.contextPath}/order-detail" method="POST" style="display:inline;">
+                                <input type="hidden" name="action" value="reorder">
+                                <input type="hidden" name="orderId" value="${order.id}">
+                                <button type="submit" class="btn">Mua lại</button>
+                            </form>
                             <button class="btn" id="exportPDF">In hóa đơn</button>
+                            <c:if test="${shipOrder != null and (shipOrder.status == 'Đang xử lý' or shipOrder.status == 'Chuẩn bị đơn hàng')}">
+                                <form action="${pageContext.request.contextPath}/orders" method="POST" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
+                                    <input type="hidden" name="action" value="cancelOrder">
+                                    <input type="hidden" name="orderId" value="${order.id}">
+                                    <button type="submit" class="btn" style="background-color: #dc3545;">Hủy đơn hàng</button>
+                                </form>
+                            </c:if>
                         </div>
                     </div>
                     <%@ include file="../components/footer.jsp" %>
