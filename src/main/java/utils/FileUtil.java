@@ -24,10 +24,7 @@ public class FileUtil {
             File uploadDir = new File(uploadPath);
             if (!uploadDir.exists()) uploadDir.mkdirs();
             File file = new File(uploadDir, finalFileName);
-
-            // 2. Thư mục Source Code (src/main/webapp) để tránh mất file khi clean/build
-            // Ghi cứng đường dẫn tuyệt đối theo yêu cầu của bạn để chắc chắn 100% không bị sai lệch
-            String sourcePath = "/home/wanmin/1.Work/03.Project/2026/TTLTW_Nhom3/src/main/webapp/assets/" + targetFolder;
+            String sourcePath = "../src/main/webapp/assets/" + targetFolder;
             File sourceDir = new File(sourcePath);
             if (!sourceDir.exists()) sourceDir.mkdirs();
             File sourceFile = new File(sourceDir, finalFileName);
@@ -58,7 +55,7 @@ public class FileUtil {
             if (serverFile.exists()) {
                 serverFile.delete();
             }
-            String sourcePath = "/home/wanmin/1.Work/03.Project/2026/TTLTW_Nhom3/src/main/webapp/" + imagePath;
+            String sourcePath = "../src/main/webapp/" + imagePath;
             File sourceFile = new File(sourcePath);
             if (sourceFile.exists()) {
                 sourceFile.delete();

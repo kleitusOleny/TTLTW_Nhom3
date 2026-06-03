@@ -17,9 +17,9 @@ import java.util.Map;
 
 @WebServlet(name = "AdminFileManagerController", urlPatterns = {"/admin/manage-files"})
 @MultipartConfig(
-        fileSizeThreshold = 1024 * 1024 * 2,  // 2MB
-        maxFileSize = 1024 * 1024 * 10,       // 10MB
-        maxRequestSize = 1024 * 1024 * 50     // 50MB
+        fileSizeThreshold = 1024 * 1024 * 2,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50
 )
 public class AdminFileManagerController extends HttpServlet {
 
@@ -39,7 +39,7 @@ public class AdminFileManagerController extends HttpServlet {
         String serverPath = getServletContext().getRealPath("") + File.separator + "assets" + File.separator + targetFolder;
         File dir = new File(serverPath);
         
-        String sourcePath = "/home/wanmin/1.Work/03.Project/2026/TTLTW_Nhom3/src/main/webapp/assets/" + targetFolder;
+        String sourcePath = "../src/main/webapp/assets/" + targetFolder;
         
         List<Map<String, Object>> filesList = new ArrayList<>();
         if (dir.exists() && dir.isDirectory()) {
