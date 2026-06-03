@@ -144,7 +144,20 @@ public class UserService {
         switch (page) {
             case "reviews":
                 List<Evaluates> reviewData = evaluateService.getUserReviewHistory(user.getId());
-                request.setAttribute("data", reviewData);
+                Map<String, Product> productsMap = new HashMap<>();
+                Map<Integer, CTEvaluates> reviewsMap = new HashMap<>();
+                ProductDAO pDao = new ProductDAO();
+                CTEvaluateDAO ctDao = new CTEvaluateDAO();
+                for (Evaluates e : reviewData) {
+                    Product p = pDao.getProductById(e.getId());
+                    if (p != null) productsMap.put(e.getId(), p);
+                    
+                    CTEvaluates ct = ctDao.findById(e.getEvaluatesId()).orElse(null);
+                    if (ct != null) reviewsMap.put(e.getEvaluatesId(), ct);
+                }
+                request.setAttribute("evaluates", reviewData);
+                request.setAttribute("products", productsMap);
+                request.setAttribute("reviews", reviewsMap);
                 request.getRequestDispatcher(path + "review_history.jsp").forward(request, response);
                 break;
             case "favorites":
