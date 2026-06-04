@@ -61,7 +61,6 @@
                         <th class="col-tick">Chọn</th>
                         <th class="col-id">ID Tài Khoản</th>
                         <th class="col-email">Email</th>
-                        <th class="col-administrator">Admin</th>
                         <th class="col-phone">Số Liên Lạc</th>
                         <th class="col-fullname">Họ và Tên</th>
                         <th class="col-create">Ngày tạo</th>
@@ -74,11 +73,11 @@
                             <td class="cell-tick"><input type="checkbox" class="row-checkbox" value="${user.id}"/></td>
                             <td class="cell-id">${user.id}</td>
                             <td class="cell-email">${user.email}</td>
-                            <td class="cell-administrator">${user.administrator}</td>
                             <td class="cell-phone">${user.phoneNumber}</td>
                             <td class="cell-fullname">${user.fullName}</td>
                             <td class="cell-create">${user.createdAt}</td>
                             <td class="cell-action">
+                                <a href="${pageContext.request.contextPath}/account-manager/detail?id=${user.id}" class="detail btn" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 14px;">Chi tiết</a>
                                 <button class="edit btn edit-btn-trigger" data-target="modal-edit-${user.id}">Sửa</button>
                                 <c:choose>
                                     <c:when test="${user.active == 1}">
@@ -134,13 +133,6 @@
                                             <select id="activeSelect" name="activeSelect" required>
                                                 <option value="1" ${user.active == 1 ? 'selected' : ''}>Có</option>
                                                 <option value="0" ${user.active == 0 ? 'selected' : ''}>Không</option>
-                                            </select>
-                                        </div>
-                                        <div class="administrator-section">
-                                            <label for="administratorSelect">Là Quản Trị Viên:</label>
-                                            <select id="administratorSelect" name="administratorSelect" required>
-                                                <option value="1" ${user.administrator == 1 ? 'selected' : ''}>Có</option>
-                                                <option value="0" ${user.administrator == 0 ? 'selected' : ''}>Không</option>
                                             </select>
                                         </div>
                                         <div class="create_account-section">

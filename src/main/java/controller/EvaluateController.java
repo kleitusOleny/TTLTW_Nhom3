@@ -10,13 +10,21 @@ import jakarta.servlet.http.HttpSession;
 import model.*;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.Part;
+
+import java.io.File;
+import java.nio.file.Paths;
 
 @WebServlet(name = "EvaluateController", value = "/evaluate")
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2,
+        maxFileSize = 1024 * 1024 * 10,
+        maxRequestSize = 1024 * 1024 * 50
+)
 public class EvaluateController extends HttpServlet {
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -43,6 +51,18 @@ public class EvaluateController extends HttpServlet {
                 return;
             }
 
+            String success = request.getParameter("success");
+            if (success == null) {
+                String referer = request.getHeader("Referer");
+                if (referer != null) {
+                    session.setAttribute("evalReturnUrl_" + orderId, referer);
+                }
+            }
+            String returnUrl = (String) session.getAttribute("evalReturnUrl_" + orderId);
+            if (returnUrl == null) {
+                returnUrl = "orders";
+            }
+
             OrderItemDAO orderItemDAO = new OrderItemDAO();
             List<OrderItem> items = orderItemDAO.getByOrderId(orderId);
 
@@ -55,9 +75,40 @@ public class EvaluateController extends HttpServlet {
                 }
             }
 
+            Set<String> evaluatedProducts = (Set<String>) session.getAttribute("evalOrder_" + orderId);
+            if (evaluatedProducts == null) {
+                evaluatedProducts = new HashSet<>();
+            }
+            
+            EvaluateDAO evaluateDAO = new EvaluateDAO();
+            List<Evaluates> userEvaluatesList = evaluateDAO.getByUserId(user.getId());
+            for (Evaluates e : userEvaluatesList) {
+                evaluatedProducts.add(e.getId());
+            }
+
+            if (order.isEvaluated()) {
+                for (OrderItem item : items) {
+                    evaluatedProducts.add(item.getProductId());
+                }
+            }
+            
+            boolean allEvaluated = true;
+            for (OrderItem item : items) {
+                if (!evaluatedProducts.contains(item.getProductId())) {
+                    allEvaluated = false;
+                    break;
+                }
+            }
+            if (allEvaluated && !order.isEvaluated()) {
+                orderDAO.updateEvaluatedStatus(orderId, true);
+                order.setEvaluated(true);
+            }
+
             request.setAttribute("order", order);
             request.setAttribute("items", items);
             request.setAttribute("productMap", productMap);
+            request.setAttribute("evaluatedProductIds", evaluatedProducts);
+            request.setAttribute("returnUrl", returnUrl);
             request.getRequestDispatcher("info_users/evaluate.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
@@ -90,7 +141,14 @@ public class EvaluateController extends HttpServlet {
                 ctEvaluates.setStar(star);
                 ctEvaluates.setCreateAt(java.time.LocalDateTime.now());
                 ctEvaluates.setUpdateAt(java.time.LocalDateTime.now());
-                ctEvaluates.setIsDelete(null);
+                Part filePart = null;
+                try {
+                    filePart = request.getPart("image");
+                } catch (Exception ex) {
+                }
+
+                String imagePath = utils.FileUtil.uploadImage(filePart, request, "reviews");
+                ctEvaluates.setImagePath(imagePath);
 
                 int evaluateId = ctEvaluateDAO.createAndReturnId(ctEvaluates);
 
@@ -100,16 +158,38 @@ public class EvaluateController extends HttpServlet {
                 evaluates.setUserId(user.getId());
                 evaluates.setEvaluatesId(evaluateId);
 
-//                evaluateDAO.create(evaluates);
+                evaluateDAO.save(evaluates);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
-        // Redirect back to evaluate page or order list
         if (orderId != null) {
-            response.sendRedirect("evaluate?orderId=" + orderId + "&success=true");
+            try {
+                int oId = Integer.parseInt(orderId);
+                
+                Set<String> evaluatedProducts = (Set<String>) session.getAttribute("evalOrder_" + oId);
+                if (evaluatedProducts == null) {
+                    evaluatedProducts = new HashSet<>();
+                }
+                if (productId != null) {
+                    evaluatedProducts.add(productId);
+                }
+                session.setAttribute("evalOrder_" + oId, evaluatedProducts);
+                
+                OrderItemDAO orderItemDAO = new OrderItemDAO();
+                List<OrderItem> items = orderItemDAO.getByOrderId(oId);
+                
+                if (evaluatedProducts.size() >= items.size()) {
+                    OrderDAO orderDAO = new OrderDAO();
+                    orderDAO.updateEvaluatedStatus(oId, true);
+                }
+                
+                response.sendRedirect("evaluate?orderId=" + orderId + "&success=true");
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.sendRedirect("orders");
+            }
         } else {
             response.sendRedirect("orders");
         }

@@ -21,6 +21,10 @@
                         class="a-with-icon ${activePage == 'account' ? 'selected' : ''}">
                         <ion-icon name=${activePage=='account' ? 'people' : 'people-outline' }></ion-icon>
                         Quản Lí Tài Khoản</a></li>
+        <li><a href="${pageContext.request.contextPath}/staffs-manager"
+                        class="a-with-icon ${activePage == 'staff' ? 'selected' : ''}">
+                        <ion-icon name=${activePage=='staff' ? 'body' : 'body-outline' }></ion-icon>
+                        Quản lí nhân sự</a></li>
         <li><a href="${pageContext.request.contextPath}/admin/manage-orders"
                         class="a-with-icon ${activePage == 'order' ? 'selected' : ''}">
                         <ion-icon name=${activePage=='order' ? 'cart' : 'cart-outline' }></ion-icon>
@@ -41,3 +45,7 @@
                         class="a-with-icon ${activePage == 'review' ? 'selected' : ''}">
                         <ion-icon name=${activePage=='review' ? 'star' : 'star-outline' }></ion-icon>
                         Quản Lí Đánh Giá</a></li>
+        <li><a href="${pageContext.request.contextPath}/admin/manage-files"
+                        class="a-with-icon ${activePage == 'files' ? 'selected' : ''}">
+                        <ion-icon name=${activePage=='files' ? 'folder' : 'folder-outline' }></ion-icon>
+                        Quản Lí File & Hình Ảnh</a></li>

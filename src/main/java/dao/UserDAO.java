@@ -20,8 +20,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                              active,\s
                              created_at,
                              birth_day,
-                             full_name,
-                             administrator
+                             full_name                            
                          FROM users
                         \s""")
                 .mapToBean(User.class)
@@ -37,7 +36,6 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                                            phone_number,
                                            full_name,
                                            birth_day,
-                                           administrator,
                                            active,
                                            created_at,
                                            update_at
@@ -58,10 +56,10 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 Integer id = handle.createUpdate("""
                                 INSERT INTO users
                                 (email, username, password_hash, phone_number, full_name,
-                                 birth_day, administrator, active, created_at)
+                                 birth_day, active, created_at)
                                 VALUES
                                 (:email, :username, :passwordHash, :phoneNumber, :fullName,
-                                 :birthDay, :administrator, :active, :createdAt)
+                                 :birthDay, :active, :createdAt)
                                 """)
                         .bind("email", entity.getEmail())
                         .bind("username", entity.getUsername())
@@ -69,7 +67,6 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                         .bind("phoneNumber", entity.getPhoneNumber())
                         .bind("fullName", entity.getFullName())
                         .bind("birthDay", entity.getBirthDay())
-                        .bind("administrator", entity.getAdministrator())
                         .bind("active", entity.getActive())
                         .bind("createdAt", entity.getCreatedAt())
                         .executeAndReturnGeneratedKeys("id")
@@ -94,7 +91,6 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 sql.append("birth_day = :birth_day, ");
                 sql.append("active = :active, ");
                 sql.append("update_at = NOW(), ");
-                sql.append("administrator = :administrator ");
                 sql.append("WHERE id = :id");
 
                 int rows = handle.createUpdate(sql.toString())
@@ -105,7 +101,6 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                         .bind("phone_number", entity.getPhoneNumber())
                         .bind("birth_day", entity.getBirthDay())
                         .bind("active", entity.getActive())
-                        .bind("administrator", entity.getAdministrator())
                         .bind("password_hash", hasPassword ? entity.getPasswordHash() : null)
                         .execute();
                 if (rows == 0) {
@@ -153,8 +148,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                             password_hash,
                             phone_number,
                             full_name,
-                            birth_day,
-                            administrator,
+                            birth_day,                          
                             active,
                             created_at,
                             update_at
@@ -176,8 +170,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                             password_hash,
                             phone_number,
                             full_name,
-                            birth_day,
-                            administrator,
+                            birth_day,                          
                             active,
                             created_at,
                             update_at
@@ -244,8 +237,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                             password_hash,
                             phone_number,
                             full_name,
-                            birth_day,
-                            administrator,
+                            birth_day,                          
                             active,
                             created_at,
                             update_at

@@ -351,24 +351,30 @@
 }
 
 .review-table .col-user {
-    width: 150px;
-    min-width: 150px;
+    width: 140px;
+    min-width: 140px;
 }
 
 .review-table .col-product {
-    width: 180px;
-    min-width: 180px;
+    width: 160px;
+    min-width: 160px;
 }
 
 .review-table .col-star {
-    width: 130px;
-    min-width: 130px;
+    width: 100px;
+    min-width: 100px;
     text-align: center;
 }
 
 .review-table .col-content {
-    width: 250px;
-    min-width: 200px;
+    width: 200px;
+    min-width: 150px;
+}
+
+.review-table .col-image {
+    width: 70px;
+    min-width: 70px;
+    text-align: center;
 }
 
 .review-table .col-date {
@@ -384,8 +390,8 @@
 }
 
 .review-table .col-action {
-    width: 120px;
-    min-width: 120px;
+    width: 130px;
+    min-width: 130px;
     white-space: nowrap;
     text-align: center;
 }

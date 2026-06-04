@@ -18,6 +18,7 @@ public class ReviewViewModel {
     private String userName;
     private String userEmail;
     private String productName;
+    private String imagePath;
 
     public ReviewViewModel() {
     }
@@ -140,6 +141,15 @@ public class ReviewViewModel {
             sb.append("☆");
         }
         return sb.toString();
+    }
+
+    public String getImagePath() {
+        return imagePath;
+    }
+
+    @ColumnName("image_path")
+    public void setImagePath(String imagePath) {
+        this.imagePath = imagePath;
     }
 
     @Override

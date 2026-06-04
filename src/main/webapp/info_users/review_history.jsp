@@ -25,7 +25,7 @@
                                         <a href="${pageContext.request.contextPath}/detail?id=${product.id}">
                                             <img src="${pageContext.request.contextPath}/${product.imageUrl}"
                                                 alt="${product.productName}"
-                                                onerror="this.src='${pageContext.request.contextPath}/img/default.png'">
+                                                onerror="this.onerror=null; this.src='${pageContext.request.contextPath}/img/default.png'">
                                         </a>
                                     </div>
                                     <div class="rh-content-wrapper">
@@ -63,6 +63,11 @@
                                                 </div>
                                             </div>
                                             <p class="rh-comment">"${review.content}"</p>
+                                            <c:if test="${not empty review.imagePath}">
+                                                <div class="rh-review-image" style="margin-top: 10px;">
+                                                    <img src="${pageContext.request.contextPath}/${review.imagePath}" alt="Review image" style="max-width: 150px; border-radius: 4px; border: 1px solid #ddd;">
+                                                </div>
+                                            </c:if>
                                         </div>
                                     </div>
                                 </div>
@@ -71,19 +76,3 @@
                     </div>
                 </c:if>
             </div>
-            <script>
-                const container = document.getElementById('reviews-container');
-                container.addEventListener("wheel", function (e) {
-                    const scrollTop = container.scrollTop;
-                    const scrollHeight = container.scrollHeight;
-                    const offsetHeight = container.offsetHeight;
-                    const delta = e.deltaY;
-
-                    if (
-                        (delta > 0 && scrollTop + offsetHeight >= scrollHeight) ||
-                        (delta < 0 && scrollTop <= 0)
-                    ) {
-                        e.preventDefault();
-                    }
-                }, { passive: false });
-            </script>

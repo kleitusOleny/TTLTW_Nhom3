@@ -15,6 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/admin_dashboard.css">
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -160,6 +161,22 @@
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Philosopher&display=swap" rel="stylesheet">
 <script src="${pageContext.request.contextPath}/popup.js"></script>
+<c:if test="${not empty sessionScope.authError}">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Kích hoạt Popup cảnh báo xịn sò từ SweetAlert2
+            Swal.fire({
+                icon: 'error',
+                title: 'Truy cập bị từ chối!',
+                text: '${sessionScope.authError}',
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Đã hiểu'
+            });
+        });
+    </script>
+
+    <c:remove var="authError" scope="session" />
+</c:if>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         setupModal('notification-account-modal', 'notification-modal-btn', 'close-modal-btn8');

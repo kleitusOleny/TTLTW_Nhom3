@@ -13,7 +13,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     public Order findById(int id) {
         return jdbi.withHandle(handle -> handle
-                .createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE id = :id AND is_delete IS NULL")
+                .createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, is_evaluated, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE id = :id AND is_delete IS NULL")
                 .bind("id", id)
                 .mapToBean(Order.class)
                 .findFirst()
@@ -72,7 +72,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     public List<Order> search(String keyword) {
         return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders
+                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, is_evaluated, create_at, update_at, is_delete, loyalty_discount_id FROM orders
                         WHERE is_delete IS NULL
                         AND (CAST(id AS CHAR) LIKE :kw OR CAST(user_id AS CHAR) LIKE :kw)
                         """)
@@ -83,7 +83,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     public List<Order> getByUserId(int userId) {
         return jdbi.withHandle(handle -> handle.createQuery("""
-                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders
+                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, is_evaluated, create_at, update_at, is_delete, loyalty_discount_id FROM orders
                         WHERE user_id = :uid AND is_delete IS NULL
                         ORDER BY create_at DESC
                         """)
@@ -94,7 +94,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
 
     public Order getLatestOrder(int userId) {
         return jdbi.withHandle(handle -> Objects.requireNonNull(handle.createQuery("""
-                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders
+                        SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, is_evaluated, create_at, update_at, is_delete, loyalty_discount_id FROM orders
                         WHERE user_id = :uid AND is_delete IS NULL
                         ORDER BY create_at DESC
                         LIMIT 1
@@ -214,7 +214,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
     @Override
     public List<Order> findAll() {
         return jdbi.withHandle(
-                handle -> handle.createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE is_delete IS NULL")
+                handle -> handle.createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, is_evaluated, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE is_delete IS NULL")
                         .mapToBean(Order.class)
                         .list());
     }
@@ -225,7 +225,7 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
             return Optional.empty();
         }
         Order order = jdbi.withHandle(handle -> handle
-                .createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE id = :id AND is_delete IS NULL")
+                .createQuery("SELECT id, user_id, shipping_discount_id,voucher_discount_id, shipping_address_id, discount_id,total_price, note, message, is_evaluated, create_at, update_at, is_delete, loyalty_discount_id FROM orders WHERE id = :id AND is_delete IS NULL")
                 .bind("id", integer)
                 .mapToBean(Order.class)
                 .findFirst()
@@ -353,5 +353,14 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
     @Override
     public boolean existsById(Integer integer) {
         return this.findById(integer).isPresent();
+    }
+
+    public boolean updateEvaluatedStatus(int orderId, boolean isEvaluated) {
+        return jdbi.withHandle(handle ->
+                handle.createUpdate("UPDATE orders SET is_evaluated = :isEvaluated WHERE id = :id")
+                        .bind("isEvaluated", isEvaluated)
+                        .bind("id", orderId)
+                        .execute() > 0
+        );
     }
 }
