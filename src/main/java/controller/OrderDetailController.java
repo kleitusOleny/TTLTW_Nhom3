@@ -68,8 +68,8 @@ public class OrderDetailController extends HttpServlet {
             request.setAttribute("productMap", productMap);
 
             AddressDAO addressDAO = new AddressDAO();
-            Optional<Address> shippingAddress = addressDAO.findById(order.getShippingAddressId());
-            request.setAttribute("shippingAddress", shippingAddress);
+            Optional<Address> shippingAddressOpt = addressDAO.findById(order.getShippingAddressId());
+            request.setAttribute("shippingAddress", shippingAddressOpt.orElse(null));
 
             PaymentDAO paymentDAO = new PaymentDAO();
            Payment payment = paymentDAO.findByOrderId(orderId);
@@ -79,13 +79,51 @@ public class OrderDetailController extends HttpServlet {
             ShipOrder shipOrder = shipOrderDAO.getByOrderId(orderId);
             request.setAttribute("shipOrder", shipOrder);
 
-            request.getRequestDispatcher("infoUsers/detail_order.jsp").forward(request, response);
+            request.getRequestDispatcher("info_users/detail_order.jsp").forward(request, response);
 
         } catch (NumberFormatException e) {
             response.sendRedirect("orders");
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        if ("reorder".equals(action)) {
+            HttpSession session = request.getSession();
+            User user = (User) session.getAttribute("user");
+            if (user == null) {
+                response.sendRedirect("login");
+                return;
+            }
+            try {
+                int orderId = Integer.parseInt(request.getParameter("orderId"));
+                OrderItemDAO orderItemDAO = new OrderItemDAO();
+                List<OrderItem> items = orderItemDAO.getByOrderId(orderId);
+                ProductService productService = new ProductService();
+                Cart buyNowCart = new Cart();
+                for (OrderItem item : items) {
+                    Product product = productService.getProduct(item.getProductId());
+                    if (product != null && product.getQuantity() > 0) {
+                        int qty = Math.min(item.getQuantity(), product.getQuantity());
+                        buyNowCart.addItem(product, qty);
+                    }
+                }
+                if (!buyNowCart.getItems().isEmpty()) {
+                    session.setAttribute("buyNowCart", buyNowCart);
+                    response.sendRedirect("checkout?from=buyNow");
+                } else {
+                    session.setAttribute("errorMessage", "Tất cả sản phẩm trong đơn hàng này đã hết hàng.");
+                    response.sendRedirect("order-detail?id=" + orderId);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                response.sendRedirect("orders");
+            }
         }
     }
 }

@@ -110,6 +110,31 @@ public class OrderController extends HttpServlet {
             }
             String referer = request.getHeader("Referer");
             response.sendRedirect(referer != null ? referer : request.getContextPath() + "/orders");
+        } else if ("cancelOrder".equals(action)) {
+            try {
+                int orderId = Integer.parseInt(request.getParameter("orderId"));
+                ShipOrderDAO shipOrderDAO = new ShipOrderDAO();
+                ShipOrder shipOrder = shipOrderDAO.getByOrderId(orderId);
+                
+                if (shipOrder != null && ("Đang xử lý".equals(shipOrder.getStatus()) || "Chuẩn bị đơn hàng".equals(shipOrder.getStatus()))) {
+                    shipOrderDAO.updateStatus(orderId, "Đã hủy");
+                    
+                    OrderDAO orderDAO = new OrderDAO();
+                    Order order = orderDAO.findById(orderId);
+                    if (order != null) {
+                        order.setUpdateAt(new java.sql.Timestamp(System.currentTimeMillis()));
+                        orderDAO.save(order);
+                    }
+                    
+                    session.setAttribute("successMessage", "Hủy đơn hàng thành công.");
+                } else {
+                    session.setAttribute("errorMessage", "Không thể hủy đơn hàng lúc này.");
+                }
+            } catch (Exception e) {
+                session.setAttribute("errorMessage", "Đã có lỗi xảy ra khi hủy đơn hàng.");
+            }
+            String referer = request.getHeader("Referer");
+            response.sendRedirect(referer != null ? referer : request.getContextPath() + "/orders");
         }
     }
 }
