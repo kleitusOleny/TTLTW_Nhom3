@@ -1,18 +1,27 @@
 package controller.admin;
-
+ 
 import dao.BannerDAO;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import model.Banner;
-
+ 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.List;
-
+ 
 @WebServlet(name = "BannerManagerController", value = "/banner-manager")
+@MultipartConfig(
+        fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10,      // 10MB
+        maxRequestSize = 1024 * 1024 * 50    // 50MB
+)
 public class BannerManagerController extends HttpServlet {
     
     @Override
@@ -21,7 +30,6 @@ public class BannerManagerController extends HttpServlet {
         List<Banner> banners = dao.getAllBanners();
         request.setAttribute("banners", banners);
         
-        // Lưu ý: Kiểm tra lại đường dẫn file JSP này có đúng với cấu trúc dự án của bạn không
         request.getRequestDispatcher("admin/manage_banner.jsp").forward(request, response);
     }
     
@@ -32,36 +40,34 @@ public class BannerManagerController extends HttpServlet {
         BannerDAO dao = new BannerDAO();
         
         try {
-            if ("add".equals(action)) {
-                Banner b = new Banner();
-                b.setUrlBanner(request.getParameter("urlBanner"));
-                b.setTargetUrl(request.getParameter("targetUrl"));
+            if ("add".equals(action) || "edit".equals(action)) {
+                // Xử lý Upload ảnh banner
+                Part filePart = request.getPart("image");
+                String imageUrl = "";
                 
-                String dateStr = request.getParameter("eventDate");
-                if(dateStr != null && !dateStr.isEmpty()) {
-                    // Xử lý chuỗi ngày tháng để tránh lỗi format
-                    if(dateStr.length() <= 10) dateStr += " 00:00:00";
-                    b.setEventDate(Timestamp.valueOf(dateStr));
+                if (filePart != null && filePart.getSize() > 0) {
+                    String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString();
+                    String uploadPath = getServletContext().getRealPath("");
+                    if (uploadPath == null) {
+                        uploadPath = getServletContext().getRealPath("/");
+                    }
+                    if (uploadPath == null) {
+                        uploadPath = System.getProperty("user.dir");
+                    }
+                    uploadPath = uploadPath + File.separator + "assets" + File.separator + "banners";
+                    File uploadDir = new File(uploadPath);
+                    if (!uploadDir.exists()) uploadDir.mkdirs();
+                    
+                    String finalFileName = System.currentTimeMillis() + "_" + fileName;
+                    filePart.write(uploadPath + File.separator + finalFileName);
+                    imageUrl = "assets/banners/" + finalFileName;
+                } else {
+                    imageUrl = request.getParameter("oldImage");
                 }
                 
-                b.setLifeTime(Integer.parseInt(request.getParameter("lifeTime")));
-                b.setActive("Active".equals(request.getParameter("status")));
-                
-                dao.insertBanner(b);
-                
-            } else if ("delete".equals(action)) {
-                String idStr = request.getParameter("id");
-                if (idStr != null && !idStr.isEmpty()) {
-                    int id = Integer.parseInt(idStr);
-                    dao.deleteBanner(id);
-                }
-            } else if ("edit".equals(action)) {
-                // --- LOGIC SỬA BANNER ---
-                String idStr = request.getParameter("id");
-                if(idStr != null && !idStr.isEmpty()){
+                if ("add".equals(action)) {
                     Banner b = new Banner();
-                    b.setId(Integer.parseInt(idStr)); // Set ID cần sửa
-                    b.setUrlBanner(request.getParameter("urlBanner"));
+                    b.setUrlBanner(imageUrl);
                     b.setTargetUrl(request.getParameter("targetUrl"));
                     
                     String dateStr = request.getParameter("eventDate");
@@ -73,14 +79,49 @@ public class BannerManagerController extends HttpServlet {
                     b.setLifeTime(Integer.parseInt(request.getParameter("lifeTime")));
                     b.setActive("Active".equals(request.getParameter("status")));
                     
-                    dao.updateBanner(b);
+                    dao.insertBanner(b);
+                } else {
+                    String idStr = request.getParameter("id");
+                    if(idStr != null && !idStr.isEmpty()){
+                        Banner b = new Banner();
+                        b.setId(Integer.parseInt(idStr));
+                        b.setUrlBanner(imageUrl);
+                        b.setTargetUrl(request.getParameter("targetUrl"));
+                        
+                        String dateStr = request.getParameter("eventDate");
+                        if(dateStr != null && !dateStr.isEmpty()) {
+                            if(dateStr.length() <= 10) dateStr += " 00:00:00";
+                            b.setEventDate(Timestamp.valueOf(dateStr));
+                        }
+                        
+                        b.setLifeTime(Integer.parseInt(request.getParameter("lifeTime")));
+                        b.setActive("Active".equals(request.getParameter("status")));
+                        
+                        dao.updateBanner(b);
+                    }
+                }
+            } else if ("delete".equals(action)) {
+                String idStr = request.getParameter("id");
+                if (idStr != null && !idStr.isEmpty()) {
+                    int id = Integer.parseInt(idStr);
+                    dao.deleteBanner(id);
+                }
+            } else if ("delete-list".equals(action)) {
+                String ids = request.getParameter("ids");
+                if (ids != null && !ids.isEmpty()) {
+                    String[] idArray = ids.split(",");
+                    for (String idStr : idArray) {
+                        try {
+                            int id = Integer.parseInt(idStr.trim());
+                            dao.deleteBanner(id);
+                        } catch (Exception e) {}
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         
-        // SỬA LỖI TRANG TRẮNG: Dùng contextPath
         response.sendRedirect(request.getContextPath() + "/banner-manager");
     }
 }
