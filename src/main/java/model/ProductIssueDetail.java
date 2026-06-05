@@ -5,6 +5,7 @@ import java.sql.Timestamp;
 public class ProductIssueDetail {
     private int issueId;
     private String productId;
+    private String productName;
     private int quantity;
     private Timestamp createAt;
     private Timestamp updateAt;
@@ -12,6 +13,9 @@ public class ProductIssueDetail {
     
     public ProductIssueDetail() {
     }
+    
+    public String getProductName() { return productName; }
+    public void setProductName(String productName) { this.productName = productName; }
     
     public int getIssueId() { return issueId; }
     public void setIssueId(int issueId) { this.issueId = issueId; }
