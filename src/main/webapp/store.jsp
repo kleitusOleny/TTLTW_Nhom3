@@ -13,7 +13,7 @@
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
           integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
           crossorigin="anonymous" referrerpolicy="no-referrer"/>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/store_style.css?v=3">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/store_style.css">
     <style>
         .price-slider-wrapper {
             width: 100%;
@@ -90,6 +90,62 @@
             font-size: 15px;
             color: #333;
             font-weight: 500;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .product-actions .add-to-cart-btn,
+        .product-actions .buy-now-btn {
+            flex: 1 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 5px !important;
+            height: 42px !important;
+            padding: 0 8px !important;
+            box-sizing: border-box !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            line-height: 1 !important;
+            text-transform: uppercase !important;
+            text-decoration: none !important;
+            border-radius: 5px !important;
+            transition: all 0.3s ease !important;
+            white-space: nowrap !important;
+        }
+
+        .product-actions .add-to-cart-btn {
+            background-color: #222 !important;
+            color: #fff !important;
+            border: 2px solid #222 !important;
+        }
+
+        .product-actions .add-to-cart-btn:hover {
+            background-color: #fff !important;
+            color: #222 !important;
+            border-color: #222 !important;
+        }
+
+        .product-actions .buy-now-btn {
+            background-color: #8c3333 !important;
+            color: #fff !important;
+            border: 2px solid #8c3333 !important;
+        }
+
+        .product-actions .buy-now-btn:hover {
+            background-color: #fff !important;
+            color: #8c3333 !important;
+            border-color: #8c3333 !important;
+        }
+
+        @media (max-width: 480px) {
+            .product-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -388,8 +444,12 @@
                                 </c:choose>
                             </p>
 
-                            <a href="add-cart?productId=${p.id}&quantity=1"
-                               class="add-to-cart-btn">Thêm vào giỏ</a>
+                            <div class="product-actions">
+                                <a href="add-cart?productId=${p.id}&quantity=1"
+                                   class="add-to-cart-btn"><i class="fa-solid fa-cart-plus"></i> Thêm giỏ</a>
+                                <a href="add-cart?productId=${p.id}&quantity=1&redirect=checkout"
+                                   class="buy-now-btn"><i class="fa-solid fa-bolt"></i> Mua ngay</a>
+                            </div>
                         </div>
                     </div>
                 </c:forEach>

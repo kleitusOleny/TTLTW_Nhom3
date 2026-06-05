@@ -143,6 +143,7 @@ public class VnpayReturn extends HttpServlet {
                             productService.updateQuantity(item.getProductId(), currentStock + item.getQuantity());
                         }
                     }
+                    db.JdbiConnector.get().onDemand(dao.ProductIssueDAO.class).deleteByOrderId(Integer.parseInt(orderId));
                 }
 
                 request.setAttribute("transResult", transSuccess);

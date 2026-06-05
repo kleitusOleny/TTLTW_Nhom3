@@ -58,7 +58,9 @@ public class WebFilter implements Filter {
             "/product-receipt-manager",
             "/product-issue-manager",
             "/staffs-manager",
-            "/admin/"
+            "/admin/",
+            "/product-issue-manager",
+            "/product-receipt-manager"
     };
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {

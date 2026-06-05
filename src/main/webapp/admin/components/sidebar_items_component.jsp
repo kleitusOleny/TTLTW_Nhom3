@@ -49,3 +49,11 @@
                         class="a-with-icon ${activePage == 'files' ? 'selected' : ''}">
                         <ion-icon name=${activePage=='files' ? 'folder' : 'folder-outline' }></ion-icon>
                         Quản Lí File & Hình Ảnh</a></li>
+        <li><a href="${pageContext.request.contextPath}/product-receipt-manager"
+                        class="a-with-icon ${activePage == 'receipt' ? 'selected' : ''}">
+                        <ion-icon name=${activePage=='receipt' ? 'download' : 'download-outline' }></ion-icon>
+                        Quản Lý Nhập Kho</a></li>
+        <li><a href="${pageContext.request.contextPath}/product-issue-manager"
+                        class="a-with-icon ${activePage == 'issue' ? 'selected' : ''}">
+                        <ion-icon name=${activePage=='issue' ? 'upload' : 'upload-outline' }></ion-icon>
+                        Quản Lý Xuất Kho</a></li>
