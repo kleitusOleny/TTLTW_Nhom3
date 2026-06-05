@@ -9,12 +9,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 import model.Product;
+import model.ProductReceipt;
+import model.ProductReceiptDetail;
+import java.math.BigDecimal;
+import db.JdbiConnector;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DateUtil;
+
+import model.User;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -125,7 +129,33 @@ public class ProductManagerController extends HttpServlet {
                 
                 if ("add".equals(action)) {
                     p.setId("P" + System.currentTimeMillis() % 100000);
+                    int initialQty = p.getQuantity();
+                    p.setQuantity(0); // Đặt về 0 để transaction nhập kho cập nhật chính xác số lượng
                     productDAO.insert(p);
+                    
+                    if (initialQty > 0) {
+                        ProductReceipt receipt = new ProductReceipt();
+                        User user = (User) req.getSession().getAttribute("user");
+                        receipt.setUserId(user != null ? user.getId() : 1);
+                        if (p.getManufacturerId() != null && !p.getManufacturerId().trim().isEmpty()) {
+                            try {
+                                receipt.setSupplierId(Integer.parseInt(p.getManufacturerId()));
+                            } catch (Exception e) {}
+                        }
+                        receipt.setNote("Tự động tạo khi thêm sản phẩm mới: " + p.getProductName());
+                        receipt.setTotalAmount(BigDecimal.valueOf(p.getPrice() * initialQty));
+                        
+                        List<ProductReceiptDetail> details = new ArrayList<>();
+                        ProductReceiptDetail productReceiptDetail = new ProductReceiptDetail();
+                        productReceiptDetail.setProductId(p.getId());
+                        productReceiptDetail.setQuantity(initialQty);
+                        productReceiptDetail.setUnitPrice(BigDecimal.valueOf(p.getPrice()));
+                        details.add(productReceiptDetail);
+                        receipt.setDetails(details);
+                        
+                        ProductReceiptDAO receiptDAO = JdbiConnector.get().onDemand(ProductReceiptDAO.class);
+                        receiptDAO.processReceipt(receipt);
+                    }
                 } else {
                     // Trường hợp Edit: Lấy ID từ form
                     p.setId(req.getParameter("id"));
@@ -249,14 +279,41 @@ public class ProductManagerController extends HttpServlet {
                         return;
                     }
                     
+                    List<ProductReceiptDetail> details = new ArrayList<>();
+                    BigDecimal totalAmount = BigDecimal.ZERO;
+                    
                     for (Product p : productList) {
+                        int importedQty = p.getQuantity();
+                        if (importedQty <= 0) continue;
+                        
                         if (p.getIsExisting()) {
-                            // Cập nhật số lượng mới (cộng dồn)
-                            productDAO.updateQuantity(p.getId(), p.getNewQuantity());
+                            // Không trực tiếp cập nhật ở đây, transaction nhập kho sẽ tự động cộng dồn số lượng tồn
                         } else {
-                            // Thêm mới hoàn toàn
+                            // Thêm mới sản phẩm với số lượng 0 để transaction nhập kho cập nhật chính xác
+                            p.setQuantity(0);
                             productDAO.insert(p);
                         }
+                        
+                        ProductReceiptDetail detail = new ProductReceiptDetail();
+                        detail.setProductId(p.getId());
+                        detail.setQuantity(importedQty);
+                        BigDecimal unitPrice = BigDecimal.valueOf(p.getPrice() > 0 ? p.getPrice() : 0.0);
+                        detail.setUnitPrice(unitPrice);
+                        details.add(detail);
+                        
+                        totalAmount = totalAmount.add(unitPrice.multiply(BigDecimal.valueOf(importedQty)));
+                    }
+                    
+                    if (!details.isEmpty()) {
+                        ProductReceipt receipt = new ProductReceipt();
+                        User user = (User) req.getSession().getAttribute("user");
+                        receipt.setUserId(user != null ? user.getId() : 1);
+                        receipt.setNote("Tự động tạo khi nhập sản phẩm hàng loạt bằng Excel.");
+                        receipt.setTotalAmount(totalAmount);
+                        receipt.setDetails(details);
+                        
+                        ProductReceiptDAO receiptDAO = JdbiConnector.get().onDemand(ProductReceiptDAO.class);
+                        receiptDAO.processReceipt(receipt);
                     }
                     
                     // Dọn dẹp session

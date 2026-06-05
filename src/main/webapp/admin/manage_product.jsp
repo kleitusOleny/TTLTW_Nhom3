@@ -291,6 +291,11 @@
         <h2 style="margin-bottom: 10px;">Xác Nhận Sản Phẩm Nhập Từ Excel</h2>
         <p style="color: #666; margin-bottom: 20px; font-size: 0.95rem;">Dưới đây là danh sách sản phẩm phân tích được từ file Excel. Số lượng tồn kho của các sản phẩm trùng tên sẽ được tự động cộng dồn.</p>
         
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; background-color: #f8f9fa; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef; font-size: 0.95rem;">
+            <div><strong>Người Nhập:</strong> ${sessionScope.user.fullName != null ? sessionScope.user.fullName : (sessionScope.user.username != null ? sessionScope.user.username : 'Admin')}</div>
+            <div><strong>Ngày Nhập:</strong> <span id="excel-import-date"></span></div>
+        </div>
+        
         <div class="table-container" style="max-height: 350px; overflow-y: auto; margin-bottom: 25px; border: 1px solid #e1e8ed; border-radius: 6px;">
             <table class="product-table" style="width: 100%; border-collapse: collapse; margin: 0;">
                 <thead>
@@ -531,6 +536,11 @@
                             $('#modal-error-popup').addClass('show');
                             return;
                         }
+
+                        // Set current date/time
+                        const now = new Date();
+                        const dateStr = now.toLocaleDateString('vi-VN') + ' ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+                        $('#excel-import-date').text(dateStr);
 
                         products.forEach(function (p) {
                             var statusBadge = '';
