@@ -33,7 +33,7 @@ public class ProductService {
     }
     
     public static void appendFilterConditions(StringBuilder sql, String[] prices, String[] categories, String[] manufacturers,
-                                        String[] types, String[] origins, String[] capacities, String[] tags, String keyword) {
+                                        String[] types, String[] origins, String[] capacities, String[] tags, String keyword, boolean onlyDiscounted) {
         
         if (categories != null && categories.length > 0) {
             sql.append(" AND p.category_id IN (");
@@ -137,6 +137,10 @@ public class ProductService {
                 sql.append("p.product_name LIKE :keyword").append(i);
             }
             sql.append(") ");
+        }
+
+        if (onlyDiscounted) {
+            sql.append(" AND EXISTS (SELECT 1 FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to) ");
         }
     }
 }
