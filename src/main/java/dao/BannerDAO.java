@@ -54,4 +54,13 @@ public class BannerDAO extends ADAO {
                         .findFirst().orElse(null)
         );
     }
+
+    // 6. Lấy tất cả banner đang hoạt động
+    public List<Banner> getActiveBanners() {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("SELECT * FROM banners WHERE is_delete = 0 AND active = 1 ORDER BY create_at DESC")
+                        .mapToBean(Banner.class)
+                        .list()
+        );
+    }
 }

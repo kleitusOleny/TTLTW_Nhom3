@@ -1,5 +1,6 @@
 package controller;
 
+import dao.BannerDAO;
 import dao.BlogDAO;
 import dao.FavouriteDAO;
 import jakarta.servlet.ServletException;
@@ -8,6 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import model.Banner;
 import model.Blogs;
 import model.Discount;
 import model.User;
@@ -22,6 +24,7 @@ public class HomeController extends HttpServlet {
     private services.DiscountService discountService;
     private BlogDAO blogDAO;
     private dao.ProductDAO productDAO;
+    private BannerDAO bannerDAO;
 
     @Override
     public void init() {
@@ -29,6 +32,7 @@ public class HomeController extends HttpServlet {
         discountService = new services.DiscountService();
         blogDAO = new BlogDAO();
         productDAO = new dao.ProductDAO();
+        bannerDAO = new BannerDAO();
     }
 
     @Override
@@ -36,15 +40,6 @@ public class HomeController extends HttpServlet {
         request.setAttribute("curHeader", "home");
 
         List<Map<String, Object>> topFavouritesList = favouriteDAO.getTopFavouritedProducts(4);
-
-        if (topFavouritesList != null && !topFavouritesList.isEmpty()) {
-            for (Map<String, Object> fav : topFavouritesList) {
-                System.out.println("Product: " + fav.get("product_id") +
-                        " | discount_type: " + fav.get("discount_type") +
-                        " | discount_value: " + fav.get("discount_value"));
-            }
-        }
-
         request.setAttribute("topFavouritesList", topFavouritesList);
 
         HttpSession session = request.getSession(false);
@@ -80,12 +75,17 @@ public class HomeController extends HttpServlet {
         }
         request.setAttribute("featuredProducts", featuredProducts);
 
+        List<model.Product> bestSellingProducts = productDAO.getBestSellingProducts(4);
+        request.setAttribute("bestSellingProducts", bestSellingProducts);
+
+        List<Banner> activeBanners = bannerDAO.getActiveBanners();
+        request.setAttribute("activeBanners", activeBanners);
+
         request.getRequestDispatcher("index.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
     }
 }
