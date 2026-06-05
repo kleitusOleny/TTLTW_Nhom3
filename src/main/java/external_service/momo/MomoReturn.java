@@ -142,6 +142,7 @@ public class MomoReturn extends HttpServlet {
                             productService.updateQuantity(item.getProductId(), currentStock + item.getQuantity());
                         }
                     }
+                    db.JdbiConnector.get().onDemand(dao.ProductIssueDAO.class).deleteByOrderId(parsedOrderId);
                 }
 
                 request.setAttribute("transResult", transSuccess);
