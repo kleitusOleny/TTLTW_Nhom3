@@ -24,7 +24,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build with Gradle
-        run: gradlew build
+        run: gradle build
 
       - name: Connect to Tailscale
         uses: tailscale/github-action@v2
@@ -36,4 +36,4 @@ jobs:
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-        run: gradlew docker_deploy
+        run: gradle docker_deploy
