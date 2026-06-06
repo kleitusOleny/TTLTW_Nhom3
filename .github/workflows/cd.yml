@@ -37,9 +37,3 @@ jobs:
           SERVER_USER: ${{ secrets.SERVER_USER }}
           SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
         run: ./gradlew docker_deploy
-
-defaults:
-permissions:
-env:
-run-name:
-concurrency:
