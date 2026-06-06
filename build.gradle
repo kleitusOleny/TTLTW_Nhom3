@@ -1,10 +1,30 @@
 plugins {
     id 'java'
     id 'war'
+    id 'org.hidetake.ssh' version '2.11.2'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+apply plugin: 'org.hidetake.ssh'
+remotes {
+    host {
+        host = System.getenv('SERVER_HOST') ?: '127.0.0.1'
+        user = System.getenv('SERVER_USER') ?: 'root'
+        password = System.getenv('SERVER_PASSWORD') ?: ''
+    }
+}
+
+ssh.settings {
+    knownHosts = allowAnyHosts
 }
 
 group = 'vn.hcmuaf.nlu.fit'
 version = '1.0-SNAPSHOT'
+
+war {
+    archiveFileName = 'wine.war'
+}
 
 java {
     toolchain {
@@ -32,7 +52,7 @@ dependencies {
     implementation 'org.jdbi:jdbi3-core:3.45.1'
     implementation 'org.jdbi:jdbi3-sqlobject:3.45.1'
 
-    // MySQL (Bản mới)
+    // MySQL
     implementation 'com.mysql:mysql-connector-j:8.3.0'
 
     // Env
@@ -41,10 +61,10 @@ dependencies {
     // Logging
     implementation 'org.slf4j:slf4j-api:2.0.9'
     implementation 'org.slf4j:slf4j-simple:2.0.9'
-    implementation 'ch.qos.logback:logback-classic:1.5.13' // Bổ sung
+    implementation 'ch.qos.logback:logback-classic:1.5.13'
 
     // Apache POI
-    implementation 'org.apache.poi:poi:5.2.3' // Bổ sung
+    implementation 'org.apache.poi:poi:5.2.3'
     implementation 'org.apache.poi:poi-ooxml:5.4.0'
 
     // BCrypt
@@ -60,11 +80,11 @@ dependencies {
     // Gson
     implementation 'com.google.code.gson:gson:2.10.1'
 
-    // RSS & HTML Parsing (Bổ sung)
+    // RSS & HTML Parsing
     implementation 'com.rometools:rome:2.1.0'
     implementation 'org.jsoup:jsoup:1.22.2'
 
-    // Payments (Bổ sung)
+    // Payments
     implementation 'io.github.momo-wallet:momopayment:1.0'
     implementation 'com.paypal.sdk:checkout-sdk:1.0.3'
 
@@ -79,4 +99,86 @@ test {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+task check_connection {
+    doLast {
+        println 'begin check_connection'
+        ssh.run {
+            session(remotes.host) {
+                println 'Dang nhap vao server thanh cong. Dang lay thong tin uptime...'
+                def result = execute 'uptime'
+                println "Thong tin server: ${result}"
+
+            }
+        }
+    }
+}
+
+task docker_app_start {
+    doLast {
+        println 'begin docker_app_start'
+        ssh.run {
+            session(remotes.host) {
+                execute 'docker stop tomcat10', ignoreError: true
+                execute 'docker run -it --rm -d ' +
+                        '--name tomcat10 ' +
+                        '-v /usr/deploy/wine:/usr/local/tomcat/webapps ' +
+                        '-p 80:8080 ' +
+                        'tomcat:10&'
+            }
+        }
+    }
+}
+
+task docker_mysql_reinstall {
+    doLast {
+        println 'begin docker_mysql_reinstall'
+        ssh.run {
+            session(remotes.host) {
+                // 1. Dừng và xóa container hiện tại
+                execute 'docker rm -f mysql-db', ignoreError: true
+
+                // 2. XÓA VOLUME DỮ LIỆU CŨ (Bắt buộc để reset mật khẩu)
+                execute 'docker volume rm mysql_data', ignoreError: true
+
+                // 3. Khởi tạo lại MySQL với mật khẩu MỚI
+                def newPassword = '84642209' // Thay mật khẩu mới vào đây
+                execute "docker run --name mysql-db " +
+                        "-e MYSQL_ROOT_PASSWORD=${newPassword} " +
+                        "-p 3306:3306 " +
+                        "-v mysql_data:/var/lib/mysql " +
+                        "-d mysql:8.0"
+
+            }
+        }
+    }
+}
+
+task docker_upload_file_to_server {
+    doLast {
+        println 'begin docker_upload_file_to_server'
+        ssh.run {
+            session(remotes.host) {
+                // Tạo thư mục deploy trước nếu chưa tồn tại (-p giúp tạo cấu trúc thư mục cha nếu cần và không báo lỗi nếu đã có)
+                execute 'mkdir -p /usr/deploy/wine'
+
+                execute 'rm -f /usr/deploy/wine/wine.war'
+                execute 'rm -rf /usr/deploy/wine/wine/'
+
+                // Thực hiện upload file war lên server
+                put from: "${project.projectDir}/build/libs/wine.war",
+                        into: "/usr/deploy/wine/wine.war"
+//                put from: "${project.projectDir}/build/libs/web_deloy.sql",
+//                        into: "/usr/deploy/wine/web_deloy.sql"
+            }
+        }
+    }
+}
+
+task docker_deploy {
+    docker_deploy.dependsOn docker_app_start
+    docker_deploy.dependsOn docker_upload_file_to_server
+    docker_deploy.dependsOn build
+    tasks.getByName('docker_app_start').mustRunAfter docker_upload_file_to_server
 }
