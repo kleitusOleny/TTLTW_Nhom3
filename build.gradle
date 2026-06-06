@@ -158,19 +158,25 @@ task docker_mysql_reinstall {
 task docker_upload_file_to_server {
     doLast {
         println 'begin docker_upload_file_to_server'
+        
+        def warFile = file("${project.projectDir}/build/libs/wine.war")
+        if (warFile.exists()) {
+            def fileSizeMB = warFile.length() / (1024 * 1024)
+            println "Kich thuoc file upload: ${String.format('%.2f', fileSizeMB)} MB. Bat dau truyen du lieu..."
+        } else {
+            println "Loi: Khong tim thay file war de upload!"
+        }
+
         ssh.run {
             session(remotes.host) {
-                // Tạo thư mục deploy trước nếu chưa tồn tại (-p giúp tạo cấu trúc thư mục cha nếu cần và không báo lỗi nếu đã có)
                 execute 'mkdir -p /usr/deploy/wine'
-
                 execute 'rm -f /usr/deploy/wine/wine.war'
                 execute 'rm -rf /usr/deploy/wine/wine/'
 
-                // Thực hiện upload file war lên server
-                put from: "${project.projectDir}/build/libs/wine.war",
-                        into: "/usr/deploy/wine/wine.war"
-//                put from: "${project.projectDir}/build/libs/web_deloy.sql",
-//                        into: "/usr/deploy/wine/web_deloy.sql"
+                put from: warFile.absolutePath,
+                    into: "/usr/deploy/wine/wine.war"
+                
+                println "Upload file hoan tat."
             }
         }
     }
