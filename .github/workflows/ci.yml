@@ -25,5 +25,11 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build project with Maven (Skip Tests)
-        run: mvn clean package -DskipTests
+      - name: Verify project
+        run: mvn clean verify
+
+      - name: Checkstyle
+        run: mvn checkstyle:check
+
+      - name: Dependency Check
+        run: mvn org.owasp:dependency-check-maven:check
