@@ -30,6 +30,10 @@ jobs:
         uses: tailscale/github-action@v2
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
+      - name: Test Network Connection
+        run: |
+          ping -c 4 100.94.177.113
+          nc -zv 100.94.177.113 22
 
       - name: Deploy to Server
         env:
