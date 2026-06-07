@@ -180,6 +180,7 @@
 
             $('.modal-content-form h2').text('Tạo Mới Vai Trò Gốc');
             modal.classList.add('show');
+            $('#role-action-form').attr('action', 'roles-manager/add');
         });
 
         $('#role-datatable').on('click', '.edit-role-button', function () {
@@ -204,6 +205,7 @@
 
             $('.modal-content-form h2').text('Cấu Hình Quyền Cho Vai Trò');
             modal.classList.add('show');
+            $('#role-action-form').attr('action', 'roles-manager/edit');
         });
 
         $('.modal-close-form, .cancel-form-btn').on('click', function() {
@@ -215,7 +217,7 @@
         if (confirm("XÓA HOÀN TOÀN vai trò [" + roleName + "]? Tất cả nhân viên đang giữ chức này sẽ tự động mất quyền liên quan!")) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = 'roles-manager';
+            form.action = 'roles-manager/delete';
 
             const params = { action: 'delete', roleId: roleId };
             for (const key in params) {

@@ -157,7 +157,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const errorCode = urlParams.get('loginError')
     const errorMessages = {
-        '1': "Đăng nhập Google thất bại",
+        '1': "Đăng nhập bằng phương thức thứ ba thất bại",
     }
     if (errorCode && errorMessages[errorCode]) {
         Swal.fire({

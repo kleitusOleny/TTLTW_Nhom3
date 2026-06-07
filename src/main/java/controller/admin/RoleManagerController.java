@@ -12,7 +12,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(name = "RoleManagerController", value = "/roles-manager")
+@WebServlet(name = "RoleManagerController", urlPatterns = {
+        "/roles-manager",
+        "/roles-manager/add",
+        "/roles-manager/edit",
+        "/roles-manager/delete"
+})
 public class RoleManagerController extends HttpServlet {
 
     @Override
