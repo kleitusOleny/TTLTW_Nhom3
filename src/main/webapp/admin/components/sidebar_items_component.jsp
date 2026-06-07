@@ -23,8 +23,12 @@
                         Quản Lí Tài Khoản</a></li>
         <li><a href="${pageContext.request.contextPath}/staffs-manager"
                         class="a-with-icon ${activePage == 'staff' ? 'selected' : ''}">
-                        <ion-icon name=${activePage=='staff' ? 'body' : 'body-outline' }></ion-icon>
-                        Quản lí nhân sự</a></li>
+                        <ion-icon name=${activePage=='staff' ? 'shield-checkmark' : 'shield-checkmark-outline' }></ion-icon>
+                        Quản lí Nhân Sự</a></li>
+        <li><a href="${pageContext.request.contextPath}/roles-manager"
+                        class="a-with-icon ${activePage == 'role' ? 'selected' : ''}">
+                        <ion-icon name=${activePage=='role' ? 'construct' : 'construct-outline' }></ion-icon>
+                        Quản lí Vai Trò</a></li>
         <li><a href="${pageContext.request.contextPath}/admin/manage-orders"
                         class="a-with-icon ${activePage == 'order' ? 'selected' : ''}">
                         <ion-icon name=${activePage=='order' ? 'cart' : 'cart-outline' }></ion-icon>

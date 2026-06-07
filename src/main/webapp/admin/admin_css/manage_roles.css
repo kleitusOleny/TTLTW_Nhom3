@@ -1,0 +1,19 @@
+.permissions-container {
+    display: flex;
+    flex-wrap: wrap; /* Tự động xuống dòng khi hết chỗ */
+    gap: 6px;
+    padding: 5px 0;
+    max-width: 300px;
+}
+
+.role-badge-horizontal {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: monospace;
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
