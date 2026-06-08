@@ -11,7 +11,8 @@ permissions:
   contents: read
 
 jobs:
-  verify-project:
+  build-and-test:
+    name: Build, Test & Coverage
     runs-on: ubuntu-latest
 
     steps:
@@ -25,13 +26,25 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Verify project
+      # Lệnh verify sẽ tự động chạy cả compile, test, jacoco report và đóng gói
+      - name: Run Maven Verify
         run: mvn clean verify
+
+      - name: Phân tích báo cáo và Comment vào PR
+        if: github.event_name == 'pull_request'
+        uses: madrapps/jacoco-report@v1.6.1
+        with:
+          paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 0 # vì legacy code chưa test gì cả
+          min-coverage-changed-files: 80
+          title: 📊 Báo cáo Kiểm thử JaCoCo
+          update-comment: true
 
   dependency-check:
     name: OWASP Dependency Security Check
     runs-on: ubuntu-latest
-
+    # Cài đặt để job bảo mật này chạy song song với job Build ở trên
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
