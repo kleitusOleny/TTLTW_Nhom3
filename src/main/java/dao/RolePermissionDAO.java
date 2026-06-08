@@ -5,6 +5,7 @@ import model.Role;
 import model.User;
 
 import java.util.List;
+import java.util.Map;
 
 public class RolePermissionDAO extends ADAO {
     public List<String> getPermissionsByUserId(int userId) {
@@ -19,20 +20,6 @@ public class RolePermissionDAO extends ADAO {
         return jdbi.withHandle(handle -> handle.createQuery(sql)
                 .bind("userId", userId)
                 .mapTo(String.class)
-                .list());
-    }
-
-    public List<Role> getRolesByUserId(int userId) {
-        String sql = """
-            SELECT r.id, r.role_name, r.description 
-            FROM roles r
-            JOIN user_roles ur ON r.id = ur.role_id
-            WHERE ur.user_id = :userId
-            """;
-
-        return jdbi.withHandle(handle -> handle.createQuery(sql)
-                .bind("userId", userId)
-                .mapToBean(Role.class)
                 .list());
     }
 
@@ -88,30 +75,53 @@ public class RolePermissionDAO extends ADAO {
                 .execute());
     }
 
-    public boolean removeRoleFromUser(int userId, int roleId) {
-        String sql = "DELETE FROM user_roles WHERE user_id = :userId AND role_id = :roleId";
-
-        int rowsDeleted =  jdbi.withHandle(handle -> handle.createUpdate(sql)
-                .bind("userId", userId)
-                .bind("roleId", roleId)
-                .execute());
-        return rowsDeleted > 0;
-    }
-
-    public int addPermissionToRole(int roleId, int permissionId) {
+    public void addPermissionToRole(int roleId, int permissionId) {
         String sql = "INSERT INTO role_permissions (role_id, permission_id) VALUES (:roleId, :permissionId)";
 
-        return jdbi.withHandle(handle -> handle.createUpdate(sql)
+        jdbi.withHandle(handle -> handle.createUpdate(sql)
                 .bind("roleId", roleId)
                 .bind("permissionId", permissionId)
                 .execute());
     }
 
-    public int clearPermissionsFromRole(int roleId) {
+    public void clearPermissionsFromRole(int roleId) {
         String sql = "DELETE FROM role_permissions WHERE role_id = :roleId";
 
-        return jdbi.withHandle(handle -> handle.createUpdate(sql)
+        jdbi.withHandle(handle -> handle.createUpdate(sql)
                 .bind("roleId", roleId)
                 .execute());
+    }
+
+    public List<Map<String, Object>> findAllRolesWithPermissions() {
+        String sql = """
+        SELECT 
+            r.id AS role_id, 
+            r.role_name AS role_name, 
+            r.description AS role_desc, 
+            GROUP_CONCAT(p.permission_key SEPARATOR ',') AS permission_keys
+        FROM roles r
+        LEFT JOIN role_permissions rp ON r.id = rp.role_id
+        LEFT JOIN permissions p ON rp.permission_id = p.id
+        GROUP BY r.id, r.role_name, r.description
+        """;
+        return jdbi.withHandle(handle -> handle.createQuery(sql).mapToMap().list());
+    }
+
+    public void removeRole(int roleId) {
+        String sql = "DELETE FROM roles WHERE id = :roleId";
+
+        jdbi.withHandle(handle -> handle.createUpdate(sql)
+                .bind("roleId", roleId)
+                .execute());
+    }
+
+    public boolean createRole(String roleName, String description) {
+        String sql = "INSERT INTO roles (role_name, description) VALUES (:roleName, :description)";
+
+        int rows = jdbi.withHandle(handle -> handle.createUpdate(sql)
+                .bind("roleName", roleName)
+                .bind("description", description)
+                .execute());
+        return rows > 0;
     }
 }
