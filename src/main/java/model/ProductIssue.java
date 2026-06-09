@@ -15,8 +15,13 @@ public class ProductIssue {
     
     private List<ProductIssueDetail> details;
     
+    private String creatorName;
+    
     public ProductIssue() {
     }
+    
+    public String getCreatorName() { return creatorName; }
+    public void setCreatorName(String creatorName) { this.creatorName = creatorName; }
     
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

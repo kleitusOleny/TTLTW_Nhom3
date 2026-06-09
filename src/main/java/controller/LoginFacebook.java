@@ -1,5 +1,6 @@
 package controller;
 
+import dao.RolePermissionDAO;
 import dao.UserDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
@@ -13,12 +14,14 @@ import services.AuthServices;
 import utils.FacebookUtils;
 
 import java.io.IOException;
+import java.util.List;
 
 @WebServlet(name = "LoginFacebook", value = "/login-facebook")
 public class LoginFacebook extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(LoginFacebook.class);
     AuthServices authServices = new AuthServices();
     UserDAO userDao = new UserDAO();
+    RolePermissionDAO rolePermissionDAO = new RolePermissionDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -42,8 +45,13 @@ public class LoginFacebook extends HttpServlet {
             if (user != null) {
                 if (user.getActive() == 1) {
                     log.info("Đăng nhập bằng Facebook thành công: {}", emailFromFbToken);
+                    HttpSession session = request.getSession(true);
+                    List<String> userPermissions = rolePermissionDAO.getPermissionsByUserId(user.getId());
                     request.getSession().setAttribute("user", user);
-                    if (redirectParam != null && !redirectParam.isEmpty()) {
+                    session.setAttribute("userPermissions", userPermissions);
+                    if (userPermissions.contains("dashboard:read")){
+                        response.sendRedirect("dashboard");
+                    } else if (redirectParam != null && !redirectParam.isEmpty()) {
                         if (redirectParam.contains("checkout")) {
                             if (redirectParam.contains("from=buyNow")) {
                                 response.sendRedirect("checkout?from=buyNow&loginSuccess=1");

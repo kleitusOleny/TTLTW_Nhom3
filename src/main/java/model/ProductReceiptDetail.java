@@ -6,6 +6,7 @@ import java.sql.Timestamp;
 public class ProductReceiptDetail {
     private int receiptId;
     private String productId;
+    private String productName;
     private int quantity;
     private BigDecimal unitPrice;
     private Timestamp createAt;
@@ -15,7 +16,9 @@ public class ProductReceiptDetail {
     public ProductReceiptDetail() {
     }
     
-    // Getters and Setters
+    public String getProductName() { return productName; }
+    public void setProductName(String productName) { this.productName = productName; }
+
     public int getReceiptId() { return receiptId; }
     public void setReceiptId(int receiptId) { this.receiptId = receiptId; }
     

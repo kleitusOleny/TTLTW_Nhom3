@@ -1,5 +1,7 @@
 package controller.admin;
 
+import com.google.gson.Gson;
+import dao.ProductDAO;
 import dao.ProductIssueDAO;
 import db.JdbiConnector;
 import jakarta.servlet.ServletException;
@@ -8,9 +10,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.ProductIssue;
+import model.ProductIssueDetail;
 import model.User;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet(name = "ProductIssueController", value = "/product-issue-manager")
@@ -20,8 +24,25 @@ public class ProductIssueController extends HttpServlet {
     
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String action = req.getParameter("action");
+        if ("get-details".equals(action)) {
+            try {
+                int id = Integer.parseInt(req.getParameter("id"));
+                ProductIssue issue = issueDAO.getIssueWithDetails(id);
+                resp.setContentType("application/json");
+                resp.setCharacterEncoding("UTF-8");
+                resp.getWriter().write(new Gson().toJson(issue));
+            } catch (Exception e) {
+                e.printStackTrace();
+                resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid issue ID");
+            }
+            return;
+        }
+
         List<ProductIssue> issues = issueDAO.findAllActive();
         req.setAttribute("issues", issues);
+        
+        req.setAttribute("products", new ProductDAO().listProduct());
         
         req.getRequestDispatcher("admin/manage_issue.jsp").forward(req, resp);
     }
@@ -49,10 +70,31 @@ public class ProductIssueController extends HttpServlet {
                 issue.setReason(req.getParameter("reason"));
                 issue.setNote(req.getParameter("note"));
                 
+                // Thu thập danh sách chi tiết sản phẩm xuất kho từ client gửi lên
+                String[] productIds = req.getParameterValues("productId[]");
+                String[] quantities = req.getParameterValues("quantity[]");
+                
+                List<ProductIssueDetail> details = new ArrayList<>();
+                if (productIds != null) {
+                    for (int i = 0; i < productIds.length; i++) {
+                        String prodId = productIds[i];
+                        int qty = Integer.parseInt(quantities[i]);
+                        
+                        ProductIssueDetail detail = new ProductIssueDetail();
+                        detail.setProductId(prodId);
+                        detail.setQuantity(qty);
+                        details.add(detail);
+                    }
+                }
+                issue.setDetails(details);
+                
+                // Gọi xử lý transaction lưu phiếu xuất và giảm số lượng kho
+                issueDAO.processIssue(issue);
+                
                 resp.sendRedirect("product-issue-manager?success");
             } catch (Exception e) {
                 e.printStackTrace();
-                resp.sendRedirect("product-issue-manager?error");
+                resp.sendRedirect("product-issue-manager?error=" + java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
             }
         }
     }

@@ -26,10 +26,6 @@ public class AdminFileManagerController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         model.User user = (model.User) request.getSession().getAttribute("user");
-        if (user == null || user.getAdministrator() != 1) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
 
         String targetFolder = request.getParameter("folder");
         if (targetFolder == null || targetFolder.isEmpty()) {

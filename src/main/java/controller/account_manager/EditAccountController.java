@@ -31,7 +31,6 @@ public class EditAccountController extends HttpServlet {
         String username = request.getParameter("username_");
         String phoneNumber = request.getParameter("phone-number");
         String isActive = request.getParameter("activeSelect");
-        String isAdministrator = request.getParameter("administratorSelect");
         AccountManagerServices accountManagerService = new AccountManagerServices();
         UserDAO userDAO = new UserDAO();
 
@@ -49,7 +48,7 @@ public class EditAccountController extends HttpServlet {
         List<User> userList = userDAO.findAll();
         if (allErrors.isEmpty()) {
             try {
-                accountManagerService.updateAccount(id, email, newPassword, fullName, birth, username, phoneNumber, isActive, isAdministrator);
+                accountManagerService.updateAccount(id, email, newPassword, fullName, birth, username, phoneNumber, isActive);
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }

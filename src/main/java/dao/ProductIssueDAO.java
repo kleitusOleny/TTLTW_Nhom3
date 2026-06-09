@@ -17,12 +17,12 @@ import java.util.List;
 public interface ProductIssueDAO {
     
     // 1. Thêm mới phiếu xuất kho và lấy ID vừa tạo
-    @SqlUpdate("INSERT INTO product_issues (user_id, order_id, reason, note) VALUES (:userId, :orderId, :reason, :note)")
+    @SqlUpdate("INSERT INTO product_issues (user_id, order_id, reason, note, create_at, update_at) VALUES (:userId, :orderId, :reason, :note, NOW(), NOW())")
     @GetGeneratedKeys("id")
     int insertIssue(@BindBean ProductIssue issue);
     
     // 2. Thêm mới chi tiết dòng sản phẩm xuất kho
-    @SqlUpdate("INSERT INTO product_issue_details (issue_id, product_id, quantity) VALUES (:issueId, :productId, :quantity)")
+    @SqlUpdate("INSERT INTO product_issue_details (issue_id, product_id, quantity, create_at, update_at) VALUES (:issueId, :productId, :quantity, NOW(), NOW())")
     void insertIssueDetail(@Bind("issueId") int issueId, @BindBean ProductIssueDetail detail);
     
     // 3. Trừ số lượng tồn kho sản phẩm (Chỉ thực hiện thành công nếu số lượng hiện tại lớn hơn hoặc bằng lượng cần xuất)
@@ -49,6 +49,24 @@ public interface ProductIssueDAO {
         }
     }
     
-    @SqlQuery("SELECT * FROM product_issues WHERE is_delete = 0 ORDER BY create_at DESC")
+    @SqlQuery("SELECT pi.*, COALESCE(NULLIF(u.full_name, ''), u.username) AS creatorName FROM product_issues pi LEFT JOIN users u ON pi.user_id = u.id WHERE pi.is_delete = 0 ORDER BY pi.create_at DESC")
     List<ProductIssue> findAllActive();
+    
+    @SqlQuery("SELECT pid.*, p.product_name FROM product_issue_details pid JOIN products p ON pid.product_id = p.id WHERE pid.issue_id = :issueId AND pid.is_delete = 0")
+    List<ProductIssueDetail> findDetailsByIssueId(@Bind("issueId") int issueId);
+
+    @SqlUpdate("UPDATE product_issues SET is_delete = 1 WHERE order_id = :orderId")
+    void deleteByOrderId(@Bind("orderId") int orderId);
+
+    @SqlQuery("SELECT pi.*, COALESCE(NULLIF(u.full_name, ''), u.username) AS creatorName FROM product_issues pi LEFT JOIN users u ON pi.user_id = u.id WHERE pi.id = :id AND pi.is_delete = 0")
+    ProductIssue findById(@Bind("id") int id);
+
+    @Transaction
+    default ProductIssue getIssueWithDetails(int id) {
+        ProductIssue issue = findById(id);
+        if (issue != null) {
+            issue.setDetails(findDetailsByIssueId(id));
+        }
+        return issue;
+    }
 }

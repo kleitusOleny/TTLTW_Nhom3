@@ -5,9 +5,44 @@ import jakarta.servlet.http.*;
 import model.User;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @jakarta.servlet.annotation.WebFilter("/*")
 public class WebFilter implements Filter {
+    private static final Map<String, String> urlPermissionMap = new HashMap<>();
+    static {
+        // Cấu hình quyền chi tiết cho từng URL Admin
+        urlPermissionMap.put("/account-manager", "account:read");
+        urlPermissionMap.put("/product-manager", "product:read");
+        urlPermissionMap.put("/banner-manager", "banner:read");
+        urlPermissionMap.put("/manage-blog", "blog:read");
+        urlPermissionMap.put("/manage-orders", "orders:read");
+        urlPermissionMap.put("/manage-promotions", "promotion:read");
+        urlPermissionMap.put("/product-receipt-manager", "inventory:read");
+        urlPermissionMap.put("/product-issue-manager", "inventory:read");
+
+        urlPermissionMap.put("/account-manager/add", "account:upsert");
+        urlPermissionMap.put("/account-manager/edit", "account:upsert");
+        urlPermissionMap.put("/account-manager/toggle-status", "account:delete");
+        urlPermissionMap.put("/account-manager/lock-multiple", "account:delete");
+
+        urlPermissionMap.put("/admin/manage-promotions", "promotion:read");
+        urlPermissionMap.put("/admin/get-promotion", "promotion:read");
+        urlPermissionMap.put("/admin/add-promotion", "promotion:upsert");
+        urlPermissionMap.put("/admin/update-promotion", "promotion:upsert");
+        urlPermissionMap.put("/admin/delete-promotion", "promotion:delete");
+        urlPermissionMap.put("/category-manager", "category:read");
+        urlPermissionMap.put("/manage-manufacturer", "manufacturer:read");
+
+        urlPermissionMap.put("/staffs-manager", "staff:upsert");
+
+        urlPermissionMap.put("/roles-manager", "role:read");          // Quét khi load trang (GET)
+        urlPermissionMap.put("/roles-manager/add", "role:upsert");    // Quét khi tạo mới (POST)
+        urlPermissionMap.put("/roles-manager/edit", "role:upsert");   // Quét khi sửa (POST)
+        urlPermissionMap.put("/roles-manager/delete", "role:delete"); // Quét khi xóa (POST)
+    }
     private static final String[] PROTECTED_AUTH_URLS = {
             "/login",
             "/register",
@@ -20,11 +55,18 @@ public class WebFilter implements Filter {
             "/account-manager",
             "/product-manager",
             "/banner-manager",
+            "/category-manager",
+            "/manage-manufacturer",
             "/manage-blog",
             "/manage-orders",
             "/manage-promotions",
             "/product-receipt-manager",
-            "/product-issue-manager"
+            "/product-issue-manager",
+            "/staffs-manager",
+            "/admin/",
+            "/product-issue-manager",
+            "/product-receipt-manager",
+            "/roles-manager"
     };
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -64,9 +106,36 @@ public class WebFilter implements Filter {
             return;
         }
         User user = (session != null) ? (User) session.getAttribute("user") : null;
-        if (isAdminPath && (user == null || user.getAdministrator() == 0)) {
-            response.sendRedirect(request.getContextPath() + "/home");
-            return;
+        if (isAdminPath) {
+            if (user == null) {
+                response.sendRedirect(request.getContextPath() + "/login");
+                return;
+            }
+            @SuppressWarnings("unchecked")
+            List<String> permissions = (List<String>) session.getAttribute("userPermissions");
+            if (permissions == null || !permissions.contains("dashboard:read")) {
+                response.sendRedirect(request.getContextPath() + "/home");
+                return;
+            }
+            String requiredPermission = urlPermissionMap.get(path);
+
+            // Nếu path này không nằm trực tiếp trong Map, thử tìm theo tiền tố (Ví dụ: /account-manager/add)
+            if (requiredPermission == null) {
+                for (Map.Entry<String, String> entry : urlPermissionMap.entrySet()) {
+                    if (path.startsWith(entry.getKey())) {
+                        requiredPermission = entry.getValue();
+                        break;
+                    }
+                }
+            }
+
+            // Nếu trang yêu cầu quyền chi tiết
+            if (requiredPermission != null && !permissions.contains(requiredPermission)) {
+                HttpSession currentSession = request.getSession(true);
+                currentSession.setAttribute("authError", "Bạn không có quyền truy cập vào tính năng này!");
+                response.sendRedirect(request.getContextPath() + "/dashboard");
+                return;
+            }
         }
         filterChain.doFilter(request, response);
     }

@@ -281,14 +281,27 @@ public class CheckoutController extends HttpServlet {
             int orderId = orderService.createAndReturnId(order);
             order.setId(orderId);
 
-            // Trừ tồn kho
+            // Trừ tồn kho và tự động tạo phiếu xuất kho
+            ProductIssue issue = new ProductIssue();
+            issue.setUserId(user.getId());
+            issue.setOrderId(orderId);
+            issue.setReason("Xuất kho bán hàng (Đơn hàng #" + orderId + ")");
+            issue.setNote("Tự động tạo khi đơn hàng #" + orderId + " đặt thành công.");
+            
+            List<ProductIssueDetail> issueDetails = new ArrayList<>();
             for (OrderItem item : order.getItems()) {
                 item.setOrderId(orderId);
                 orderItemService.save(item);
 
-                int currentStock = productService.getQuantity(item.getProductId());
-                productService.updateQuantity(item.getProductId(), currentStock - item.getQuantity());
+                ProductIssueDetail detail = new ProductIssueDetail();
+                detail.setProductId(item.getProductId());
+                detail.setQuantity(item.getQuantity());
+                issueDetails.add(detail);
             }
+            issue.setDetails(issueDetails);
+            
+            ProductIssueDAO issueDAO = db.JdbiConnector.get().onDemand(ProductIssueDAO.class);
+            issueDAO.processIssue(issue);
 
             String paymentMethod = request.getParameter("payment_method");
             String selectedCarrier = request.getParameter("shipping_carrier");

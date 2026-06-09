@@ -17,8 +17,17 @@ public class ProductReceipt {
     // Danh sách chi tiết phiếu nhập
     private List<ProductReceiptDetail> details;
     
+    private String creatorName;
+    private String supplierName;
+    
     public ProductReceipt() {
     }
+    
+    public String getCreatorName() { return creatorName; }
+    public void setCreatorName(String creatorName) { this.creatorName = creatorName; }
+    
+    public String getSupplierName() { return supplierName; }
+    public void setSupplierName(String supplierName) { this.supplierName = supplierName; }
     
     // Getters and Setters
     public int getId() { return id; }

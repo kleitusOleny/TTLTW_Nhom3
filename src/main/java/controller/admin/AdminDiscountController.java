@@ -1,5 +1,6 @@
 package controller.admin;
 
+import dao.CategoryDAO;
 import dao.DiscountDAO;
 import dao.ManufacturerDAO;
 import dao.ProductDAO;
@@ -27,12 +28,14 @@ public class AdminDiscountController extends HttpServlet {
     private DiscountDAO discountDAO;
     private ProductDAO productDAO;
     private ManufacturerDAO manufacturerDAO;
+    private CategoryDAO categoryDAO;
 
     @Override
     public void init() {
         discountDAO = new DiscountDAO();
         productDAO = new ProductDAO();
         manufacturerDAO = new ManufacturerDAO();
+        categoryDAO = new CategoryDAO();
     }
 
     @Override
@@ -52,7 +55,7 @@ public class AdminDiscountController extends HttpServlet {
             List<Discount> discounts = discountDAO.findAll();
             request.setAttribute("discounts", discounts);
 
-            List<Category> categories = productDAO.getAllCategories();
+            List<Category> categories = categoryDAO.getAllCategories();
             List<Product> products = productDAO.listProduct();
             List<Manufacturer> manufacturers = manufacturerDAO.getAllManufacturers();
 

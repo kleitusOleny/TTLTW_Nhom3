@@ -1,9 +1,6 @@
 package dao;
 
-import model.Category;
 import model.Product;
-import model.ProductType;
-import model.Tag;
 import services.ProductService;
 
 import java.util.Collections;
@@ -35,7 +32,8 @@ public class ProductDAO extends ADAO {
                                 "FROM products p " +
                                 "LEFT JOIN product_types t ON p.type_id = t.id " +
                                 "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
-                                "LEFT JOIN categorys c ON p.category_id = c.id ")
+                                "LEFT JOIN categorys c ON p.category_id = c.id " +
+                                "WHERE p.is_delete = 0")
                 .mapToBean(Product.class)
                 .list());
     }
@@ -193,28 +191,7 @@ public class ProductDAO extends ADAO {
                 .mapToBean(Product.class)
                 .list());
     }
-
-    public List<Category> getAllCategories() {
-        return jdbi.withHandle(handle -> handle
-                .createQuery("SELECT id, category_name AS categoryName FROM categorys WHERE is_delete = 0")
-                .mapToBean(Category.class)
-                .list());
-    }
-
-    public List<ProductType> getAllTypes() {
-        return jdbi.withHandle(
-                handle -> handle.createQuery("SELECT id, type_name AS typeName FROM product_types WHERE is_delete = 0")
-                        .mapToBean(ProductType.class)
-                        .list());
-    }
-
-    public List<Tag> getAllTags() {
-        return jdbi
-                .withHandle(handle -> handle.createQuery("SELECT id, tag_name AS tagName FROM tags WHERE is_delete = 0")
-                        .mapToBean(Tag.class)
-                        .list());
-    }
-
+    
     // Lấy danh sách xuất xứ
     public List<String> getAllOrigins() {
         return jdbi.withHandle(handle -> handle
@@ -233,7 +210,7 @@ public class ProductDAO extends ADAO {
 
     // Lấy danh sách đã lọc
     public List<Product> filterProducts(String[] prices, String[] categories, String[] manufacturers, String[] types,
-                                        String[] origins, String[] capacities, String[] tags, String keyword, int limit, int offset, String sort) {
+            String[] origins, String[] capacities, String[] tags, String keyword, int limit, int offset, String sort) {
 
         String order = "ORDER BY price ";
         switch (sort) {
@@ -268,33 +245,33 @@ public class ProductDAO extends ADAO {
         ProductService.appendFilterConditions(sql, prices, categories, manufacturers, types, origins, capacities, tags, keyword);
 
         sql.append(" LIMIT :limit OFFSET :offset");
-
+        
         return jdbi.withHandle(handle -> {
             var query = handle.createQuery(sql.toString())
                     .bind("limit", limit)
                     .bind("offset", offset);
-
+            
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String[] words = keyword.trim().split("\\s+");
                 for (int i = 0; i < words.length; i++) {
                     query.bind("keyword" + i, "%" + words[i] + "%");
                 }
             }
-
+            
             return query.mapToBean(Product.class).list();
         });
     }
 
     public int countFilteredProducts(String[] prices, String[] categories, String[] manufacturers, String[] types,
-                                     String[] origins, String[] capacities, String[] tags, String keyword) {
+            String[] origins, String[] capacities, String[] tags, String keyword) {
         StringBuilder sql = new StringBuilder(
                 "SELECT COUNT(*) FROM products p " +
                         "LEFT JOIN product_types t ON p.type_id = t.id " +
                         "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
                         "WHERE p.is_delete = 0 ");
-
+        
         ProductService.appendFilterConditions(sql, prices, categories, manufacturers, types, origins, capacities, tags, keyword);
-
+        
         return jdbi.withHandle(handle -> {
             var query = handle.createQuery(sql.toString());
             if (keyword != null && !keyword.trim().isEmpty()) {
@@ -394,6 +371,13 @@ public class ProductDAO extends ADAO {
                                     "VALUES (:id, :productName, :slug, :typeId, :price, :capacity, :alcohol, :origin, :manufacturerId, :categoryId, :detail, :quantity, NOW(), 0)")
                     .bindBean(p)
                     .execute();
+            
+            if (p.getImageUrl() != null && !p.getImageUrl().trim().isEmpty()) {
+                handle.createUpdate("INSERT INTO p_img (product_id, url_img) VALUES (:productId, :urlImg)")
+                        .bind("productId", p.getId())
+                        .bind("urlImg", p.getImageUrl())
+                        .execute();
+            }
         });
     }
 
@@ -413,7 +397,40 @@ public class ProductDAO extends ADAO {
                             "WHERE id=:id")
                     .bindBean(p)
                     .execute();
+            
+            if (p.getImageUrl() != null && !p.getImageUrl().trim().isEmpty()) {
+                boolean exists = handle.createQuery("SELECT EXISTS(SELECT 1 FROM p_img WHERE product_id = :productId)")
+                        .bind("productId", p.getId())
+                        .mapTo(Boolean.class)
+                        .one();
+                if (exists) {
+                    handle.createUpdate("UPDATE p_img SET url_img = :urlImg WHERE product_id = :productId")
+                            .bind("productId", p.getId())
+                            .bind("urlImg", p.getImageUrl())
+                            .execute();
+                } else {
+                    handle.createUpdate("INSERT INTO p_img (product_id, url_img) VALUES (:productId, :urlImg)")
+                            .bind("productId", p.getId())
+                            .bind("urlImg", p.getImageUrl())
+                            .execute();
+                }
+            }
         });
+    }
+
+    public Product getProductByName(String name) {
+        return jdbi.withHandle(handle -> handle.createQuery(
+                "SELECT p.id, p.product_name, p.slug, p.price, p.capacity, p.alcohol, p.origin, p.quantity, p.detail, p.create_at, p.update_at, p.is_delete, " +
+                "t.type_name AS typeId, m.manufacturer_name AS manufacturerId, c.category_name AS categoryId, " +
+                "(SELECT url_img FROM p_img WHERE product_id = p.id LIMIT 1) AS imageUrl " +
+                "FROM products p " +
+                "LEFT JOIN product_types t ON p.type_id = t.id " +
+                "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
+                "LEFT JOIN categorys c ON p.category_id = c.id " +
+                "WHERE p.product_name = :name AND p.is_delete = 0 LIMIT 1")
+                .bind("name", name)
+                .mapToBean(Product.class)
+                .findFirst().orElse(null));
     }
 
     public List<Product> countOutOfStocks() {
@@ -422,5 +439,5 @@ public class ProductDAO extends ADAO {
                         .mapToBean(Product.class)
                         .list());
     }
-
+    
 }

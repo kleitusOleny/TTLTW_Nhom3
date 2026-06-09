@@ -13,9 +13,9 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet(name = "AdminManageReviewController", urlPatterns = {
-    "/admin/manage-reviews", 
-    "/admin/delete-review", 
-    "/admin/restore-review", 
+    "/admin/manage-reviews",
+    "/admin/delete-review",
+    "/admin/restore-review",
     "/admin/get-review",
     "/admin/update-review"
 })
@@ -26,10 +26,6 @@ public class AdminManageReviewController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) request.getSession().getAttribute("user");
-        if (user == null || user.getAdministrator() != 1) {
-            response.sendRedirect(request.getContextPath() + "/login");
-            return;
-        }
 
         String uri = request.getRequestURI();
 
@@ -57,10 +53,6 @@ public class AdminManageReviewController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         User user = (User) request.getSession().getAttribute("user");
-        if (user == null || user.getAdministrator() != 1) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return;
-        }
 
         String uri = request.getRequestURI();
         String idStr = request.getParameter("id");

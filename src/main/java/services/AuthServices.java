@@ -114,7 +114,6 @@ public class AuthServices {
         user.setPhoneNumber(phoneNumber);
         user.setFullName(fullName);
         user.setBirthDay(birthday);
-        user.setAdministrator(0);
         user.setActive(1);
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
