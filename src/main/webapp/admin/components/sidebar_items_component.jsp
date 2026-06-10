@@ -126,51 +126,35 @@
     </ul>
 </li>
 
-<c:set var="isWarehouseActive" value="${activePage == 'receipt' || activePage == 'issue'}" />
-<li class="sidebar-dropdown ${isWarehouseActive ? 'expanded' : ''}">
-    <div class="a-with-icon dropdown-toggle ${isWarehouseActive ? 'selected' : ''}">
+<c:set var="isUserManagementActive" value="${activePage == 'account' || activePage == 'staff' || activePage == 'role'}" />
+<li class="sidebar-dropdown ${isUserManagementActive ? 'expanded' : ''}">
+    <div class="a-with-icon dropdown-toggle ${isUserManagementActive ? 'selected' : ''}">
         <span class="sidebar-link-content">
-            <ion-icon name="archive-outline"></ion-icon>
-            Quản lý kho hàng
+            <ion-icon name="people-outline"></ion-icon>
+            Tài Khoản & Phân Quyền
         </span>
-        <ion-icon name="${isWarehouseActive ? 'chevron-down-outline' : 'chevron-back-outline'}" class="item-arrow-icon arrow-icon"></ion-icon>
+        <ion-icon name="${isUserManagementActive ? 'chevron-down-outline' : 'chevron-back-outline'}" class="item-arrow-icon arrow-icon"></ion-icon>
     </div>
     <ul class="dropdown-menu">
         <li>
-            <a href="${pageContext.request.contextPath}/product-receipt-manager"
-               class="submenu-item ${activePage == 'receipt' ? 'selected' : ''}">
-               Nhập kho
+            <a href="${pageContext.request.contextPath}/account-manager"
+               class="submenu-item ${activePage == 'account' ? 'selected' : ''}">
+                Tài khoản
             </a>
         </li>
         <li>
-            <a href="${pageContext.request.contextPath}/product-issue-manager"
-               class="submenu-item ${activePage == 'issue' ? 'selected' : ''}">
-               Xuất kho
+            <a href="${pageContext.request.contextPath}/staffs-manager"
+               class="submenu-item ${activePage == 'staff' ? 'selected' : ''}">
+                Nhân sự
+            </a>
+        </li>
+        <li>
+            <a href="${pageContext.request.contextPath}/roles-manager"
+               class="submenu-item ${activePage == 'role' ? 'selected' : ''}">
+                Vai trò
             </a>
         </li>
     </ul>
-</li>
-
-<li>
-    <a href="${pageContext.request.contextPath}/account-manager"
-       class="a-with-icon ${activePage == 'account' ? 'selected' : ''}">
-        <span class="sidebar-link-content">
-            <ion-icon name="${activePage == 'account' ? 'people' : 'people-outline'}"></ion-icon>
-            Quản Lí Tài Khoản
-        </span>
-        <ion-icon name="chevron-back-outline" class="item-arrow-icon"></ion-icon>
-    </a>
-</li>
-
-<li>
-    <a href="${pageContext.request.contextPath}/staffs-manager"
-       class="a-with-icon ${activePage == 'staff' ? 'selected' : ''}">
-        <span class="sidebar-link-content">
-            <ion-icon name="${activePage == 'staff' ? 'body' : 'body-outline'}"></ion-icon>
-            Quản lí nhân sự
-        </span>
-        <ion-icon name="chevron-back-outline" class="item-arrow-icon"></ion-icon>
-    </a>
 </li>
 
 <li>
