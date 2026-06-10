@@ -8,16 +8,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Báo Cáo & Thống Kê</title>
-    
+
     <!-- Load styles and icons -->
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
     <script src="${pageContext.request.contextPath}/popup.js"></script>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/manage_product_style.css">
-    
+
     <!-- Load ApexCharts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    
+
     <style>
         /* CSS custom for Report Page to make it wow/premium */
         .report-tabs {
@@ -173,25 +173,25 @@
             <%@ include file="/admin/components/sidebar_items_component.jsp" %>
         </ul>
     </nav>
-    
+
     <div class="dashboard-content">
         <main class="dashboard-main-content">
-            
+
             <div class="main-header">
                 <h1>Báo Cáo & Thống Kê Kho Hàng</h1>
             </div>
-            
+
             <!-- Main Report Tabs -->
             <div class="report-tabs">
-                <a href="${pageContext.request.contextPath}/report-manager?tab=revenue" 
+                <a href="${pageContext.request.contextPath}/report-manager?tab=revenue"
                    class="report-tab-btn ${tab == 'revenue' ? 'active' : ''}">
                    Doanh Thu
                 </a>
-                <a href="${pageContext.request.contextPath}/report-manager?tab=bestsellers" 
+                <a href="${pageContext.request.contextPath}/report-manager?tab=bestsellers"
                    class="report-tab-btn ${tab == 'bestsellers' ? 'active' : ''}">
                    Sản Phẩm Bán Chạy
                 </a>
-                <a href="${pageContext.request.contextPath}/report-manager?tab=unsold" 
+                <a href="${pageContext.request.contextPath}/report-manager?tab=unsold"
                    class="report-tab-btn ${tab == 'unsold' ? 'active' : ''}">
                    Sản Phẩm Không Bán Được
                 </a>
@@ -202,13 +202,13 @@
                 <!-- Sub filter buttons -->
                 <div class="report-sub-filters">
                     <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">Thống kê theo:</span>
-                    <a href="${pageContext.request.contextPath}/report-manager?tab=revenue&period=day" 
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=revenue&period=day"
                        class="sub-filter-btn ${period == 'day' ? 'active' : ''}">Ngày (30 ngày qua)</a>
-                    <a href="${pageContext.request.contextPath}/report-manager?tab=revenue&period=month" 
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=revenue&period=month"
                        class="sub-filter-btn ${period == 'month' ? 'active' : ''}">Tháng (12 tháng qua)</a>
-                    <a href="${pageContext.request.contextPath}/report-manager?tab=revenue&period=quarter" 
-                       class="sub-filter-btn ${period == 'quarter' ? 'active' : ''}">Quý (8 quý qua)</a>
-                    <a href="${pageContext.request.contextPath}/report-manager?tab=revenue&period=year" 
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=revenue&period=quarter"
+                       class="sub-filter-btn ${period == 'quarter' ? 'active' : ''}">Quý (4 quý qua)</a>
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=revenue&period=year"
                        class="sub-filter-btn ${period == 'year' ? 'active' : ''}">Năm</a>
                 </div>
 
@@ -217,7 +217,7 @@
                 <c:forEach var="row" items="${revenueData}">
                     <c:set var="totalRev" value="${totalRev + row.revenue}" />
                 </c:forEach>
-                
+
                 <div class="stats-summary-grid">
                     <div class="stats-summary-card">
                         <h3>Tổng Doanh Thu Lọc</h3>
@@ -225,7 +225,7 @@
                     </div>
                     <div class="stats-summary-card">
                         <h3>Số Giao Dịch Thống Kê</h3>
-                        <p>${revenueData.size()} chu kỳ</p>
+                        <p>${revenueData.size()} giao dịch</p>
                     </div>
                     <div class="stats-summary-card">
                         <h3>Doanh Thu Trung Bình</h3>
@@ -290,7 +290,7 @@
             <c:if test="${tab == 'bestsellers'}">
                 <div class="stats-summary-grid">
                     <div class="stats-summary-card">
-                        <h3>Tổng số sản phẩm lọc</h3>
+                        <h3>Tổng số sản phẩm</h3>
                         <p>${bestSellers.size()} Sản phẩm</p>
                     </div>
                     <div class="stats-summary-card">
@@ -361,9 +361,9 @@
                 <!-- Sub filter buttons -->
                 <div class="report-sub-filters">
                     <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">Không bán được trong:</span>
-                    <a href="${pageContext.request.contextPath}/report-manager?tab=unsold&months=1" 
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=unsold&months=1"
                        class="sub-filter-btn ${months == 1 ? 'active' : ''}">1 Tháng (30 ngày qua)</a>
-                    <a href="${pageContext.request.contextPath}/report-manager?tab=unsold&months=2" 
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=unsold&months=2"
                        class="sub-filter-btn ${months == 2 ? 'active' : ''}">2 Tháng (60 ngày qua)</a>
                 </div>
 
@@ -372,7 +372,7 @@
                     <ion-icon name="alert-circle-outline"></ion-icon>
                     <div>
                         <strong style="display: block; font-size: 15px; margin-bottom: 4px;">Khuyến nghị quản lý kho hàng:</strong>
-                        Các sản phẩm dưới đây vẫn đang được kích hoạt bày bán nhưng chưa phát sinh bất kỳ lượt bán nào trong vòng ${months} tháng qua. 
+                        Các sản phẩm dưới đây vẫn đang được kích hoạt bày bán nhưng chưa phát sinh bất kỳ lượt bán nào trong vòng ${months} tháng qua.
                         Bạn nên chạy các chương trình khuyến mãi, tặng mã giảm giá hoặc tạo combo quà tặng để kích cầu tiêu dùng, giải phóng hàng tồn kho hiệu quả.
                     </div>
                 </div>
@@ -562,7 +562,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 },
                 y: {
                     formatter: function(val) {
-                        return val + ' chai/hộp';
+                        return val + ' chai';
                     }
                 }
             }
