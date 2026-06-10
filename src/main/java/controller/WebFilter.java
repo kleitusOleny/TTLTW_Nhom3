@@ -37,6 +37,11 @@ public class WebFilter implements Filter {
         urlPermissionMap.put("/manage-manufacturer", "manufacturer:read");
 
         urlPermissionMap.put("/staffs-manager", "staff:upsert");
+
+        urlPermissionMap.put("/roles-manager", "role:read");          // Quét khi load trang (GET)
+        urlPermissionMap.put("/roles-manager/add", "role:upsert");    // Quét khi tạo mới (POST)
+        urlPermissionMap.put("/roles-manager/edit", "role:upsert");   // Quét khi sửa (POST)
+        urlPermissionMap.put("/roles-manager/delete", "role:delete"); // Quét khi xóa (POST)
     }
     private static final String[] PROTECTED_AUTH_URLS = {
             "/login",
@@ -60,7 +65,8 @@ public class WebFilter implements Filter {
             "/staffs-manager",
             "/admin/",
             "/product-issue-manager",
-            "/product-receipt-manager"
+            "/product-receipt-manager",
+            "/roles-manager"
     };
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
