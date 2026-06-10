@@ -126,7 +126,7 @@
     </ul>
 </li>
 
-<c:set var="isWarehouseActive" value="${activePage == 'receipt' || activePage == 'issue'}" />
+<c:set var="isWarehouseActive" value="${activePage == 'receipt' || activePage == 'issue' || activePage == 'report'}" />
 <li class="sidebar-dropdown ${isWarehouseActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isWarehouseActive ? 'selected' : ''}">
         <span class="sidebar-link-content">
@@ -137,15 +137,21 @@
     </div>
     <ul class="dropdown-menu">
         <li>
-            <a href="${pageContext.request.contextPath}/product-receipt-manager"
+            <a href="${pageContext.request.contextPath}/product-receipt-manager" 
                class="submenu-item ${activePage == 'receipt' ? 'selected' : ''}">
                Nhập kho
             </a>
         </li>
         <li>
-            <a href="${pageContext.request.contextPath}/product-issue-manager"
+            <a href="${pageContext.request.contextPath}/product-issue-manager" 
                class="submenu-item ${activePage == 'issue' ? 'selected' : ''}">
                Xuất kho
+            </a>
+        </li>
+        <li>
+            <a href="${pageContext.request.contextPath}/report-manager" 
+               class="submenu-item ${activePage == 'report' ? 'selected' : ''}">
+               Báo cáo & Thống kê
             </a>
         </li>
     </ul>
