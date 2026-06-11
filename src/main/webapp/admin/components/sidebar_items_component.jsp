@@ -11,7 +11,7 @@
         </div>
 
         <div class="admin-name" id="avatar-modal-btn" style="cursor: pointer;" title="Nhấn để cài đặt / đăng xuất">
-            <c:out value="${not empty sessionScope.user.fullName ? sessionScope.user.fullName : 'NGUYỄN PHÚ VINH'}" />
+            <c:out value="${not empty sessionScope.user.fullName ? sessionScope.user.fullName : 'ADMIN'}" />
         </div>
 
         <div class="admin-quick-links">

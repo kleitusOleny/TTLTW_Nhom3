@@ -91,6 +91,9 @@
     display: flex !important;
     align-items: center !important;
     gap: 12px !important;
+    -webkit-user-select: none; /* Dành cho Safari */
+    -ms-user-select: none; /* Dành cho IE 10+ và Edge cũ */
+    user-select: none; /* Cú pháp chuẩn cho các trình duyệt hiện tại */
 }
 
 /* Link icons */
