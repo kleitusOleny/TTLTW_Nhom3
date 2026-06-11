@@ -200,36 +200,6 @@
         </button>
     </div>
 </div>
-<div class="modal-overlay-deleteAll" id="deleteAll-account-modal">
-    <div class="modal-content-deleteAll">
-        <div class="group-text-deleteAll">
-            <p class="p-deleteAll1">Bạn có chắc chắn muốn khoá toàn bộ tài khoản của các ô được chọn?</p>
-            <p class="p-deleteAll2">
-                <ion-icon name="warning-outline" class="icon-warning"></ion-icon>
-                Có thể hoàn tác hành động này
-            </p>
-        </div>
-        <div class="group-button-action delete-all">
-            <button type="button" class="element-button" id="close-modal-btn6">Huỷ</button>
-            <button type="submit" class="deleteAll-button">Khoá Tất Cả</button>
-        </div>
-    </div>
-</div>
-<div class="modal-overlay-unlockAll" id="unlock-account-btn">
-    <div class="modal-content-unlockAll">
-        <div class="group-text-unlockAll">
-            <p class="p-deleteAll1">Bạn có chắc chắn muốn mở khoá toàn bộ tài khoản của các ô được chọn?</p>
-            <p class="p-deleteAll2">
-                <ion-icon name="warning-outline" class="icon-warning"></ion-icon>
-                Có thể hoàn tác hành động này
-            </p>
-        </div>
-        <div class="group-button-action delete-all">
-            <button type="button" class="element-button" id="close-modal-btn7">Huỷ</button>
-            <button type="submit" class="unlockAll-button">Mở Khoá Tất Cả</button>
-        </div>
-    </div>
-</div>
 <c:if test="${errorSource == 'edit_account' and not empty editingId}">
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -296,8 +266,6 @@
     document.addEventListener("DOMContentLoaded", function () {
         setupModal('add-account-modal', 'open-modal-btn', 'close-modal-btn');
         setupModal('excel-account-modal', 'excel-modal-btn', 'close-modal-btn5');
-        setupModal('deleteAll-account-modal', 'deleteAll-modal-btn', 'close-modal-btn6');
-        setupModal('unlock-account-btn', 'unlock-modal-btn', 'close-modal-btn7');
         setupModal('avatar-account-modal', 'avatar-modal-btn', 'close-modal-btn9');
         setupModal('notification-account-modal', 'notification-modal-btn', 'close-modal-btn8');
         setupDynamicModals('edit-btn-trigger', 'close-edit-modal');
@@ -427,6 +395,85 @@
         });
     }
 </script>
-</body>
+<script>
+    $(document).ready(function () {
+        function handleBulkActionWithSweetAlert(status) {
+            var ids = [];
+            var table = $('#account-table-main').DataTable();
 
+            // Lấy tất cả các checkbox đã tick từ DataTable
+            table.$('input.row-checkbox:checked').each(function () {
+                ids.push($(this).val());
+            });
+
+            if (ids.length === 0) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa chọn tài khoản',
+                    text: 'Vui lòng chọn ít nhất một tài khoản để thực hiện thao tác!'
+                });
+                return;
+            }
+
+            var actionText = status ? "KHOÁ" : "MỞ KHOÁ";
+            var confirmBtnColor = status ? '#d33' : '#28a745';
+
+            // Hiện Popup xác nhận
+            Swal.fire({
+                title: 'Xác nhận ' + actionText + ' hàng loạt',
+                text: 'Bạn có chắc chắn muốn ' + actionText + ' ' + ids.length + ' tài khoản đã chọn?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: confirmBtnColor,
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Đồng ý ' + actionText,
+                cancelButtonText: 'Huỷ bỏ'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'Đang xử lý...',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    // Gửi danh sách ID và status về Server qua AJAX
+                    $.ajax({
+                        url: '${pageContext.request.contextPath}/account-manager/lock-multiple',
+                        type: 'POST',
+                        data: {
+                            ids: ids.join(','),
+                            status: status
+                        },
+                        success: function (response) {
+                            Swal.fire({
+                                title: 'Thành công!',
+                                text: 'Đã ' + actionText.toLowerCase() + ' ' + ids.length + ' tài khoản thành công!',
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            console.error(thrownError);
+                            Swal.fire('Thất bại!', 'Có lỗi xảy ra khi xử lý.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+        $('#deleteAll-modal-btn').click(function (e) {
+            e.preventDefault();
+            handleBulkActionWithSweetAlert(true); // true = Khoá
+        });
+
+        $('#unlock-modal-btn').click(function (e) {
+            e.preventDefault();
+            handleBulkActionWithSweetAlert(false); // false = Mở khoá
+        });
+    });
+</script>
+</body>
 </html>
