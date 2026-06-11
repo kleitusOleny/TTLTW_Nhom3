@@ -15,7 +15,7 @@
         </div>
 
         <div class="admin-quick-links">
-            <a href="${pageContext.request.contextPath}/home" class="quick-link">Đăng Xuất</a> //tạm thời thay đổi cập nhật logic sau
+            <a href="${pageContext.request.contextPath}/logout" class="quick-link">Đăng Xuất</a>
             <span class="quick-link-separator">|</span>
             <a href="#" class="quick-link" id="clear-cache-link">Xóa cache</a>
         </div>

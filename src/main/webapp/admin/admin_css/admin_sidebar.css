@@ -217,7 +217,7 @@
 /* Sidebar Section Title */
 .sidebar-section-title {
     width: 100% !important;
-    padding: 16px 20px 8px 20px !important;
+    padding: 16px 20px 0 40px !important;
     font-size: 11px !important;
     font-weight: bold !important;
     color: rgba(255, 255, 255, 0.3) !important; /* Muted gray/blue */
