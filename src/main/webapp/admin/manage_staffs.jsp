@@ -96,6 +96,7 @@
                             </td>
                             <td>
                                 <div class="cell-action">
+                                    <c:if test="${staff.description != 'Quản trị viên'}">
                                     <button type="button" class="edit btn edit-staff-button"
                                             data-id="${staff.id}"
                                             data-email="${staff.email}"
@@ -105,6 +106,7 @@
                                             onclick="revokeStaffRole(${staff.id}, '${staff.email}')">
                                         Cách Chức
                                     </button>
+                                    </c:if>
                                 </div>
                             </td>
                         </tr>
