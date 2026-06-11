@@ -247,6 +247,7 @@
     </script>
 </c:if>
 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Philosopher&display=swap" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -371,33 +372,59 @@
     preventspace(listFields)
 
     function toggleUserStatus(userId, currentAction) {
-        // Tạo tin nhắn xác nhận tuỳ theo hành động
-        let message = (currentAction === 'block')
-            ? "Bạn có chắc chắn muốn KHOÁ tài khoản này không?"
-            : "Bạn có chắc chắn muốn MỞ KHOÁ tài khoản này không?";
+        let isBlock = (currentAction === 'block');
+        let actionText = isBlock ? "KHOÁ" : "MỞ KHOÁ";
+        let message = `Bạn có chắc chắn muốn ` + actionText + ` tài khoản này không?`;
+        let iconType = isBlock ? 'warning' : 'question';
+        let confirmBtnColor = isBlock ? '#d33' : '#28a745';
 
-        if (confirm(message)) {
-            // Gọi xuống Servlet
-            fetch('${pageContext.request.contextPath}/account-manager/toggle-status', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: 'id=' + userId
-            })
-                .then(response => {
-                    if (response.ok) {
-                        // Nếu thành công, load lại trang để cập nhật giao diện
-                        location.reload();
-                    } else {
-                        alert("Có lỗi xảy ra, vui lòng thử lại!");
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert("Lỗi kết nối tới server.");
+        Swal.fire({
+            title: 'Xác nhận hành động',
+            text: message,
+            icon: iconType,
+            showCancelButton: true,
+            confirmButtonColor: confirmBtnColor,
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Thực hiện',
+            cancelButtonText: 'Huỷ bỏ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang xử lý...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
                 });
-        }
+
+                // Gọi xuống Servlet
+                fetch('${pageContext.request.contextPath}/account-manager/toggle-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: 'id=' + userId
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // Thông báo thành công và tự động reload
+                            Swal.fire({
+                                title: 'Thành công!',
+                                text: `Đã ` + actionText.toLowerCase() + ` tài khoản.`,
+                                icon: 'success',
+                                timer: 1500,
+                                showConfirmButton: false
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire('Thất bại!', 'Có lỗi xảy ra, vui lòng thử lại!', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Lỗi kết nối!', 'Không thể kết nối tới server.', 'error');
+                    });
+            }
+        });
     }
 </script>
 </body>

@@ -55,12 +55,14 @@ public class AccountManagerServices {
         User currentUser = userDAO.findById(id).orElse(null);
         if (currentUser != null) {
             int newStatus = (currentUser.getActive() == 1) ? 0 : 1;
-            return userDAO.updateActive(currentUser.getId(), newStatus);
+            Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+            return userDAO.updateActive(currentUser.getId(), newStatus, currentTime);
         }
         return false;
     }
 
     public void updateStatus(int id, int status) {
-        userDAO.updateActive(id, status);
+        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+        userDAO.updateActive(id, status, currentTime);
     }
 }
