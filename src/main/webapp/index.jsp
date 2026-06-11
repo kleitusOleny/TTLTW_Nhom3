@@ -17,6 +17,7 @@
                         integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
                         crossorigin="anonymous" referrerpolicy="no-referrer" />
                     <link rel="stylesheet" href="<%= request.getContextPath() %>/css/index_style.css">
+                    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/store_style.css">
                     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
                 </head>
                 <style>
@@ -49,74 +50,126 @@
                                     data-bs-interval="5000">
 
                                     <div class="carousel-indicators">
-                                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0"
-                                            class="active" aria-current="true" aria-label="Slide 1"></button>
-                                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"
-                                            aria-label="Slide 2"></button>
-                                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"
-                                            aria-label="Slide 3"></button>
-                                        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3"
-                                            aria-label="Slide 4"></button>
+                                        <c:choose>
+                                            <c:when test="${not empty activeBanners}">
+                                                <c:forEach var="b" items="${activeBanners}" varStatus="status">
+                                                    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="${status.index}"
+                                                            class="${status.first ? 'active' : ''}"
+                                                            aria-current="${status.first ? 'true' : 'false'}"
+                                                            aria-label="Slide ${status.index + 1}"></button>
+                                                </c:forEach>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0"
+                                                    class="active" aria-current="true" aria-label="Slide 1"></button>
+                                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"
+                                                    aria-label="Slide 2"></button>
+                                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"
+                                                    aria-label="Slide 3"></button>
+                                                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3"
+                                                    aria-label="Slide 4"></button>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
 
                                     <div class="carousel-inner">
+                                        <c:choose>
+                                            <c:when test="${not empty activeBanners}">
+                                                <c:forEach var="b" items="${activeBanners}" varStatus="status">
+                                                    <c:choose>
+                                                        <c:when test="${fn:startsWith(b.urlBanner, 'http') || fn:startsWith(b.urlBanner, 'https')}">
+                                                            <c:set var="resolvedBannerUrl" value="${b.urlBanner}"/>
+                                                        </c:when>
+                                                        <c:when test="${fn:startsWith(b.urlBanner, '/')}">
+                                                            <c:set var="resolvedBannerUrl"
+                                                                   value="${pageContext.request.contextPath}${b.urlBanner}"/>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <c:set var="resolvedBannerUrl"
+                                                                   value="${pageContext.request.contextPath}/${b.urlBanner}"/>
+                                                        </c:otherwise>
+                                                    </c:choose>
 
-                                        <div class="carousel-item active">
-                                            <div class="hero-overlay"></div>
-                                            <img src="assets/banners/main_banner.jpg" class="d-block w-100"
-                                                alt="Banner 1">
-                                            <div class="carousel-caption d-none d-md-block hero-content">
-                                                <h1 class="hero-title">Bộ Sưu Tập Vang Thượng Hạng</h1>
-                                                <p class="hero-subtitle">Khám phá hương vị tinh tế từ những vườn nho nổi
-                                                    tiếng nhất
-                                                    thế
-                                                    giới.</p>
-                                                <a href="store.jsp" class="btn btn-primary hero-btn">Xem Ngay</a>
-                                            </div>
-                                        </div>
+                                                    <c:choose>
+                                                        <c:when test="${empty b.targetUrl}">
+                                                            <c:set var="resolvedTargetUrl" value="${pageContext.request.contextPath}/store"/>
+                                                        </c:when>
+                                                        <c:when test="${fn:startsWith(b.targetUrl, 'http') || fn:startsWith(b.targetUrl, 'https')}">
+                                                            <c:set var="resolvedTargetUrl" value="${b.targetUrl}"/>
+                                                        </c:when>
+                                                        <c:when test="${fn:startsWith(b.targetUrl, '/')}">
+                                                            <c:set var="resolvedTargetUrl"
+                                                                   value="${pageContext.request.contextPath}${b.targetUrl}"/>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <c:set var="resolvedTargetUrl"
+                                                                   value="${pageContext.request.contextPath}/${b.targetUrl}"/>
+                                                        </c:otherwise>
+                                                    </c:choose>
 
-                                        <div class="carousel-item">
-                                            <div class="hero-overlay"></div>
-                                            <img src="assets/banners/banner-vang-bordeaux.jpg" class="d-block w-100"
-                                                alt="Banner 2">
-                                            <div class="carousel-caption d-none d-md-block hero-content">
-                                                <h1 class="hero-title">Hương Vị Mùa Hè Tươi Mát</h1>
-                                                <p class="hero-subtitle">Tuyển tập những chai vang trắng và vang hồng
-                                                    xuất sắc nhất
-                                                    cho mùa
-                                                    hè.</p>
-                                                <a href="store.jsp" class="btn btn-primary hero-btn">Khám Phá</a>
-                                            </div>
-                                        </div>
+                                                    <div class="carousel-item ${status.first ? 'active' : ''}">
+                                                        <div class="hero-overlay"></div>
+                                                        <img src="${resolvedBannerUrl}" class="d-block w-100"
+                                                             alt="Banner ${status.index + 1}"
+                                                             onerror="this.src='${pageContext.request.contextPath}/assets/banners/main_banner.jpg'">
+                                                        <div class="carousel-caption d-none d-md-block hero-content">
+                                                            <h1 class="hero-title">${not empty b.lifeTime ? b.lifeTime : 'Khám Phá Rượu Vang'}</h1>
+                                                            <p class="hero-subtitle">${not empty b.eventDate ? b.eventDate : 'Trải nghiệm hương vị tinh tế đẳng cấp.'}</p>
+                                                            <a href="${resolvedTargetUrl}" class="btn btn-primary hero-btn">Xem Ngay</a>
+                                                        </div>
+                                                    </div>
+                                                </c:forEach>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <div class="carousel-item active">
+                                                    <div class="hero-overlay"></div>
+                                                    <img src="assets/banners/main_banner.jpg" class="d-block w-100"
+                                                        alt="Banner 1">
+                                                    <div class="carousel-caption d-none d-md-block hero-content">
+                                                        <h1 class="hero-title">Bộ Sưu Tập Vang Thượng Hạng</h1>
+                                                        <p class="hero-subtitle">Khám phá hương vị tinh tế từ những vườn nho nổi
+                                                            tiếng nhất thế giới.</p>
+                                                        <a href="store" class="btn btn-primary hero-btn">Xem Ngay</a>
+                                                    </div>
+                                                </div>
 
-                                        <div class="carousel-item">
-                                            <div class="hero-overlay"></div>
-                                            <img src="assets/banners/banner-vang-bourgogne.jpg" class="d-block w-100"
-                                                alt="Banner 3">
-                                            <div class="carousel-caption d-none d-md-block hero-content">
-                                                <h1 class="hero-title">Quà Tặng Doanh Nghiệp</h1>
-                                                <p class="hero-subtitle">Giải pháp quà tặng sang trọng, đẳng cấp dành
-                                                    cho đối tác và
-                                                    khách
-                                                    hàng.</p>
-                                                <a href="store.jsp" class="btn btn-primary hero-btn">Liên Hệ</a>
-                                            </div>
-                                        </div>
+                                                <div class="carousel-item">
+                                                    <div class="hero-overlay"></div>
+                                                    <img src="assets/banners/banner-vang-bordeaux.jpg" class="d-block w-100"
+                                                        alt="Banner 2">
+                                                    <div class="carousel-caption d-none d-md-block hero-content">
+                                                        <h1 class="hero-title">Hương Vị Mùa Hè Tươi Mát</h1>
+                                                        <p class="hero-subtitle">Tuyển tập những chai vang trắng và vang hồng
+                                                            xuất sắc nhất cho mùa hè.</p>
+                                                        <a href="store" class="btn btn-primary hero-btn">Khám Phá</a>
+                                                    </div>
+                                                </div>
 
-                                        <div class="carousel-item">
-                                            <div class="hero-overlay"></div>
-                                            <img src="assets/banners/banner-vang-bordeaux.jpg" class="d-block w-100"
-                                                alt="Banner 4">
-                                            <div class="carousel-caption d-none d-md-block hero-content">
-                                                <h1 class="hero-title">Hương Vị Mùa Hè Tươi Mát</h1>
-                                                <p class="hero-subtitle">Tuyển tập những chai vang trắng và vang hồng
-                                                    xuất sắc nhất
-                                                    cho mùa
-                                                    hè.</p>
-                                                <a href="store.jsp" class="btn btn-primary hero-btn">Khám Phá</a>
-                                            </div>
-                                        </div>
+                                                <div class="carousel-item">
+                                                    <div class="hero-overlay"></div>
+                                                    <img src="assets/banners/banner-vang-bourgogne.jpg" class="d-block w-100"
+                                                        alt="Banner 3">
+                                                    <div class="carousel-caption d-none d-md-block hero-content">
+                                                        <h1 class="hero-title">Quà Tặng Doanh Nghiệp</h1>
+                                                        <p class="hero-subtitle">Giải pháp quà tặng sang trọng, đẳng cấp dành
+                                                            cho đối tác và khách hàng.</p>
+                                                        <a href="store" class="btn btn-primary hero-btn">Liên Hệ</a>
+                                                    </div>
+                                                </div>
 
+                                                <div class="carousel-item">
+                                                    <div class="hero-overlay"></div>
+                                                    <img src="assets/banners/banner-vang-bordeaux.jpg" class="d-block w-100"
+                                                        alt="Banner 4">
+                                                    <div class="carousel-caption d-none d-md-block hero-content">
+                                                        <h1 class="hero-title">Hương Vị Mùa Hè Tươi Mát</h1>
+                                                        <p class="hero-subtitle">Tuyển tập những chai vang trắng và vang hồng
+                                                            xuất sắc nhất cho mùa hè.</p>
+                                                        <a href="store" class="btn btn-primary hero-btn">Khám Phá</a>
+                                                    </div>
+                                                </div>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
 
                                     <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel"
@@ -138,17 +191,14 @@
                                     <h2 class="section-title text-center mb-4">Mã Giảm Giá Dành Cho Bạn</h2>
                                     <div class="row g-4">
                                         <c:forEach var="v" items="${publicVouchers}">
-                                            <c:set var="typeUpper" value="${fn:toUpperCase(v.applyType)}" />
-                                            <c:if
-                                                test="${fn:contains(typeUpper, 'USER') or fn:contains(typeUpper, 'SHIP')}">
+                                            <c:set var="typeUpper" value="${not empty v.applyType ? fn:toUpperCase(v.applyType) : ''}" />
+                                            <c:if test="${fn:contains(typeUpper, 'USER') or fn:contains(typeUpper, 'SHIP')}">
                                                 <div class="col-md-4 col-sm-6">
-                                                    <div
-                                                        class="voucher-card ${fn:contains(typeUpper, 'SHIP') ? 'voucher-card-shipping' : 'voucher-card-premium'} p-3 rounded shadow-sm d-flex align-items-center justify-content-between">
+                                                    <div class="voucher-card ${fn:contains(typeUpper, 'SHIP') ? 'voucher-card-shipping' : 'voucher-card-premium'} p-3 rounded shadow-sm d-flex align-items-center justify-content-between">
                                                         <div class="voucher-icon me-3">
                                                             <c:choose>
                                                                 <c:when test="${fn:contains(typeUpper, 'SHIP')}">
-                                                                    <i
-                                                                        class="fa-solid fa-truck-fast fa-2x text-white"></i>
+                                                                    <i class="fa-solid fa-truck-fast fa-2x text-white"></i>
                                                                 </c:when>
                                                                 <c:otherwise>
                                                                     <i class="fa-solid fa-gift fa-2x text-warning"></i>
@@ -156,15 +206,13 @@
                                                             </c:choose>
                                                         </div>
                                                         <div class="voucher-info flex-grow-1">
-                                                            <h5
-                                                                class="mb-1 fw-bold ${fn:contains(typeUpper, 'SHIP') ? 'text-white' : 'text-dark'}">
+                                                            <h5 class="mb-1 fw-bold ${fn:contains(typeUpper, 'SHIP') ? 'text-white' : 'text-dark'}">
                                                                 ${v.discountCode}
                                                             </h5>
                                                             <p class="mb-0 ${fn:contains(typeUpper, 'SHIP') ? 'text-warning fw-bold' : 'text-danger fw-bold'}"
                                                                 style="font-size: 1.1em;"> Giảm
                                                                 <c:choose>
-                                                                    <c:when
-                                                                        test="${fn:toUpperCase(v.discountType) == 'PERCENT'}">
+                                                                    <c:when test="${not empty v.discountType and fn:toUpperCase(v.discountType) == 'PERCENT'}">
                                                                         <fmt:formatNumber value="${v.discountValue}"
                                                                             type="number" maxFractionDigits="0" />%
                                                                     </c:when>
@@ -174,8 +222,7 @@
                                                                     </c:otherwise>
                                                                 </c:choose>
                                                             </p>
-                                                            <small
-                                                                class="${fn:contains(typeUpper, 'SHIP') ? 'text-white fw-bold' : 'text-dark fw-bold'}">HSD:
+                                                            <small class="${fn:contains(typeUpper, 'SHIP') ? 'text-white fw-bold' : 'text-dark fw-bold'}">HSD:
                                                                 <fmt:formatDate value="${v.discountTo}"
                                                                     pattern="dd/MM/yyyy" />
                                                             </small>
@@ -187,8 +234,7 @@
                                                                 </button>
                                                             </c:when>
                                                             <c:otherwise>
-                                                                <button
-                                                                    class="btn btn-sm ${fn:contains(typeUpper, 'SHIP') ? 'btn-light text-success' : 'btn-dark'} ms-2"
+                                                                <button class="btn btn-sm ${fn:contains(typeUpper, 'SHIP') ? 'btn-light text-success' : 'btn-dark'} ms-2"
                                                                     onclick="collectVoucherHome(${v.id})">
                                                                     Thu Thập
                                                                 </button>
@@ -372,12 +418,17 @@
                                                             </c:choose>
                                                         </p>
 
-                                                        <a href="${pageContext.request.contextPath}/add-cart?productId=${fav.product_id}&quantity=1"
-                                                            class="add-to-cart-btn">Thêm vào giỏ</a>
+                                                        <div class="product-actions">
+                                                            <a href="${pageContext.request.contextPath}/add-cart?productId=${fav.product_id}&quantity=1"
+                                                               class="add-to-cart-btn"><i class="fa-solid fa-cart-plus"></i> Thêm giỏ</a>
+                                                            <a href="${pageContext.request.contextPath}/add-cart?productId=${fav.product_id}&quantity=1&redirect=checkout"
+                                                               class="buy-now-btn"><i class="fa-solid fa-bolt"></i> Mua ngay</a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </c:forEach>
                                         </div>
+                                    </div>
                                 </section>
                             </c:if>
                             <c:if test="${not empty userFavouritesList}">
@@ -519,12 +570,118 @@
                                                             </c:choose>
                                                         </p>
 
-                                                        <a href="${pageContext.request.contextPath}/add-cart?productId=${fav.product_id}&quantity=1"
-                                                            class="add-to-cart-btn">Thêm vào giỏ</a>
+                                                        <div class="product-actions">
+                                                            <a href="${pageContext.request.contextPath}/add-cart?productId=${fav.product_id}&quantity=1"
+                                                               class="add-to-cart-btn"><i class="fa-solid fa-cart-plus"></i> Thêm giỏ</a>
+                                                            <a href="${pageContext.request.contextPath}/add-cart?productId=${fav.product_id}&quantity=1&redirect=checkout"
+                                                               class="buy-now-btn"><i class="fa-solid fa-bolt"></i> Mua ngay</a>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </c:forEach>
                                         </div>
+                                    </div>
+                                </section>
+                            </c:if>
+
+                            <c:if test="${not empty bestSellingProducts}">
+                                <section class="featured-products container">
+                                    <h2 class="section-title">Sản Phẩm Bán Chạy</h2>
+                                    <p class="section-subtitle">Những chai vang bán chạy nhất được khách hàng săn đón</p>
+
+                                    <div class="product-grid">
+                                        <c:forEach var="p" items="${bestSellingProducts}">
+                                            <div class="product-card">
+                                                <div class="product-image" style="position: relative;">
+                                                    <c:set var="isFavorited" value="false" />
+                                                    <c:if test="${not empty userFavouritesList}">
+                                                        <c:forEach var="item" items="${userFavouritesList}">
+                                                            <c:if test="${item.product_id == p.id}">
+                                                                <c:set var="isFavorited" value="true" />
+                                                            </c:if>
+                                                        </c:forEach>
+                                                    </c:if>
+                                                    <form action="${pageContext.request.contextPath}/favorites"
+                                                        method="post" class="wishlist-form"
+                                                        onsubmit="toggleFavorite(event, this)">
+                                                        <input type="hidden" name="action"
+                                                            value="${isFavorited ? 'remove' : 'add'}">
+                                                        <input type="hidden" name="productId" value="${p.id}">
+                                                        <button type="submit"
+                                                            class="wishlist-btn ${isFavorited ? 'active' : ''}"
+                                                            aria-label="${isFavorited ? 'Xóa khỏi yêu thích' : 'Thêm vào yêu thích'}">
+                                                            <i class="fa-${isFavorited ? 'solid' : 'regular'} fa-heart"></i>
+                                                        </button>
+                                                    </form>
+
+                                                    <a href="${pageContext.request.contextPath}/detail?id=${p.id}">
+                                                        <c:choose>
+                                                            <c:when test="${not empty p.imageUrl}">
+                                                                <img src="${pageContext.request.contextPath}/${p.imageUrl}"
+                                                                    alt="${p.productName}">
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <img src="https://via.placeholder.com/300x400?text=Wine"
+                                                                    alt="${p.productName}">
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </a>
+
+                                                    <!-- hiển thị giảm giá -->
+                                                    <c:if test="${p.discountType == 'PERCENT' or p.discountType == 'percent'}">
+                                                        <div style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                                            - <fmt:formatNumber value="${p.discountValue}" maxFractionDigits="0" />%
+                                                        </div>
+                                                    </c:if>
+                                                    <c:if test="${p.discountType == 'AMOUNT' or p.discountType == 'amount'}">
+                                                        <div style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                                            Giảm <fmt:formatNumber value="${p.discountValue}" maxFractionDigits="0" />₫
+                                                        </div>
+                                                    </c:if>
+                                                </div>
+                                                <div class="product-info">
+                                                    <h3 class="product-name"><a
+                                                            href="${pageContext.request.contextPath}/detail?id=${p.id}">${p.productName}</a>
+                                                    </h3>
+                                                    <div class="product-extra-details">
+                                                        <ul>
+                                                            <li><strong>Xuất xứ:</strong> ${p.origin}</li>
+                                                            <li><strong>Loại:</strong> ${p.typeId}</li>
+                                                            <li><strong>Nồng độ:</strong> ${p.alcohol}%</li>
+                                                        </ul>
+                                                    </div>
+                                                    <p class="product-producer">Nhà sản xuất: ${p.manufacturerId}</p>
+                                                    <div class="product-rating">
+                                                        <c:forEach begin="1" end="5" var="i">
+                                                            <i class="fa-${i <= (p.rating != null ? p.rating : 5) ? 'solid' : 'regular'} fa-star"></i>
+                                                        </c:forEach>
+                                                        <span style="font-size: 12px; color: #666;">(${p.totalReviews})</span>
+                                                    </div>
+                                                    <p class="product-price">
+                                                        <c:choose>
+                                                            <c:when test="${p.discountedPrice < p.price}">
+                                                                <span style="color: #8c3333; font-weight: bold; font-size: 1.1rem; margin-right: 8px;">
+                                                                    <fmt:formatNumber value="${p.discountedPrice}" type="number" maxFractionDigits="0"/>₫
+                                                                </span>
+                                                                <span style="text-decoration: line-through; color: #999; font-size: 0.9rem;">
+                                                                    <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/>₫
+                                                                </span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/>₫
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </p>
+                                                    <div class="product-actions">
+                                                        <a href="${pageContext.request.contextPath}/add-cart?productId=${p.id}&quantity=1"
+                                                           class="add-to-cart-btn"><i class="fa-solid fa-cart-plus"></i> Thêm giỏ</a>
+                                                        <a href="${pageContext.request.contextPath}/add-cart?productId=${p.id}&quantity=1&redirect=checkout"
+                                                           class="buy-now-btn"><i class="fa-solid fa-bolt"></i> Mua ngay</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </div>
                                 </section>
                             </c:if>
 
@@ -538,8 +695,8 @@
                                         <div class="product-card">
                                             <div class="product-image" style="position: relative;">
                                                 <c:set var="isFavorited" value="false" />
-                                                <c:if test="${not empty featuredProducts}">
-                                                    <c:forEach var="item" items="${featuredProducts}">
+                                                <c:if test="${not empty userFavouritesList}">
+                                                    <c:forEach var="item" items="${userFavouritesList}">
                                                         <c:if test="${item.product_id == p.id}">
                                                             <c:set var="isFavorited" value="true" />
                                                         </c:if>
@@ -569,6 +726,17 @@
                                                         </c:otherwise>
                                                     </c:choose>
                                                 </a>
+                                                <!-- hiển thị giảm giá -->
+                                                <c:if test="${p.discountType == 'PERCENT' or p.discountType == 'percent'}">
+                                                    <div style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                                        - <fmt:formatNumber value="${p.discountValue}" maxFractionDigits="0" />%
+                                                    </div>
+                                                </c:if>
+                                                <c:if test="${p.discountType == 'AMOUNT' or p.discountType == 'amount'}">
+                                                    <div style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                                        Giảm <fmt:formatNumber value="${p.discountValue}" maxFractionDigits="0" />₫
+                                                    </div>
+                                                </c:if>
                                             </div>
                                             <div class="product-info">
                                                 <h3 class="product-name"><a
@@ -587,13 +755,29 @@
                                                         <i
                                                             class="fa-${i <= (p.rating != null ? p.rating : 5) ? 'solid' : 'regular'} fa-star"></i>
                                                     </c:forEach>
+                                                    <span style="font-size: 12px; color: #666;">(${p.totalReviews})</span>
                                                 </div>
                                                 <p class="product-price">
-                                                    <fmt:formatNumber value="${p.price}" type="currency"
-                                                        currencySymbol="₫" maxFractionDigits="0" />
+                                                    <c:choose>
+                                                        <c:when test="${p.discountedPrice < p.price}">
+                                                            <span style="color: #8c3333; font-weight: bold; font-size: 1.1rem; margin-right: 8px;">
+                                                                <fmt:formatNumber value="${p.discountedPrice}" type="number" maxFractionDigits="0"/>₫
+                                                            </span>
+                                                            <span style="text-decoration: line-through; color: #999; font-size: 0.9rem;">
+                                                                <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/>₫
+                                                            </span>
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <fmt:formatNumber value="${p.price}" type="number" maxFractionDigits="0"/>₫
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </p>
-                                                <a href="${pageContext.request.contextPath}/cart?action=add&productId=${p.id}&quantity=1"
-                                                    class="add-to-cart-btn">Thêm vào giỏ</a>
+                                                <div class="product-actions">
+                                                    <a href="${pageContext.request.contextPath}/add-cart?productId=${p.id}&quantity=1"
+                                                       class="add-to-cart-btn"><i class="fa-solid fa-cart-plus"></i> Thêm giỏ</a>
+                                                    <a href="${pageContext.request.contextPath}/add-cart?productId=${p.id}&quantity=1&redirect=checkout"
+                                                       class="buy-now-btn"><i class="fa-solid fa-bolt"></i> Mua ngay</a>
+                                                </div>
                                             </div>
                                         </div>
                                     </c:forEach>

@@ -19,7 +19,9 @@ public class FilterController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        request.setAttribute("curHeader", "store");
+        String promo = request.getParameter("promo");
+        boolean onlyDiscounted = "true".equalsIgnoreCase(promo);
+        request.setAttribute("curHeader", onlyDiscounted ? "promo" : "store");
         ProductDAO dao = new ProductDAO();
         CategoryDAO categoryDAO = new CategoryDAO();
         ManufacturerDAO manuDAO = new ManufacturerDAO();
@@ -48,8 +50,8 @@ public class FilterController extends HttpServlet {
         }
         int offset = (page - 1) * pageSize;
         
-        List<Product> products = dao.filterProducts(prices, categories, manufacturers, types, origins, capacities, tags, search, pageSize, offset,sort);
-        int totalFiltered = dao.countFilteredProducts(prices, categories, manufacturers, types, origins, capacities, tags, search);
+        List<Product> products = dao.filterProducts(prices, categories, manufacturers, types, origins, capacities, tags, search, pageSize, offset, sort, onlyDiscounted);
+        int totalFiltered = dao.countFilteredProducts(prices, categories, manufacturers, types, origins, capacities, tags, search, onlyDiscounted);
         int totalPages = (int) Math.ceil((double) totalFiltered / pageSize);
 
         String queryString = request.getQueryString();

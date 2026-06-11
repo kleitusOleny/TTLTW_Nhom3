@@ -22,7 +22,6 @@ import java.util.Map;
 public class StoreController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setAttribute("curHeader","store");
         ProductDAO dao = new ProductDAO();
         CategoryDAO categoryDAO = new CategoryDAO();
         ManufacturerDAO manuDAO = new ManufacturerDAO();
@@ -49,9 +48,22 @@ public class StoreController extends HttpServlet {
         // Tính toán vị trí bắt đầu
         int offset = (page - 1) * pageSize;
         
+        String promo = request.getParameter("promo");
+        boolean onlyDiscounted = "true".equalsIgnoreCase(promo);
+
         // 2. Lấy dữ liệu
-        List<Product> products = dao.getProducts(pageSize, offset,sort);
-        int totalProducts = ProductService.countTotalProducts();
+        List<Product> products;
+        int totalProducts;
+        if (onlyDiscounted) {
+            products = dao.filterProducts(null, null, null, null, null, null, null, null, pageSize, offset, sort, true);
+            totalProducts = dao.countFilteredProducts(null, null, null, null, null, null, null, null, true);
+            request.setAttribute("curHeader", "promo");
+            request.setAttribute("filterParams", "&promo=true");
+        } else {
+            products = dao.getProducts(pageSize, offset, sort);
+            totalProducts = ProductService.countTotalProducts();
+            request.setAttribute("curHeader", "store");
+        }
         double maxPrice = dao.getMaxPrice();
         request.setAttribute("maxPrice", maxPrice > 0 ? maxPrice : 10000000);
         

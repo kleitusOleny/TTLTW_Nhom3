@@ -96,6 +96,28 @@ public class ProductDAO extends ADAO {
 
     }
 
+    public List<Product> getBestSellingProducts(int limit) {
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT " +
+                        "p.id, p.product_name, p.slug, p.price, p.capacity, p.alcohol, p.origin, p.quantity, p.create_at," +
+                        "t.type_name AS typeId, " +
+                        "m.manufacturer_name AS manufacturerId, " +
+                        "(SELECT d.discount_value FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_value, " +
+                        "(SELECT d.discount_type FROM dis_process dp JOIN discounts d ON dp.discount_id = d.id WHERE dp.product_id = p.id AND dp.is_delete = 0 AND d.is_active = 1 AND d.is_delete = 0 AND NOW() BETWEEN d.discount_from AND d.discount_to LIMIT 1) AS discount_type, " +
+                        "(SELECT url_img FROM p_img WHERE product_id = p.id LIMIT 1) AS imageUrl, " +
+                        "(SELECT AVG(ct.star) FROM evaluates e JOIN ct_evaluates ct ON e.evaluate_id = ct.id WHERE e.product_id = p.id AND ct.is_delete IS NULL) AS rating, " +
+                        "(SELECT COUNT(*) FROM evaluates e JOIN ct_evaluates ct ON e.evaluate_id = ct.id WHERE e.product_id = p.id AND ct.is_delete IS NULL) AS totalReviews, " +
+                        "COALESCE((SELECT SUM(oi.quantity) FROM order_items oi JOIN orders o ON oi.order_id = o.id WHERE oi.product_id = p.id AND o.is_delete IS NULL), 0) AS total_sold " +
+                        "FROM products p " +
+                        "LEFT JOIN product_types t ON p.type_id = t.id " +
+                        "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
+                        "WHERE p.is_delete = 0 " +
+                        "ORDER BY total_sold DESC, p.id DESC " +
+                        "LIMIT :limit")
+                .bind("limit", limit)
+                .mapToBean(Product.class)
+                .list());
+    }
+
     public List<Product> getProducts(int limit, int offset, String sort) {
         String orderClause = "ORDER BY price ";
         switch (sort) {
@@ -210,7 +232,7 @@ public class ProductDAO extends ADAO {
 
     // Lấy danh sách đã lọc
     public List<Product> filterProducts(String[] prices, String[] categories, String[] manufacturers, String[] types,
-            String[] origins, String[] capacities, String[] tags, String keyword, int limit, int offset, String sort) {
+            String[] origins, String[] capacities, String[] tags, String keyword, int limit, int offset, String sort, boolean onlyDiscounted) {
 
         String order = "ORDER BY price ";
         switch (sort) {
@@ -242,7 +264,11 @@ public class ProductDAO extends ADAO {
                         "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
                         "WHERE p.is_delete = 0 ");
 
-        ProductService.appendFilterConditions(sql, prices, categories, manufacturers, types, origins, capacities, tags, keyword);
+        ProductService.appendFilterConditions(sql, prices, categories, manufacturers, types, origins, capacities, tags, keyword, onlyDiscounted);
+
+        if (order != null && !order.isEmpty()) {
+            sql.append(" ").append(order);
+        }
 
         sql.append(" LIMIT :limit OFFSET :offset");
         
@@ -263,14 +289,14 @@ public class ProductDAO extends ADAO {
     }
 
     public int countFilteredProducts(String[] prices, String[] categories, String[] manufacturers, String[] types,
-            String[] origins, String[] capacities, String[] tags, String keyword) {
+            String[] origins, String[] capacities, String[] tags, String keyword, boolean onlyDiscounted) {
         StringBuilder sql = new StringBuilder(
                 "SELECT COUNT(*) FROM products p " +
                         "LEFT JOIN product_types t ON p.type_id = t.id " +
                         "LEFT JOIN manufacturers m ON p.manufacturer_id = m.id " +
                         "WHERE p.is_delete = 0 ");
         
-        ProductService.appendFilterConditions(sql, prices, categories, manufacturers, types, origins, capacities, tags, keyword);
+        ProductService.appendFilterConditions(sql, prices, categories, manufacturers, types, origins, capacities, tags, keyword, onlyDiscounted);
         
         return jdbi.withHandle(handle -> {
             var query = handle.createQuery(sql.toString());

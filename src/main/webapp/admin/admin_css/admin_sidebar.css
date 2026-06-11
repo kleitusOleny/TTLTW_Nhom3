@@ -1,0 +1,358 @@
+/* CSS override for the redesigned dark-themed admin sidebar */
+
+.dashboard-container {
+    display: block !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    box-sizing: border-box !important;
+}
+
+.dashboard-sidebar {
+    width: 260px !important;
+    background-color: #1a202c !important; /* Sleek dark theme background */
+    position: fixed !important;
+    height: 100vh !important;
+    left: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    z-index: 999 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    box-sizing: border-box !important;
+}
+
+.dashboard-content {
+    display: block !important;
+    margin-left: 260px !important;
+    width: auto !important;
+    box-sizing: border-box !important;
+}
+
+/* Hide old manual or component avatar container */
+.group-avatar {
+    display: none !important;
+}
+
+/* Sidebar items list */
+.sidebar-items {
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 0 !important;
+    list-style-type: none !important;
+    position: static !important; /* Reset absolute positioning from previous css */
+    width: 100% !important;
+    height: calc(100vh - 100px) !important; /* Leaves room for bottom footer */
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+.sidebar-items::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar-items::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+/* Sidebar list item */
+.sidebar-items > li {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+}
+
+/* Sidebar link style */
+.sidebar-items .a-with-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 14px 20px !important;
+    width: auto !important;
+    color: rgba(255, 255, 255, 0.65) !important; /* Muted text */
+    text-decoration: none !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+    border-radius: 0 !important;
+    border: none !important;
+    border-left: 4px solid transparent !important;
+    background: transparent !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+
+/* Link label and icon wrapper */
+.sidebar-link-content {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    -webkit-user-select: none; /* Dành cho Safari */
+    -ms-user-select: none; /* Dành cho IE 10+ và Edge cũ */
+    user-select: none; /* Cú pháp chuẩn cho các trình duyệt hiện tại */
+}
+
+/* Link icons */
+.sidebar-items .a-with-icon ion-icon {
+    font-size: 18px !important;
+    color: rgba(255, 255, 255, 0.65) !important;
+    transition: color 0.2s ease !important;
+}
+
+/* Arrows on the right */
+.sidebar-items .item-arrow-icon {
+    font-size: 12px !important;
+    color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Hover and selected states */
+.sidebar-items .a-with-icon:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: #ffffff !important;
+}
+
+.sidebar-items .a-with-icon:hover ion-icon {
+    color: #ffffff !important;
+}
+
+.sidebar-items .a-with-icon.selected {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    border-left: 4px solid #3b82f6 !important; /* Modern blue accent */
+}
+
+.sidebar-items .a-with-icon.selected ion-icon {
+    color: #ffffff !important;
+}
+
+/* Header Avatar Group styling */
+.group-avatar-new {
+    width: 100% !important;
+    height: auto !important;
+    margin-bottom: 5px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    position: relative !important;
+    padding: 24px 16px 16px 16px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-sizing: border-box !important;
+}
+
+/* Logo Box styling */
+.admin-sidebar-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.admin-logo-box {
+    background-color: #ffffff !important;
+    padding: 8px 16px !important;
+    border-radius: 4px !important;
+    font-family: 'Philosopher', 'Mulish', -apple-system, sans-serif !important;
+    display: inline-block !important;
+    margin-bottom: 14px !important;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06) !important;
+}
+
+.logo-text-your {
+    color: #1a202c !important;
+    font-weight: 500 !important;
+    font-size: 18px !important;
+}
+
+.logo-text-logo {
+    color: #1a202c !important;
+    font-weight: 800 !important;
+    font-size: 18px !important;
+}
+
+.logo-text-q {
+    color: #f97316 !important; /* Orange/amber question mark */
+    font-weight: 800 !important;
+    font-size: 18px !important;
+}
+
+/* User Name styling */
+.admin-name {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    margin-bottom: 10px !important;
+    letter-spacing: 0.5px !important;
+    text-align: center !important;
+    text-transform: uppercase !important;
+}
+
+/* Quick actions links */
+.admin-quick-links {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-size: 12px !important;
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.quick-link {
+    color: rgba(255, 255, 255, 0.6) !important;
+    text-decoration: none !important;
+    transition: color 0.2s ease !important;
+    font-weight: 500;
+}
+
+.quick-link:hover {
+    color: #ffffff !important;
+}
+
+.quick-link-separator {
+    color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Sidebar Section Title */
+.sidebar-section-title {
+    width: 100% !important;
+    padding: 16px 20px 8px 20px !important;
+    font-size: 11px !important;
+    font-weight: bold !important;
+    color: rgba(255, 255, 255, 0.3) !important; /* Muted gray/blue */
+    letter-spacing: 0.75px !important;
+    box-sizing: border-box !important;
+    text-transform: uppercase !important;
+}
+
+/* Dropdown styling */
+.sidebar-dropdown {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.sidebar-dropdown .dropdown-toggle {
+    cursor: pointer !important;
+}
+
+.sidebar-dropdown .dropdown-menu {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: none; /* Collapsed by default */
+    background-color: rgba(0, 0, 0, 0.15) !important; /* Darker nested background */
+    position: relative !important;
+}
+
+/* Tree line vertical connector */
+.sidebar-dropdown .dropdown-menu::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 28px !important;
+    top: 0 !important;
+    bottom: 20px !important; /* Ends at the last item's text height */
+    width: 1px !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    z-index: 1 !important;
+}
+
+.sidebar-dropdown.expanded .dropdown-menu {
+    display: block !important;
+}
+
+/* Submenu items */
+.sidebar-dropdown .submenu-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 10px 20px 10px 48px !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    text-decoration: none !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+    border-left: 4px solid transparent !important;
+}
+
+/* Submenu item tree horizontal connector */
+.sidebar-dropdown .submenu-item::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 28px !important;
+    top: 50% !important;
+    width: 12px !important;
+    height: 1px !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    z-index: 1 !important;
+}
+
+.sidebar-dropdown .submenu-item:hover {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+.sidebar-dropdown .submenu-item.selected {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Notification Bell placement: Top right of screen */
+.icon-header {
+    position: fixed !important;
+    top: 18px !important;
+    right: 24px !important;
+    left: auto !important;
+    bottom: auto !important;
+    z-index: 1000 !important;
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 50% !important;
+    padding: 8px !important;
+    font-size: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03) !important;
+    transition: all 0.2s ease !important;
+}
+
+.icon-header:hover {
+    background-color: #f8fafc !important;
+    transform: scale(1.05) !important;
+}
+
+.icon-header.active-notify {
+    color: #ef4444 !important;
+    animation: pulse-bell 2s infinite;
+}
+
+@keyframes pulse-bell {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+/* Toast styling for clear cache */
+.toast-notification {
+    background-color: #10b981 !important; /* Emerald green for success */
+}
+
+/* Override bottom footer text in sidebar */
+.dashboard-sidebar .text {
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    text-align: center !important;
+    padding: 10px 0 !important;
+    font-size: 11px !important;
+    color: rgba(255, 255, 255, 0.25) !important;
+    background-color: #111827 !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.04) !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+}
