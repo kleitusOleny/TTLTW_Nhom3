@@ -45,12 +45,12 @@ public class CTEvaluateDAO extends ADAO implements IDAO<CTEvaluates, Integer> {
 
     @Override
     public Optional<CTEvaluates> findById(Integer id) {
-        return Optional.of(jdbi.withHandle(
-                handle -> Objects.requireNonNull(handle.createQuery("SELECT id, content, star, create_at, update_at, is_delete, image_path FROM ct_evaluates WHERE id = :id AND is_delete IS NULL")
+        return Optional.ofNullable(jdbi.withHandle(
+                handle -> handle.createQuery("SELECT id, content, star, create_at, update_at, is_delete, image_path FROM ct_evaluates WHERE id = :id AND is_delete IS NULL")
                         .bind("id", id)
                         .mapToBean(CTEvaluates.class)
                         .findFirst()
-                        .orElse(null))));
+                        .orElse(null)));
     }
 
     @Override
