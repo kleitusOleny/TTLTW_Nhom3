@@ -55,6 +55,9 @@ public class Product implements Serializable {
     private Double rating;
     private int totalReviews;
 
+    @ColumnName("total_sold")
+    private int totalSold;
+
     @ColumnName("discount_value")
     private double discountValue;
 
@@ -286,6 +289,14 @@ public class Product implements Serializable {
 
     public void setTotalReviews(int totalReviews) {
         this.totalReviews = totalReviews;
+    }
+
+    public int getTotalSold() {
+        return totalSold;
+    }
+
+    public void setTotalSold(int totalSold) {
+        this.totalSold = totalSold;
     }
 
     @Override

@@ -157,6 +157,10 @@
                         </div>
                     </li>
 
+                    <li>
+                        <a href="${pageContext.request.contextPath}/store?promo=true"
+                           class="${current.equals('promo') ? 'active' : ''}">Khuyến Mãi</a>
+                    </li>
 
                     <li>
                         <a href="<%= request.getContextPath() %>/blog"

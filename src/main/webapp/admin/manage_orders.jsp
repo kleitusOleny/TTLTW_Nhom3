@@ -462,21 +462,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-overlay-avatar" id="avatar-order-modal">
-                    <div class="modal-content-avatar">
-                        <button class="modal-close2" id="close-modal-btn9">
-                            <ion-icon name="close-outline"></ion-icon>
-                        </button>
-                        <a href="${pageContext.request.contextPath}/home" class="btn-menu-item">
-                            <ion-icon name="person-circle-outline"></ion-icon>
-                            <span>Trở về trang người dùng</span>
-                        </a>
-                        <a href="${pageContext.request.contextPath}/logout" class="btn-menu-item">
-                            <ion-icon name="log-out-outline"></ion-icon>
-                            <span>Đăng xuất tài khoản</span>
-                        </a>
-                    </div>
-                </div>
 
                 <!-- Custom Alert Modal -->
                 <div class="modal-overlay" id="custom-alert-modal">

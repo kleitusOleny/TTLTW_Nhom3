@@ -159,6 +159,9 @@
         <aside class="filter-content">
             <h3 class="filter-title">Bộ Lọc Sản Phẩm</h3>
             <form action="filter" method="get">
+                <c:if test="${param.promo == 'true' or promo == 'true'}">
+                    <input type="hidden" name="promo" value="true">
+                </c:if>
                 <c:if test="${not empty searchKeyword}">
                     <input type="hidden" name="search" value="${searchKeyword}">
                 </c:if>
