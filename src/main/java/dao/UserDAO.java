@@ -2,6 +2,7 @@ package dao;
 
 import model.User;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -190,11 +191,12 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 .bind("email", email).execute() > 0);
     }
 
-    public boolean updateActive(int id, int activeNum) {
+    public boolean updateActive(int id, int activeNum, Timestamp currentTime) {
         return jdbi.withHandle(handle -> handle.createUpdate("""
-                        update users set active = :activeNum where id = :id""")
+                        update users set active = :activeNum, update_at =:currentTime where id = :id""")
                 .bind("activeNum", activeNum)
                 .bind("id", id)
+                .bind("currentTime", currentTime)
                 .execute() > 0);
     }
 

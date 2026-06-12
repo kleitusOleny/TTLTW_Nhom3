@@ -282,23 +282,6 @@
                     </div>
                 </div>
 
-                <!-- Modal Avatar -->
-                <div class="modal-overlay-avatar" id="avatar-review-modal">
-                    <div class="modal-content-avatar">
-                        <button class="modal-close2" id="close-modal-btn9">
-                            <ion-icon name="close-outline"></ion-icon>
-                        </button>
-                        <a href="${pageContext.request.contextPath}/home" class="btn-menu-item">
-                            <ion-icon name="person-circle-outline"></ion-icon>
-                            <span>Trở về trang người dùng</span>
-                        </a>
-                        <a href="${pageContext.request.contextPath}/logout" class="btn-menu-item">
-                            <ion-icon name="log-out-outline"></ion-icon>
-                            <span>Đăng xuất tài khoản</span>
-                        </a>
-                    </div>
-                </div>
-
                 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
                 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
                 <link href="https://fonts.googleapis.com/css2?family=Philosopher&display=swap" rel="stylesheet">

@@ -9,7 +9,6 @@
     <title>Quản Lý Nhân Sự</title>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-    <link rel="stylesheet" href="<%= request.getContextPath() %>/admin/admin_css/manage_product_style.css">
     <link rel="stylesheet" href="<%= request.getContextPath() %>/admin/admin_css/manage_staff.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css"/>
 </head>
@@ -50,9 +49,10 @@
                 <table id="staff-datatable" class="product-table">
                     <thead>
                     <tr class="sample">
-                        <th style="width: 5%;" class="col-tick"><input type="checkbox" id="select-all-checkbox"></th>
-                        <th style="width: 10%;">ID Nhân Sự</th>
-                        <th style="width: 30%;">Email Tài Khoản</th>
+                        <th style="width: 1%;" class="col-tick"><input type="checkbox" id="select-all-checkbox"></th>
+                        <th style="width: 2%;">ID</th>
+                        <th style="width: 15%;">Họ và tên</th>
+                        <th style="width: 27%;">Email Tài Khoản</th>
                         <th style="width: 30%;">Chức Danh (Role)</th>
                         <th style="width: 25%;" class="col-action">Hành động quyền lực</th>
                     </tr>
@@ -62,6 +62,7 @@
                         <tr>
                             <td class="cell-tick"><input type="checkbox" class="row-checkbox" value="${staff.id}"></td>
                             <td style="text-align: center; font-weight: 600; color: var(--text-muted);">${staff.id}</td>
+                            <td style="font-weight: 600; color: var(--text-main);">${staff.fullName}</td>
                             <td style="font-weight: 600; color: var(--text-main);">${staff.email}</td>
 
                             <td style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start; border-bottom: none;">
@@ -96,6 +97,7 @@
                             </td>
                             <td>
                                 <div class="cell-action">
+                                    <c:if test="${staff.description != 'Quản trị viên'}">
                                     <button type="button" class="edit btn edit-staff-button"
                                             data-id="${staff.id}"
                                             data-email="${staff.email}"
@@ -105,6 +107,7 @@
                                             onclick="revokeStaffRole(${staff.id}, '${staff.email}')">
                                         Cách Chức
                                     </button>
+                                    </c:if>
                                 </div>
                             </td>
                         </tr>
@@ -164,6 +167,7 @@
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -233,24 +237,41 @@
 
     // hàm cách chức
     function revokeStaffRole(userId, email) {
-        if (confirm("Bạn có chắc chắn muốn CÁCH CHỨC tài khoản [" + email + "] không? Họ sẽ mất toàn bộ quyền truy cập vùng quản trị.")) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'staffs-manager';
+        Swal.fire({
+            title: 'Xác nhận cách chức',
+            text: 'Bạn có chắc chắn muốn CÁCH CHỨC tài khoản [' + email + '] không? Họ sẽ mất toàn bộ quyền truy cập vùng quản trị.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Cách chức ngay',
+            cancelButtonText: 'Hủy bỏ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang xử lý...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
 
-            const params = { action: 'delete', userId: userId };
-            for (const key in params) {
-                if (params.hasOwnProperty(key)) {
-                    const hiddenField = document.createElement('input');
-                    hiddenField.type = 'hidden';
-                    hiddenField.name = key;
-                    hiddenField.value = params[key];
-                    form.appendChild(hiddenField);
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'staffs-manager';
+
+                const params = { action: 'delete', userId: userId };
+                for (const key in params) {
+                    if (params.hasOwnProperty(key)) {
+                        const hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = key;
+                        hiddenField.value = params[key];
+                        form.appendChild(hiddenField);
+                    }
                 }
+                document.body.appendChild(form);
+                form.submit();
             }
-            document.body.appendChild(form);
-            form.submit();
-        }
+        });
     }
 </script>
 </body>

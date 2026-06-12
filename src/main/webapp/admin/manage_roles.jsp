@@ -148,6 +148,7 @@
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -214,24 +215,41 @@
     });
 
     function deleteSystemRole(roleId, roleName) {
-        if (confirm("XÓA HOÀN TOÀN vai trò [" + roleName + "]? Tất cả nhân viên đang giữ chức này sẽ tự động mất quyền liên quan!")) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = 'roles-manager/delete';
+        Swal.fire({
+            title: 'Cảnh báo nguy hiểm!',
+            text: 'XÓA HOÀN TOÀN vai trò [' + roleName + ']? Tất cả nhân viên đang giữ chức này sẽ tự động mất quyền liên quan!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Đồng ý Xóa',
+            cancelButtonText: 'Hủy bỏ'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    title: 'Đang xử lý...',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
 
-            const params = { action: 'delete', roleId: roleId };
-            for (const key in params) {
-                if (params.hasOwnProperty(key)) {
-                    const hiddenField = document.createElement('input');
-                    hiddenField.type = 'hidden';
-                    hiddenField.name = key;
-                    hiddenField.value = params[key];
-                    form.appendChild(hiddenField);
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'roles-manager/delete';
+
+                const params = { action: 'delete', roleId: roleId };
+                for (const key in params) {
+                    if (params.hasOwnProperty(key)) {
+                        const hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = key;
+                        hiddenField.value = params[key];
+                        form.appendChild(hiddenField);
+                    }
                 }
+                document.body.appendChild(form);
+                form.submit();
             }
-            document.body.appendChild(form);
-            form.submit();
-        }
+        });
     }
 </script>
 </body>
