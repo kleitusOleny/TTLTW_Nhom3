@@ -92,4 +92,60 @@ public class ReportDAO extends ADAO {
                         .list()
         );
     }
+
+    // 7. Thống kê chi tiết khách hàng và đơn hàng theo khoảng thời gian
+    public List<Map<String, Object>> getCustomerOrderStats(String period) {
+        String timeCondition = "";
+        if ("this_month".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
+        } else if ("this_quarter".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND QUARTER(o.create_at) = QUARTER(NOW())";
+        }
+
+        final String sql = "SELECT u.id, u.email, u.username, u.full_name, u.phone_number, u.created_at, " +
+                "COUNT(DISTINCT o.id) as total_orders, " +
+                "COALESCE(SUM(o.total_price), 0) as total_spend, " +
+                "COALESCE(all_time.total_orders, 0) as all_time_orders, " +
+                "COALESCE(all_time.total_spend, 0) as all_time_spend, " +
+                "(SELECT COUNT(*) FROM evaluates WHERE user_id = u.id) as total_reviews " +
+                "FROM users u " +
+                "LEFT JOIN orders o ON u.id = o.user_id AND o.is_delete IS NULL" + timeCondition + " " +
+                "LEFT JOIN ( " +
+                "    SELECT user_id, COUNT(id) as total_orders, SUM(total_price) as total_spend " +
+                "    FROM orders " +
+                "    WHERE is_delete IS NULL " +
+                "    GROUP BY user_id " +
+                ") all_time ON u.id = all_time.user_id " +
+                "GROUP BY u.id, u.email, u.username, u.full_name, u.phone_number, u.created_at, all_time.total_orders, all_time.total_spend " +
+                "ORDER BY total_spend DESC";
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .list()
+        );
+    }
+
+    // 8. Thống kê tóm tắt số lượng khách hàng theo phân loại
+    public Map<String, Object> getCustomerStatsSummary() {
+        final String sql = "SELECT " +
+                "SUM(CASE WHEN all_time_orders >= 5 OR all_time_spend >= 5000000 THEN 1 ELSE 0 END) as loyal_count, " +
+                "SUM(CASE WHEN all_time_orders > 0 AND all_time_orders < 5 AND all_time_spend < 5000000 THEN 1 ELSE 0 END) as new_count, " +
+                "SUM(CASE WHEN all_time_orders = 0 OR all_time_orders IS NULL THEN 1 ELSE 0 END) as potential_count " +
+                "FROM ( " +
+                "    SELECT u.id, " +
+                "           COUNT(o.id) as all_time_orders, " +
+                "           SUM(o.total_price) as all_time_spend " +
+                "    FROM users u " +
+                "    LEFT JOIN orders o ON u.id = o.user_id AND o.is_delete IS NULL " +
+                "    GROUP BY u.id " +
+                ") as customer_base";
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .findOne()
+                        .orElse(Map.of("loyal_count", 0, "new_count", 0, "potential_count", 0))
+        );
+    }
 }

@@ -76,7 +76,7 @@
     </ul>
 </li>
 
-<c:set var="isOrderActive" value="${activePage == 'order' || activePage == 'review'}" />
+<c:set var="isOrderActive" value="${activePage == 'order' || activePage == 'review' || activePage == 'order-stats'}" />
 <li class="sidebar-dropdown ${isOrderActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isOrderActive ? 'selected' : ''}">
         <span class="sidebar-link-content">
@@ -96,6 +96,12 @@
             <a href="${pageContext.request.contextPath}/admin/manage-reviews"
                class="submenu-item ${activePage == 'review' ? 'selected' : ''}">
                Đánh giá
+            </a>
+        </li>
+        <li>
+            <a href="${pageContext.request.contextPath}/admin/order-stats"
+               class="submenu-item ${activePage == 'order-stats' ? 'selected' : ''}">
+               Thống kê
             </a>
         </li>
     </ul>
