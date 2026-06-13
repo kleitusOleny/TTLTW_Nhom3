@@ -135,15 +135,10 @@
 <c:set var="isWarehouseActive" value="${activePage == 'receipt' || activePage == 'issue' || activePage == 'report'}" />
 <li class="sidebar-dropdown ${isWarehouseActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isWarehouseActive ? 'selected' : ''}">
-
-<c:set var="isUserManagementActive" value="${activePage == 'account' || activePage == 'staff' || activePage == 'role'}" />
-<li class="sidebar-dropdown ${isUserManagementActive ? 'expanded' : ''}">
-    <div class="a-with-icon dropdown-toggle ${isUserManagementActive ? 'selected' : ''}">
         <span class="sidebar-link-content">
             <ion-icon name="people-outline"></ion-icon>
-            Tài Khoản & Phân Quyền
+            Quản lí kho hàng
         </span>
-        <ion-icon name="${isUserManagementActive ? 'chevron-down-outline' : 'chevron-back-outline'}" class="item-arrow-icon arrow-icon"></ion-icon>
         <ion-icon name="${isWarehouseActive ? 'chevron-down-outline' : 'chevron-back-outline'}" class="item-arrow-icon arrow-icon"></ion-icon>
     </div>
     <ul class="dropdown-menu">
@@ -151,9 +146,6 @@
             <a href="${pageContext.request.contextPath}/product-receipt-manager"
                class="submenu-item ${activePage == 'receipt' ? 'selected' : ''}">
                Nhập kho
-            <a href="${pageContext.request.contextPath}/account-manager"
-               class="submenu-item ${activePage == 'account' ? 'selected' : ''}">
-                Tài khoản
             </a>
         </li>
         <li>
@@ -166,6 +158,28 @@
             <a href="${pageContext.request.contextPath}/report-manager"
                class="submenu-item ${activePage == 'report' ? 'selected' : ''}">
                Báo cáo & Thống kê
+            </a>
+        </li>
+    </ul>
+</li>
+
+<c:set var="isUserManagementActive" value="${activePage == 'account' ||  activePage == 'staff' || activePage == 'role'}" />
+<li class="sidebar-dropdown ${isUserManagementActive ? 'expanded' : ''}">
+    <div class="a-with-icon dropdown-toggle ${isUserManagementActive ? 'selected' : ''}">
+        <span class="sidebar-link-content">
+            <ion-icon name="people-outline"></ion-icon>
+            Tài Khoản & Phân Quyền
+        </span>
+        <ion-icon name="${isUserManagementActive ? 'chevron-down-outline' : 'chevron-back-outline'}" class="item-arrow-icon arrow-icon"></ion-icon>
+    </div>
+    <ul class="dropdown-menu">
+        <li>
+            <a href="${pageContext.request.contextPath}/account-manager"
+               class="submenu-item ${activePage == 'account' ? 'selected' : ''}">
+                Tài khoản
+            </a>
+        </li>
+        <li>
             <a href="${pageContext.request.contextPath}/staffs-manager"
                class="submenu-item ${activePage == 'staff' ? 'selected' : ''}">
                 Nhân sự
