@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet({"/admin/manage-orders", "/admin/get-order", "/admin/update-order", "/admin/delete-order", "/admin/add-order", "/admin/create-order", "/admin/submit-order", "/admin/api/orders", "/admin/edit-order", "/admin/verify-user", "/admin/refund-order", "/admin/send-feedback"})
+@WebServlet({"/admin/manage-orders", "/admin/get-order", "/admin/update-order", "/admin/delete-order", "/admin/add-order", "/admin/create-order", "/admin/submit-order", "/admin/api/orders", "/admin/edit-order", "/admin/verify-user", "/admin/refund-order", "/admin/send-feedback", "/admin/print-invoice"})
 public class AdminOrderController extends HttpServlet {
     private OrderDAO orderDAO;
     private ShipOrderDAO shipOrderDAO;
@@ -141,6 +141,18 @@ public class AdminOrderController extends HttpServlet {
                 request.setAttribute("recentCustomers", recentCustomers);
 
                 request.getRequestDispatcher("/admin/create_order.jsp").forward(request, response);
+            } else if ("/admin/print-invoice".equals(path)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                Map<String, Object> orderInfo = orderDAO.getOrderInfo(id);
+                List<Map<String, Object>> orderItems = orderDAO.getOrderItems(id);
+                
+                if (orderInfo != null) {
+                    request.setAttribute("info", orderInfo);
+                    request.setAttribute("items", orderItems);
+                    request.getRequestDispatcher("/admin/invoice_print.jsp").forward(request, response);
+                } else {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -32,7 +32,7 @@
 
             <div class="header-right">
 <%--                <c:if test="${not empty sessionScope.user}">--%>
-<%--                    <c:if test="${sessionScope.user.administrator == 1}">--%>
+<%--                    <c:if test="${sessionScope.user.roleId == 1}">--%>
 <%--                        <a href="${pageContext.request.contextPath}/dashboard"--%>
 <%--                           aria-label="Admin Dashboard"--%>
 <%--                           title="Trang quản trị"--%>

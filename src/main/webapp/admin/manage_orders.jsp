@@ -828,7 +828,7 @@
 
                             const status = '${orderInfo.ship_status}' || 'Đang xử lý';
                             const statusSelect = document.getElementById('modal-status-select');
-                            const isAdmin = ${sessionScope.user.administrator == 1 ? 'true' : 'false'};
+                            const isAdmin = ${sessionScope.user.roleId == 1 ? 'true' : 'false'};
                             if (statusSelect) {
                                 const matchedOption = Array.from(statusSelect.options).find(option => option.value === status);
                                 if (matchedOption) {
