@@ -16,7 +16,13 @@ import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.util.List;
  
-@WebServlet(name = "BannerManagerController", value = "/banner-manager")
+@WebServlet(name = "BannerManagerController", urlPatterns = {
+        "/banner-manager",
+        "/banner-manager/add",
+        "/banner-manager/edit",
+        "/banner-manager/delete",
+        "/banner-manager/delete-list"
+})
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 2, // 2MB
         maxFileSize = 1024 * 1024 * 10,      // 10MB
@@ -37,6 +43,13 @@ public class BannerManagerController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
+        if (action == null || action.trim().isEmpty()) {
+            String path = request.getServletPath();
+            if (path.endsWith("/add")) action = "add";
+            else if (path.endsWith("/edit")) action = "edit";
+            else if (path.endsWith("/delete")) action = "delete";
+            else if (path.endsWith("/delete-list")) action = "delete-list";
+        }
         BannerDAO dao = new BannerDAO();
         
         try {
@@ -67,6 +80,7 @@ public class BannerManagerController extends HttpServlet {
                 
                 if ("add".equals(action)) {
                     Banner b = new Banner();
+                    b.setName(request.getParameter("name"));
                     b.setUrlBanner(imageUrl);
                     b.setTargetUrl(request.getParameter("targetUrl"));
                     
@@ -85,6 +99,7 @@ public class BannerManagerController extends HttpServlet {
                     if(idStr != null && !idStr.isEmpty()){
                         Banner b = new Banner();
                         b.setId(Integer.parseInt(idStr));
+                        b.setName(request.getParameter("name"));
                         b.setUrlBanner(imageUrl);
                         b.setTargetUrl(request.getParameter("targetUrl"));
                         

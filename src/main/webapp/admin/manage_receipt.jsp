@@ -115,7 +115,7 @@
         <button class="modal-close-form" id="close-form-btn">X</button>
         <h2>Tạo Phiếu Nhập Kho</h2>
 
-        <form id="add-receipt-form" action="product-receipt-manager" method="POST">
+        <form id="add-receipt-form" action="<%= request.getContextPath() %>/product-receipt-manager/create" method="POST">
             <input type="hidden" id="form-action" name="action" value="create">
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
@@ -436,7 +436,7 @@
     function viewDetail(id) {
         // Gọi AJAX lấy dữ liệu chi tiết phiếu nhập
         $.ajax({
-            url: 'product-receipt-manager',
+            url: '<%= request.getContextPath() %>/product-receipt-manager/get-details',
             type: 'GET',
             data: {
                 action: 'get-details',
