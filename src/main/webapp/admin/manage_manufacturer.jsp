@@ -84,7 +84,7 @@
                                             data-location="${m.location}">
                                         Sửa
                                     </button>
-                                    <form action="manage-manufacturer" method="POST"
+                                    <form action="<%= request.getContextPath() %>/manage-manufacturer/delete" method="POST"
                                           style="margin:0;">
                                         <input type="hidden" name="action"
                                                value="delete">
@@ -156,6 +156,7 @@
             // 1. XỬ LÝ KHI BẤM THÊM MỚI (Reset form)
             $('#add-manufacturer-form')[0].reset();
             $('#form-action').val('add');
+            $('#add-manufacturer-form').attr('action', '<%= request.getContextPath() %>/manage-manufacturer/add');
             $('#manu-id').val('');
 
             $('.modal-content-form h2').text('Thêm Nhà Sản Xuất');
@@ -180,6 +181,7 @@
 
             // Chuyển chế độ sang Edit
             $('#form-action').val('edit');
+            $('#add-manufacturer-form').attr('action', '<%= request.getContextPath() %>/manage-manufacturer/edit');
 
             // Đổi text giao diện
             $('.modal-content-form h2').text('Cập Nhật Nhà SX');

@@ -142,7 +142,7 @@
                                             Sửa
                                         </button>
 
-                                        <form action="${pageContext.request.contextPath}/banner-manager"
+                                        <form action="${pageContext.request.contextPath}/banner-manager/delete"
                                               method="post" style="display:inline; margin:0;"
                                               onsubmit="return confirm('Bạn có chắc chắn muốn xóa banner ID: ${b.id}?');">
                                             <input type="hidden" name="action" value="delete">
@@ -271,6 +271,7 @@
             openBtn.addEventListener('click', function () {
                 $('#banner-form')[0].reset();
                 $('#form-action').val('add');
+                $('#banner-form').attr('action', '${pageContext.request.contextPath}/banner-manager/add');
                 $('#banner-id').val('');
                 $('#banner-old-image').val('');
                 $('#banner-image').prop('required', true);
@@ -301,6 +302,7 @@
             $('#banner-status').val(active).change();
 
             $('#form-action').val('edit');
+            $('#banner-form').attr('action', '${pageContext.request.contextPath}/banner-manager/edit');
             $('#banner-form-modal h2').text('Cập Nhật Banner');
             $('#ac-form-btn').text('Lưu Thay Đổi');
 
@@ -324,7 +326,7 @@
 
             if (confirm("Bạn muốn xóa " + selectedIds.length + " banner đã chọn?")) {
                 var idsStr = selectedIds.join(',');
-                $.post('banner-manager', {action: 'delete-list', ids: idsStr})
+                $.post('${pageContext.request.contextPath}/banner-manager/delete-list', {action: 'delete-list', ids: idsStr})
                     .done(function () {
                         alert("Đã xóa thành công!");
                         location.reload();
