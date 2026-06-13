@@ -11,11 +11,11 @@
         </div>
 
         <div class="admin-name" id="avatar-modal-btn" style="cursor: pointer;" title="Nhấn để cài đặt / đăng xuất">
-            <c:out value="${not empty sessionScope.user.fullName ? sessionScope.user.fullName : 'NGUYỄN PHÚ VINH'}" />
+            <c:out value="${not empty sessionScope.user.fullName ? sessionScope.user.fullName : 'ADMIN'}" />
         </div>
 
         <div class="admin-quick-links">
-            <a href="${pageContext.request.contextPath}/home" class="quick-link">Xem website</a>
+            <a href="${pageContext.request.contextPath}/logout" class="quick-link">Đăng Xuất</a>
             <span class="quick-link-separator">|</span>
             <a href="#" class="quick-link" id="clear-cache-link">Xóa cache</a>
         </div>
@@ -76,7 +76,7 @@
     </ul>
 </li>
 
-<c:set var="isOrderActive" value="${activePage == 'order' || activePage == 'review' || activePage == 'order-stats'}" />
+<c:set var="isOrderActive" value="${activePage == 'order' || activePage == 'review'}" />
 <li class="sidebar-dropdown ${isOrderActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isOrderActive ? 'selected' : ''}">
         <span class="sidebar-link-content">
@@ -135,54 +135,49 @@
 <c:set var="isWarehouseActive" value="${activePage == 'receipt' || activePage == 'issue' || activePage == 'report'}" />
 <li class="sidebar-dropdown ${isWarehouseActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isWarehouseActive ? 'selected' : ''}">
+
+<c:set var="isUserManagementActive" value="${activePage == 'account' || activePage == 'staff' || activePage == 'role'}" />
+<li class="sidebar-dropdown ${isUserManagementActive ? 'expanded' : ''}">
+    <div class="a-with-icon dropdown-toggle ${isUserManagementActive ? 'selected' : ''}">
         <span class="sidebar-link-content">
-            <ion-icon name="archive-outline"></ion-icon>
-            Quản lý kho hàng
+            <ion-icon name="people-outline"></ion-icon>
+            Tài Khoản & Phân Quyền
         </span>
+        <ion-icon name="${isUserManagementActive ? 'chevron-down-outline' : 'chevron-back-outline'}" class="item-arrow-icon arrow-icon"></ion-icon>
         <ion-icon name="${isWarehouseActive ? 'chevron-down-outline' : 'chevron-back-outline'}" class="item-arrow-icon arrow-icon"></ion-icon>
     </div>
     <ul class="dropdown-menu">
         <li>
-            <a href="${pageContext.request.contextPath}/product-receipt-manager" 
+            <a href="${pageContext.request.contextPath}/product-receipt-manager"
                class="submenu-item ${activePage == 'receipt' ? 'selected' : ''}">
                Nhập kho
+            <a href="${pageContext.request.contextPath}/account-manager"
+               class="submenu-item ${activePage == 'account' ? 'selected' : ''}">
+                Tài khoản
             </a>
         </li>
         <li>
-            <a href="${pageContext.request.contextPath}/product-issue-manager" 
+            <a href="${pageContext.request.contextPath}/product-issue-manager"
                class="submenu-item ${activePage == 'issue' ? 'selected' : ''}">
                Xuất kho
             </a>
         </li>
         <li>
-            <a href="${pageContext.request.contextPath}/report-manager" 
+            <a href="${pageContext.request.contextPath}/report-manager"
                class="submenu-item ${activePage == 'report' ? 'selected' : ''}">
                Báo cáo & Thống kê
+            <a href="${pageContext.request.contextPath}/staffs-manager"
+               class="submenu-item ${activePage == 'staff' ? 'selected' : ''}">
+                Nhân sự
+            </a>
+        </li>
+        <li>
+            <a href="${pageContext.request.contextPath}/roles-manager"
+               class="submenu-item ${activePage == 'role' ? 'selected' : ''}">
+                Vai trò
             </a>
         </li>
     </ul>
-</li>
-
-<li>
-    <a href="${pageContext.request.contextPath}/account-manager"
-       class="a-with-icon ${activePage == 'account' ? 'selected' : ''}">
-        <span class="sidebar-link-content">
-            <ion-icon name="${activePage == 'account' ? 'people' : 'people-outline'}"></ion-icon>
-            Quản Lí Tài Khoản
-        </span>
-        <ion-icon name="chevron-back-outline" class="item-arrow-icon"></ion-icon>
-    </a>
-</li>
-
-<li>
-    <a href="${pageContext.request.contextPath}/staffs-manager"
-       class="a-with-icon ${activePage == 'staff' ? 'selected' : ''}">
-        <span class="sidebar-link-content">
-            <ion-icon name="${activePage == 'staff' ? 'body' : 'body-outline'}"></ion-icon>
-            Quản lí nhân sự
-        </span>
-        <ion-icon name="chevron-back-outline" class="item-arrow-icon"></ion-icon>
-    </a>
 </li>
 
 <li>

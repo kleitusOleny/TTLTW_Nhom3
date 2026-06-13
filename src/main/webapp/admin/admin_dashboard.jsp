@@ -91,22 +91,6 @@
         <h4 class="text-welcome">© 2025 Khoa Công Nghệ Thông Tin.</h4>
     </div>
 </div>
-<%@ include file="/admin/components/notify_modal.jsp" %>
-<div class="modal-overlay-avatar" id="avatar-account-modal">
-    <div class="modal-content-avatar">
-        <button class="modal-close2" id="close-modal-btn9">
-            <ion-icon name="close-outline"></ion-icon>
-        </button>
-        <a href="${pageContext.request.contextPath}/home" class="btn-menu-item">
-            <ion-icon name="person-circle-outline"></ion-icon>
-            <span>Trở về trang người dùng</span>
-        </a>
-        <a href="${pageContext.request.contextPath}/logout" class="btn-menu-item">
-            <ion-icon name="log-out-outline"></ion-icon>
-            <span>Đăng xuất tài khoản</span>
-        </a>
-    </div>
-</div>
 <div class="modal-overlay-todo" id="generic-todo-modal">
     <div class="modal-content-todo">
         <form id="todo-form" action="${pageContext.request.contextPath}/todo_list" method="POST">
