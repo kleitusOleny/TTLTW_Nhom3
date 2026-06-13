@@ -91,8 +91,9 @@
                         <tr>
                             <th style="width: 5%;"><input type="checkbox" id="select-all-checkbox"></th>
                             <th style="width: 5%;">ID</th>
-                            <th style="width: 20%;">Ảnh Banner</th>
-                            <th style="width: 30%;">Link Đích</th>
+                            <th style="width: 15%;">Tên Banner</th>
+                            <th style="width: 15%;">Ảnh Banner</th>
+                            <th style="width: 25%;">Link Đích</th>
                             <th style="width: 15%;">Ngày Sự Kiện</th>
                             <th style="width: 10%; text-align: center;">T/g Tồn Tại</th>
                             <th style="width: 10%; text-align: center;">Trạng Thái</th>
@@ -104,6 +105,7 @@
                             <tr>
                                 <td><input type="checkbox" class="row-checkbox" value="${b.id}"/></td>
                                 <td>${b.id}</td>
+                                <td><c:out value="${b.name}"/></td>
                                 <td>
                                     <img class="banner-preview"
                                          src="<%= request.getContextPath() %>/${b.urlBanner}"
@@ -130,7 +132,9 @@
                                 <td>
                                     <div class="cell-action" style="justify-content: center;">
                                         <button type="button" class="btn btn-secondary edit-banner-btn"
-                                                data-id="${b.id}" data-url="${b.urlBanner}"
+                                                data-id="${b.id}"
+                                                data-name="<c:out value='${b.name}'/>"
+                                                data-url="${b.urlBanner}"
                                                 data-target="${b.targetUrl}"
                                                 data-date="<fmt:formatDate value='${b.eventDate}' pattern='yyyy-MM-dd'/>"
                                                 data-life="${b.lifeTime}"
@@ -185,6 +189,12 @@
             <input type="hidden" id="form-action" name="action" value="add">
             <input type="hidden" id="banner-id" name="id" value="">
             <input type="hidden" id="banner-old-image" name="oldImage" value="">
+
+            <div class="form-group">
+                <label for="banner-name">TÊN BANNER</label>
+                <input type="text" id="banner-name" name="name"
+                       placeholder="VD: Khám Phá Rượu Vang" required>
+            </div>
 
             <div class="form-group">
                 <label for="banner-link">LINK ĐÍCH</label>
@@ -243,7 +253,7 @@
 
         var table = $('#banner-datatable').DataTable({
             "columnDefs": [
-                {"orderable": false, "targets": [0, 2, 7]}
+                {"orderable": false, "targets": [0, 3, 8]}
             ],
             "language": {
                 "url": "https://cdn.datatables.net/plug-ins/2.0.8/i18n/vi.json"
@@ -290,6 +300,7 @@
 
         $('#banner-datatable').on('click', '.edit-banner-btn', function () {
             let id = $(this).data('id');
+            let name = $(this).data('name');
             let url = $(this).data('url');
             let target = $(this).data('target');
             let date = $(this).data('date');
@@ -297,6 +308,7 @@
             let active = $(this).data('active');
 
             $('#banner-id').val(id);
+            $('#banner-name').val(name);
             $('#banner-old-image').val(url);
             $('#banner-image').prop('required', false);
             $('#banner-link').val(target);

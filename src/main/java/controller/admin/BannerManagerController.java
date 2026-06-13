@@ -67,6 +67,7 @@ public class BannerManagerController extends HttpServlet {
                 
                 if ("add".equals(action)) {
                     Banner b = new Banner();
+                    b.setName(request.getParameter("name"));
                     b.setUrlBanner(imageUrl);
                     b.setTargetUrl(request.getParameter("targetUrl"));
                     
@@ -85,6 +86,7 @@ public class BannerManagerController extends HttpServlet {
                     if(idStr != null && !idStr.isEmpty()){
                         Banner b = new Banner();
                         b.setId(Integer.parseInt(idStr));
+                        b.setName(request.getParameter("name"));
                         b.setUrlBanner(imageUrl);
                         b.setTargetUrl(request.getParameter("targetUrl"));
                         
