@@ -105,6 +105,8 @@ public class AuthServices {
         String hashedPass = null;
         if (plainPassword != null && !plainPassword.isEmpty()){
                hashedPass = BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
+        } else {
+               hashedPass = BCrypt.hashpw(UUID.randomUUID().toString(), BCrypt.gensalt(12));
         }
 
         User user = new User();
