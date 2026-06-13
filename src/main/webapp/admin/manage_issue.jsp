@@ -109,7 +109,7 @@
         <button class="modal-close-form" id="close-form-btn">X</button>
         <h2>Tạo Phiếu Xuất Kho</h2>
 
-        <form id="add-issue-form" action="product-issue-manager" method="POST">
+        <form id="add-issue-form" action="<%= request.getContextPath() %>/product-issue-manager/create" method="POST">
             <input type="hidden" name="action" value="create">
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
@@ -366,7 +366,7 @@
 
     function viewDetail(id) {
         $.ajax({
-            url: 'product-issue-manager',
+            url: '<%= request.getContextPath() %>/product-issue-manager/get-details',
             type: 'GET',
             data: {
                 action: 'get-details',

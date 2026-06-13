@@ -17,7 +17,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(name = "ProductIssueController", value = "/product-issue-manager")
+@WebServlet(name = "ProductIssueController", urlPatterns = {
+        "/product-issue-manager",
+        "/product-issue-manager/get-details",
+        "/product-issue-manager/create"
+})
 public class ProductIssueController extends HttpServlet {
     
     private final ProductIssueDAO issueDAO = JdbiConnector.get().onDemand(ProductIssueDAO.class);
@@ -25,6 +29,11 @@ public class ProductIssueController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
+        if (action == null || action.trim().isEmpty()) {
+            String path = req.getServletPath();
+            if (path.endsWith("/get-details")) action = "get-details";
+            else if (path.endsWith("/create")) action = "create";
+        }
         if ("get-details".equals(action)) {
             try {
                 int id = Integer.parseInt(req.getParameter("id"));
@@ -50,12 +59,17 @@ public class ProductIssueController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
+        if (action == null || action.trim().isEmpty()) {
+            String path = req.getServletPath();
+            if (path.endsWith("/get-details")) action = "get-details";
+            else if (path.endsWith("/create")) action = "create";
+        }
         
         if ("create".equals(action)) {
             try {
                 User user = (User) req.getSession().getAttribute("user");
                 if (user == null) {
-                    resp.sendRedirect("login");
+                    resp.sendRedirect(req.getContextPath() + "/login");
                     return;
                 }
                 
@@ -91,10 +105,10 @@ public class ProductIssueController extends HttpServlet {
                 // Gọi xử lý transaction lưu phiếu xuất và giảm số lượng kho
                 issueDAO.processIssue(issue);
                 
-                resp.sendRedirect("product-issue-manager?success");
+                resp.sendRedirect(req.getContextPath() + "/product-issue-manager?success");
             } catch (Exception e) {
                 e.printStackTrace();
-                resp.sendRedirect("product-issue-manager?error=" + java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
+                resp.sendRedirect(req.getContextPath() + "/product-issue-manager?error=" + java.net.URLEncoder.encode(e.getMessage(), "UTF-8"));
             }
         }
     }

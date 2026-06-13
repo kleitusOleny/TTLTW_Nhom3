@@ -11,7 +11,12 @@ import model.Manufacturer;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "ManufacturerController", value = "/manage-manufacturer")
+@WebServlet(name = "ManufacturerController", urlPatterns = {
+        "/manage-manufacturer",
+        "/manage-manufacturer/add",
+        "/manage-manufacturer/edit",
+        "/manage-manufacturer/delete"
+})
 public class ManufacturerController extends HttpServlet {
     
     ManufacturerDAO manufacturerDAO = new ManufacturerDAO();
@@ -28,6 +33,12 @@ public class ManufacturerController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         String action = req.getParameter("action");
+        if (action == null || action.trim().isEmpty()) {
+            String path = req.getServletPath();
+            if (path.endsWith("/add")) action = "add";
+            else if (path.endsWith("/edit")) action = "edit";
+            else if (path.endsWith("/delete")) action = "delete";
+        }
         
         if ("add".equals(action)) {
             String name = req.getParameter("name");
@@ -55,6 +66,6 @@ public class ManufacturerController extends HttpServlet {
                 manufacturerDAO.update(m); // Gọi hàm update
             }
         }
-        resp.sendRedirect("manage-manufacturer");
+        resp.sendRedirect(req.getContextPath() + "/manage-manufacturer");
     }
 }

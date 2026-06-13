@@ -71,7 +71,7 @@
                         <ion-icon name="trash-outline"></ion-icon> Xóa (Đã chọn)
                     </button>
 
-                    <form id="form-import-excel" action="<%= request.getContextPath() %>/product-manager?action=importExcel" method="post" enctype="multipart/form-data" style="display: none;">
+                    <form id="form-import-excel" action="<%= request.getContextPath() %>/product-manager/importExcel" method="post" enctype="multipart/form-data" style="display: none;">
                         <input type="file" name="excelFile" id="excelFile" accept=".xlsx, .xls">
                     </form>
                     <button class="btn btn-success" onclick="document.getElementById('excelFile').click();">
@@ -163,7 +163,7 @@
                                             Sửa
                                         </button>
 
-                                        <form action="product-manager" method="POST" style="margin:0;">
+                                        <form action="product-manager/delete" method="POST" style="margin:0;">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="${p.id}">
                                             <button type="submit" class="btn btn-danger" onclick="return confirm('Xóa sản phẩm này?');">Xoá</button>
@@ -358,7 +358,7 @@
 
             if (confirm("Bạn muốn xóa " + selectedIds.length + " sản phẩm đã chọn?")) {
                 var idsStr = selectedIds.join(',');
-                $.post('product-manager', { action: 'delete-list', ids: idsStr })
+                $.post('product-manager/delete-list', { action: 'delete-list', ids: idsStr })
                     .done(function () {
                         alert("Đã xóa thành công!");
                         location.reload();
@@ -384,6 +384,7 @@
 
         if (openBtn) openBtn.addEventListener('click', () => {
             $('#add-product-form')[0].reset();
+            $('#add-product-form').attr('action', '<%= request.getContextPath() %>/product-manager/add');
             $('#form-action').val('add');
             $('#prod-id').val('');
             $('#prod-old-image').val('');
@@ -394,6 +395,7 @@
 
         $('#product-datatable').on('click', '.edit-product-btn', function () {
             var btn = $(this);
+            $('#add-product-form').attr('action', '<%= request.getContextPath() %>/product-manager/edit');
             $('#prod-id').val(btn.data('id'));
             $('#p-name').val(btn.data('name'));
             $('#p-origin').val(btn.data('origin'));
@@ -512,7 +514,7 @@
             }
 
             $.ajax({
-                url: 'product-manager?action=importExcel',
+                url: 'product-manager/importExcel',
                 type: 'POST',
                 data: formData,
                 processData: false,
@@ -585,7 +587,7 @@
         $('#btn-cancel-import, #close-confirm-excel-btn').on('click', function () {
             $('#modal-confirm-excel').removeClass('show');
             // Gửi request dọn dẹp session để an toàn
-            $.post('product-manager', { action: 'confirmImportExcel' }); // Gọi khống để dọn dẹp hoặc bỏ qua
+            $.post('product-manager/confirmImportExcel', { action: 'confirmImportExcel' }); // Gọi khống để dọn dẹp hoặc bỏ qua
         });
 
         // Xác nhận thực sự lưu xuống CSDL
@@ -596,7 +598,7 @@
             confirmBtn.prop('disabled', true).html('<ion-icon name="sync-outline" class="spin" style="animation: spin 1s linear infinite; display: inline-block;"></ion-icon> Đang nhập kho...');
 
             $.ajax({
-                url: 'product-manager?action=confirmImportExcel',
+                url: 'product-manager/confirmImportExcel',
                 type: 'POST',
                 dataType: 'json',
                 success: function (response) {

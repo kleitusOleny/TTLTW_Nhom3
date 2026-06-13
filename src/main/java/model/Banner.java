@@ -8,6 +8,9 @@ public class Banner {
     @ColumnName("id")
     private int id;
 
+    @ColumnName("name")
+    private String name;
+
     @ColumnName("url_banner")
     private String urlBanner;
 
@@ -105,5 +108,13 @@ public class Banner {
 
     public void setDelete(boolean delete) {
         isDelete = delete;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -28,13 +28,42 @@ public class WebFilter implements Filter {
         urlPermissionMap.put("/account-manager/toggle-status", "account:delete");
         urlPermissionMap.put("/account-manager/lock-multiple", "account:delete");
 
+        urlPermissionMap.put("/product-manager/add", "product:upsert");
+        urlPermissionMap.put("/product-manager/edit", "product:upsert");
+        urlPermissionMap.put("/product-manager/delete", "product:delete");
+        urlPermissionMap.put("/product-manager/delete-list", "product:delete");
+        urlPermissionMap.put("/product-manager/importExcel", "product:upsert");
+        urlPermissionMap.put("/product-manager/confirmImportExcel", "product:upsert");
+
         urlPermissionMap.put("/admin/manage-promotions", "promotion:read");
         urlPermissionMap.put("/admin/get-promotion", "promotion:read");
         urlPermissionMap.put("/admin/add-promotion", "promotion:upsert");
         urlPermissionMap.put("/admin/update-promotion", "promotion:upsert");
         urlPermissionMap.put("/admin/delete-promotion", "promotion:delete");
+        
         urlPermissionMap.put("/category-manager", "category:read");
+        urlPermissionMap.put("/category-manager/add", "category:upsert");
+        urlPermissionMap.put("/category-manager/edit", "category:upsert");
+        urlPermissionMap.put("/category-manager/delete", "category:delete");
+
         urlPermissionMap.put("/manage-manufacturer", "manufacturer:read");
+        urlPermissionMap.put("/manage-manufacturer/add", "manufacturer:upsert");
+        urlPermissionMap.put("/manage-manufacturer/edit", "manufacturer:upsert");
+        urlPermissionMap.put("/manage-manufacturer/delete", "manufacturer:delete");
+
+        urlPermissionMap.put("/product-receipt-manager/create", "inventory:upsert");
+        urlPermissionMap.put("/product-receipt-manager/get-details", "inventory:read");
+
+        urlPermissionMap.put("/product-issue-manager/create", "inventory:upsert");
+        urlPermissionMap.put("/product-issue-manager/get-details", "inventory:read");
+
+        urlPermissionMap.put("/report-manager", "inventory:read");
+        urlPermissionMap.put("/admin/order-stats", "orders:read");
+
+        urlPermissionMap.put("/banner-manager/add", "banner:upsert");
+        urlPermissionMap.put("/banner-manager/edit", "banner:upsert");
+        urlPermissionMap.put("/banner-manager/delete", "banner:delete");
+        urlPermissionMap.put("/banner-manager/delete-list", "banner:delete");
 
         urlPermissionMap.put("/staffs-manager", "staff:upsert");
 
@@ -64,9 +93,8 @@ public class WebFilter implements Filter {
             "/product-issue-manager",
             "/staffs-manager",
             "/admin/",
-            "/product-issue-manager",
-            "/product-receipt-manager",
-            "/roles-manager"
+            "/roles-manager",
+            "/report-manager"
     };
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {

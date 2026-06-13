@@ -82,7 +82,7 @@
                                             data-slug="${c.slug}">
                                         Sửa
                                     </button>
-                                    <form action="category-manager" method="POST"
+                                    <form action="<%= request.getContextPath() %>/category-manager/delete" method="POST"
                                           style="margin:0;">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="${c.id}">
@@ -156,6 +156,7 @@
 
             // Chuyển action của form thành 'edit'
             $('#form-action').val('edit');
+            $('#add-category-form').attr('action', '<%= request.getContextPath() %>/category-manager/edit');
 
             // Đổi tiêu đề Modal và nút Submit cho người dùng dễ hiểu
             $('.modal-content-form h2').text('Cập Nhật Danh Mục');
@@ -172,6 +173,7 @@
 
             // Chuyển action về 'add'
             $('#form-action').val('add');
+            $('#add-category-form').attr('action', '<%= request.getContextPath() %>/category-manager/add');
             $('#cat-id').val(''); // Xóa ID ẩn
 
             // Đổi lại tiêu đề

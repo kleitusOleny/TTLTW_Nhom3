@@ -113,8 +113,7 @@
                                                              alt="Banner ${status.index + 1}"
                                                              onerror="this.src='${pageContext.request.contextPath}/assets/banners/main_banner.jpg'">
                                                         <div class="carousel-caption d-none d-md-block hero-content">
-                                                            <h1 class="hero-title">${not empty b.lifeTime ? b.lifeTime : 'Khám Phá Rượu Vang'}</h1>
-                                                            <p class="hero-subtitle">${not empty b.eventDate ? b.eventDate : 'Trải nghiệm hương vị tinh tế đẳng cấp.'}</p>
+                                                            <h1 class="hero-title">${not empty b.name ? b.name : 'Khám Phá Rượu Vang'}</h1>
                                                             <a href="${resolvedTargetUrl}" class="btn btn-primary hero-btn">Xem Ngay</a>
                                                         </div>
                                                     </div>

@@ -19,7 +19,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet(name = "ProductReceiptController", value = "/product-receipt-manager")
+@WebServlet(name = "ProductReceiptController", urlPatterns = {
+        "/product-receipt-manager",
+        "/product-receipt-manager/get-details",
+        "/product-receipt-manager/create"
+})
 public class ProductReceiptController extends HttpServlet {
     
     private final ProductReceiptDAO receiptDAO = JdbiConnector.get().onDemand(ProductReceiptDAO.class);
@@ -27,6 +31,11 @@ public class ProductReceiptController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
+        if (action == null || action.trim().isEmpty()) {
+            String path = req.getServletPath();
+            if (path.endsWith("/get-details")) action = "get-details";
+            else if (path.endsWith("/create")) action = "create";
+        }
         if ("get-details".equals(action)) {
             try {
                 int id = Integer.parseInt(req.getParameter("id"));
@@ -58,13 +67,18 @@ public class ProductReceiptController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String action = req.getParameter("action");
+        if (action == null || action.trim().isEmpty()) {
+            String path = req.getServletPath();
+            if (path.endsWith("/get-details")) action = "get-details";
+            else if (path.endsWith("/create")) action = "create";
+        }
         
         if ("create".equals(action)) {
             try {
                 // Lấy thông tin user hiện tại từ session
                 User user = (User) req.getSession().getAttribute("user");
                 if (user == null) {
-                    resp.sendRedirect("login");
+                    resp.sendRedirect(req.getContextPath() + "/login");
                     return;
                 }
                 
@@ -108,10 +122,10 @@ public class ProductReceiptController extends HttpServlet {
                 // Gọi xử lý transaction lưu phiếu nhập và tăng số lượng kho
                 receiptDAO.processReceipt(receipt);
                 
-                resp.sendRedirect("product-receipt-manager?success");
+                resp.sendRedirect(req.getContextPath() + "/product-receipt-manager?success");
             } catch (Exception e) {
                 e.printStackTrace();
-                resp.sendRedirect("product-receipt-manager?error");
+                resp.sendRedirect(req.getContextPath() + "/product-receipt-manager?error");
             }
         }
     }
