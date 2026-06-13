@@ -203,6 +203,7 @@
             $('#staff-email').prop('readonly', false);
             $('#email-input-group').show();
             $('.modal-content-form h2').text('Bổ Nhiệm Nhân Sự Mới');
+            $('#staff-action-form').attr('action', 'staffs-manager/add');
             modal.classList.add('show');
         });
 
@@ -227,6 +228,7 @@
                     $(this).prop('checked', false);
                 }
             });
+            $('#staff-action-form').attr('action', 'staffs-manager/edit');
             modal.classList.add('show');
         });
 
@@ -256,7 +258,7 @@
 
                 const form = document.createElement('form');
                 form.method = 'POST';
-                form.action = 'staffs-manager';
+                form.action = 'staffs-manager/delete';
 
                 const params = { action: 'delete', userId: userId };
                 for (const key in params) {
