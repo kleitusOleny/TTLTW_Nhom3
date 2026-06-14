@@ -73,6 +73,8 @@
     "/manage-manufacturer/edit": "manufacturer:upsert",
     "/manage-manufacturer/delete": "manufacturer:delete",
     "/report-manager": "inventory:read",
+    "/product-issue-manager": "inventory:read",
+    "/product-receipt-manager": "inventory:read",
     "/product-receipt-manager/get-details": "inventory:read",
     "/product-issue-manager/get-details": "inventory:read",
     "/product-receipt-manager/create": "inventory:upsert",

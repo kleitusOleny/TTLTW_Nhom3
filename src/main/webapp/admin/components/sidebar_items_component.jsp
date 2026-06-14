@@ -324,3 +324,11 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 </script>
+<script src="${pageContext.request.contextPath}/admin/admin_security.js"></script>
+<script>
+    const USER_PERMISSIONS = [
+        <c:forEach items="${sessionScope.userPermissions}" var="perm" varStatus="loop">
+        "${perm}"${!loop.last ? ',' : ''}
+        </c:forEach>
+    ];
+</script>

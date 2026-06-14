@@ -119,11 +119,11 @@
                             <div class="button-group">
                                 <h2>Quản lí đơn hàng</h2>
                                 <div class="func-group">
-                                    <button class="button del" id="deleteAll-modal-btn">
+                                    <button class="button del" id="deleteAll-modal-btn" data-require-perm="order:delete">
                                         <ion-icon name="trash-outline"></ion-icon>
                                         Xoá (Đã chọn)
                                     </button>
-                                    <button class="button add"
+                                    <button class="button add" data-require-perm="order:upsert"
                                         onclick="window.location.href='${pageContext.request.contextPath}/admin/create-order'">
                                         <ion-icon name="add-outline" class="type-needCss"></ion-icon>
                                         Tạo đơn mới
@@ -182,9 +182,9 @@
                                                 <td class="cell-action">
                                                     <button class="view btn"
                                                         onclick="openViewModal(${o.id})">Xem</button>
-                                                    <button class="edit btn"
+                                                    <button class="edit btn" data-require-perm="order:upsert"
                                                         onclick="openEditModal(${o.id})">Sửa</button>
-                                                    <button class="delete btn"
+                                                    <button class="delete btn" data-require-perm="order:delete"
                                                         onclick="confirmDelete(${o.id})">Xoá</button>
                                                 </td>
                                             </tr>

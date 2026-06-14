@@ -67,18 +67,18 @@
             <div class="main-header">
                 <h1>Quản Lí Sản Phẩm</h1>
                 <div class="header-actions">
-                    <button class="btn btn-danger remove-product-btn">
+                    <button class="btn btn-danger remove-product-btn" data-require-perm="product:delete">
                         <ion-icon name="trash-outline"></ion-icon> Xóa (Đã chọn)
                     </button>
 
                     <form id="form-import-excel" action="<%= request.getContextPath() %>/product-manager/importExcel" method="post" enctype="multipart/form-data" style="display: none;">
                         <input type="file" name="excelFile" id="excelFile" accept=".xlsx, .xls">
                     </form>
-                    <button class="btn btn-success" onclick="document.getElementById('excelFile').click();">
+                    <button class="btn btn-success" data-require-perm="product:upsert" onclick="document.getElementById('excelFile').click();">
                         <ion-icon name="document-text-outline"></ion-icon> Nhập Excel
                     </button>
 
-                    <button class="btn btn-primary add-product-btn" id="btn-open-add">
+                    <button class="btn btn-primary add-product-btn" id="btn-open-add" data-require-perm="product:upsert">
                         <ion-icon name="add-circle-outline"></ion-icon> Thêm Sản Phẩm
                     </button>
                 </div>
@@ -152,7 +152,7 @@
                                 </td>
                                 <td>
                                     <div class="cell-action">
-                                        <button type="button" class="btn btn-secondary edit-product-btn"
+                                        <button type="button" class="btn btn-secondary edit-product-btn" data-require-perm="product:upsert"
                                                 data-id="${p.id}" data-name="${p.productName}"
                                                 data-type-text="${p.typeId}" data-cat-text="${p.categoryId}"
                                                 data-manu-text="${p.manufacturerId}"
@@ -166,7 +166,7 @@
                                         <form action="product-manager/delete" method="POST" style="margin:0;">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="${p.id}">
-                                            <button type="submit" class="btn btn-danger" onclick="return confirm('Xóa sản phẩm này?');">Xoá</button>
+                                            <button type="submit" data-require-perm="product:delete" class="btn btn-danger" onclick="return confirm('Xóa sản phẩm này?');">Xoá</button>
                                         </form>
                                     </div>
                                 </td>

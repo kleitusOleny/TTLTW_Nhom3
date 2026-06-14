@@ -32,7 +32,7 @@
             <div class="main-header">
                 <h1>Quản Lý Nhân Sự</h1>
                 <div class="header-actions">
-                    <button class="btn btn-primary add-staff-btn">
+                    <button class="btn btn-primary add-staff-btn" data-require-perm="staff:upsert">
                         <ion-icon name="add-outline"></ion-icon>
                         Thêm Nhân Sự Mới
                     </button>
@@ -98,12 +98,12 @@
                             <td>
                                 <div class="cell-action">
                                     <c:if test="${staff.description != 'Quản trị viên'}">
-                                    <button type="button" class="edit btn edit-staff-button"
+                                    <button type="button" class="edit btn edit-staff-button" data-require-perm="staff:upsert"
                                             data-id="${staff.id}"
                                             data-email="${staff.email}"
                                             data-roles="${staff.description}"> Đổi Chức Vụ
                                     </button>
-                                    <button type="button" class="delete btn delete-button"
+                                    <button type="button" class="delete btn delete-button" data-require-perm="staff:upsert"
                                             onclick="revokeStaffRole(${staff.id}, '${staff.email}')">
                                         Cách Chức
                                     </button>

@@ -35,7 +35,7 @@
                             <div class="button-group">
                                 <h2>Quản lí Blog và Tin tức</h2>
                                 <div class="func-group">
-                                    <button class="button del" id="deleteAll-modal-btn">
+                                    <button class="button del" id="deleteAll-modal-btn" data-require-perm="blog:delete">
                                         <ion-icon name="trash-outline"></ion-icon>
                                         Xoá (Đã chọn)
                                     </button>
@@ -44,7 +44,7 @@
                                         Lấy Tin Tức
                                     </button>
                                     <button class="button add" id="open-modal-btn">
-                                        <ion-icon name="add-outline" class="type-needCss"></ion-icon>
+                                        <ion-icon name="add-outline" class="type-needCss" data-require-perm="blog:upsert"></ion-icon>
                                         Thêm Bài
                                     </button>
                                 </div>
@@ -75,11 +75,11 @@
                                                     <td class="cell-date">${blog.cardDate}</td>
                                                     <td class="cell-status">${blog.display ? 'Hiện' : 'Ẩn'}</td>
                                                     <td class="cell-action">
-                                                        <button type="button" class="edit-blog-btn btn" data-blog-id="${blog.id}" style="background-color: #f39c12; color: white; margin-right: 5px;">Sửa</button>
+                                                        <button type="button" class="edit-blog-btn btn" data-require-perm="blog:upsert" data-blog-id="${blog.id}" style="background-color: #f39c12; color: white; margin-right: 5px;">Sửa</button>
                                                         <form id="delete-form-${blog.id}"
                                                             action="${pageContext.request.contextPath}/admin/delete-blog?id=${blog.id}"
                                                             method="post" style="display: inline;">
-                                                            <button type="button" class="delete btn" onclick="showDeleteSingleModal('${blog.id}')">Xoá</button>
+                                                            <button type="button" class="delete btn" data-require-perm="blog:delete" onclick="showDeleteSingleModal('${blog.id}')">Xoá</button>
                                                         </form>
                                                     </td>
                                                 </tr>
