@@ -445,15 +445,15 @@
                                                         <c:choose>
                                                             <c:when test="${r.discountedPrice < r.price}">
                                                                 <span style="color: #8c3333; font-weight: bold;">
-                                                                    <fmt:formatNumber value="${r.discountedPrice}" type="currency" currencySymbol="₫" maxFractionDigits="0" />
+                                                                    <fmt:formatNumber value="${r.discountedPrice}" type="number" maxFractionDigits="0" />₫
                                                                 </span>
                                                                 <span style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-left: 5px;">
-                                                                    <fmt:formatNumber value="${r.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" />
+                                                                    <fmt:formatNumber value="${r.price}" type="number" maxFractionDigits="0" />₫
                                                                 </span>
                                                             </c:when>
                                                             <c:otherwise>
                                                                 <span style="color: #8c3333; font-weight: bold;">
-                                                                    <fmt:formatNumber value="${r.price}" type="currency" currencySymbol="₫" maxFractionDigits="0" />
+                                                                    <fmt:formatNumber value="${r.price}" type="number" maxFractionDigits="0" />₫
                                                                 </span>
                                                             </c:otherwise>
                                                         </c:choose>
