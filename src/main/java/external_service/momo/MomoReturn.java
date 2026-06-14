@@ -132,17 +132,6 @@ public class MomoReturn extends HttpServlet {
                         session.removeAttribute("pendingOrder");
                         session.removeAttribute("checkoutType");
                     }
-                }else{
-                    dao.OrderItemDAO orderItemDAO = new dao.OrderItemDAO();
-                    services.ProductService productService = new services.ProductService();
-                    java.util.List<model.OrderItem> items = orderItemDAO.getByOrderId(parsedOrderId);
-                    if (items != null) {
-                        for (model.OrderItem item : items) {
-                            int currentStock = productService.getQuantity(item.getProductId());
-                            productService.updateQuantity(item.getProductId(), currentStock + item.getQuantity());
-                        }
-                    }
-                    db.JdbiConnector.get().onDemand(dao.ProductIssueDAO.class).deleteByOrderId(parsedOrderId);
                 }
 
                 request.setAttribute("transResult", transSuccess);
