@@ -85,6 +85,9 @@
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span class="cart-count">${sessionScope.cart.totalQuantity}</span>
                 </a>
+                <a href="javascript:void(0)" onclick="openSettings()" class="settings-btn-global" aria-label="Settings" title="Cài đặt hệ thống">
+                    <i class="fas fa-cog"></i>
+                </a>
             </div>
         </div>
     </div>
@@ -176,4 +179,5 @@
         </div>
     </div>
 </header>
+<%@ include file="system_settings.jsp" %>
 </html>
