@@ -32,7 +32,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@WebServlet(name = "ProductManagerController", value = "/product-manager")
+@WebServlet(name = "ProductManagerController", urlPatterns = {
+        "/product-manager",
+        "/product-manager/add",
+        "/product-manager/edit",
+        "/product-manager/delete",
+        "/product-manager/delete-list",
+        "/product-manager/importExcel",
+        "/product-manager/confirmImportExcel"
+})
 @MultipartConfig(
         fileSizeThreshold = 1024 * 1024 * 2, // 2MB
         maxFileSize = 1024 * 1024 * 10,      // 10MB
@@ -333,7 +341,7 @@ public class ProductManagerController extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        resp.sendRedirect("product-manager");
+        resp.sendRedirect(req.getContextPath() + "/product-manager");
     }
     
 

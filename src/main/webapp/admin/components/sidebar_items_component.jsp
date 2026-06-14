@@ -98,6 +98,12 @@
                Đánh giá
             </a>
         </li>
+        <li>
+            <a href="${pageContext.request.contextPath}/admin/order-stats"
+               class="submenu-item ${activePage == 'order-stats' ? 'selected' : ''}">
+               Thống kê
+            </a>
+        </li>
     </ul>
 </li>
 
@@ -126,7 +132,38 @@
     </ul>
 </li>
 
-<c:set var="isUserManagementActive" value="${activePage == 'account' || activePage == 'staff' || activePage == 'role'}" />
+<c:set var="isWarehouseActive" value="${activePage == 'receipt' || activePage == 'issue' || activePage == 'report'}" />
+<li class="sidebar-dropdown ${isWarehouseActive ? 'expanded' : ''}">
+    <div class="a-with-icon dropdown-toggle ${isWarehouseActive ? 'selected' : ''}">
+        <span class="sidebar-link-content">
+            <ion-icon name="people-outline"></ion-icon>
+            Quản lí kho hàng
+        </span>
+        <ion-icon name="${isWarehouseActive ? 'chevron-down-outline' : 'chevron-back-outline'}" class="item-arrow-icon arrow-icon"></ion-icon>
+    </div>
+    <ul class="dropdown-menu">
+        <li>
+            <a href="${pageContext.request.contextPath}/product-receipt-manager"
+               class="submenu-item ${activePage == 'receipt' ? 'selected' : ''}">
+               Nhập kho
+            </a>
+        </li>
+        <li>
+            <a href="${pageContext.request.contextPath}/product-issue-manager"
+               class="submenu-item ${activePage == 'issue' ? 'selected' : ''}">
+               Xuất kho
+            </a>
+        </li>
+        <li>
+            <a href="${pageContext.request.contextPath}/report-manager"
+               class="submenu-item ${activePage == 'report' ? 'selected' : ''}">
+               Báo cáo & Thống kê
+            </a>
+        </li>
+    </ul>
+</li>
+
+<c:set var="isUserManagementActive" value="${activePage == 'account' ||  activePage == 'staff' || activePage == 'role'}" />
 <li class="sidebar-dropdown ${isUserManagementActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isUserManagementActive ? 'selected' : ''}">
         <span class="sidebar-link-content">

@@ -18,8 +18,8 @@ public class BannerDAO extends ADAO {
     // 2. Thêm banner mới
     public boolean insertBanner(Banner b) {
         return jdbi.withHandle(handle ->
-                handle.createUpdate("INSERT INTO banners (url_banner, target_url, event_date, life_time, active, create_at, is_delete) " +
-                                "VALUES (:urlBanner, :targetUrl, :eventDate, :lifeTime, :active, NOW(), 0)")
+                handle.createUpdate("INSERT INTO banners (name, url_banner, target_url, event_date, life_time, active, create_at, is_delete) " +
+                                "VALUES (:name, :urlBanner, :targetUrl, :eventDate, :lifeTime, :active, NOW(), 0)")
                         .bindBean(b)
                         .execute() > 0
         );
@@ -37,7 +37,7 @@ public class BannerDAO extends ADAO {
     // 4. Cập nhật banner
     public boolean updateBanner(Banner b) {
         return jdbi.withHandle(handle ->
-                handle.createUpdate("UPDATE banners SET url_banner=:urlBanner, target_url=:targetUrl, " +
+                handle.createUpdate("UPDATE banners SET name=:name, url_banner=:urlBanner, target_url=:targetUrl, " +
                                 "event_date=:eventDate, life_time=:lifeTime, active=:active, update_at=NOW() " +
                                 "WHERE id=:id")
                         .bindBean(b)

@@ -11,7 +11,12 @@ import model.Category;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "CategoryController", value = "/category-manager")
+@WebServlet(name = "CategoryController", urlPatterns = {
+        "/category-manager",
+        "/category-manager/add",
+        "/category-manager/edit",
+        "/category-manager/delete"
+})
 public class CategoryController extends HttpServlet {
     
     CategoryDAO categoryDAO = new CategoryDAO();
@@ -31,6 +36,12 @@ public class CategoryController extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         String action = req.getParameter("action");
+        if (action == null || action.trim().isEmpty()) {
+            String path = req.getServletPath();
+            if (path.endsWith("/add")) action = "add";
+            else if (path.endsWith("/edit")) action = "edit";
+            else if (path.endsWith("/delete")) action = "delete";
+        }
         
         try {
             if ("add".equals(action)) {
@@ -63,6 +74,6 @@ public class CategoryController extends HttpServlet {
         }catch (Exception e){
             e.printStackTrace();
         }
-        resp.sendRedirect("category-manager");
+        resp.sendRedirect(req.getContextPath() + "/category-manager");
     }
 }
