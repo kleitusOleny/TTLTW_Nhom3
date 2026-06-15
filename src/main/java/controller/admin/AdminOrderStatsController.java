@@ -60,6 +60,35 @@ public class AdminOrderStatsController extends HttpServlet {
         request.setAttribute("topNamesJson", topNamesJson.toString());
         request.setAttribute("topSpendJson", topSpendJson.toString());
 
+        List<Map<String, Object>> orderStatusStats = reportDAO.getOrderStatusStats(period);
+        request.setAttribute("orderStatusStats", orderStatusStats);
+        
+        long totalOrdersStatus = 0;
+        for (Map<String, Object> stat : orderStatusStats) {
+            totalOrdersStatus += ((Number) stat.get("order_count")).longValue();
+        }
+        request.setAttribute("totalOrdersStatus", totalOrdersStatus);
+
+        StringBuilder statusLabelsJson = new StringBuilder("[");
+        StringBuilder statusCountsJson = new StringBuilder("[");
+        for (int i = 0; i < orderStatusStats.size(); i++) {
+            Map<String, Object> row = orderStatusStats.get(i);
+            String status = row.get("status") != null ? row.get("status").toString().replace("\"", "\\\"") : "Không rõ";
+            long count = ((Number) row.get("order_count")).longValue();
+            
+            statusLabelsJson.append("\"").append(status).append("\"");
+            statusCountsJson.append(count);
+            if (i < orderStatusStats.size() - 1) {
+                statusLabelsJson.append(",");
+                statusCountsJson.append(",");
+            }
+        }
+        statusLabelsJson.append("]");
+        statusCountsJson.append("]");
+        
+        request.setAttribute("statusLabelsJson", statusLabelsJson.toString());
+        request.setAttribute("statusCountsJson", statusCountsJson.toString());
+
         request.setAttribute("activePage", "order-stats");
         request.getRequestDispatcher("/admin/manage_order_stats.jsp").forward(request, response);
     }

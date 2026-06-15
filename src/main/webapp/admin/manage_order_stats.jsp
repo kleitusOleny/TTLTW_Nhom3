@@ -327,7 +327,70 @@
                 </div>
             </div>
 
-            <!-- Charts Row -->
+            <!-- Charts Row 1: Order Status and Top Spending -->
+            <div class="charts-row">
+                <!-- Order Status Pie Chart & Table -->
+                <div class="chart-card" style="grid-column: 1 / -1;">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <ion-icon name="pie-chart-outline"></ion-icon>
+                            Thống Kê Tình Trạng Đơn Hàng & Tỷ Lệ
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+                        <div id="order-status-chart" style="flex: 1; min-width: 300px; display: flex; justify-content: center;"></div>
+                        <div style="flex: 1; min-width: 300px;">
+                            <table class="product-table" style="box-shadow: none; border: 1px solid var(--border); border-radius: var(--radius-md);">
+                                <thead>
+                                    <tr>
+                                        <th>Trạng Thái</th>
+                                        <th style="text-align: right;">Số Lượng</th>
+                                        <th style="text-align: right;">Tỷ Lệ (%)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="stat" items="${orderStatusStats}">
+                                        <c:set var="percent" value="${totalOrdersStatus > 0 ? (stat.order_count * 100.0 / totalOrdersStatus) : 0}" />
+                                        <tr>
+                                            <td style="font-weight: 600;">
+                                                <c:choose>
+                                                    <c:when test="${stat.status == 'Chờ xác nhận' || stat.status == 'Chờ xử lý'}">
+                                                        <span style="color: #f59e0b; display: flex; align-items: center; gap: 6px;"><ion-icon name="time-outline"></ion-icon> ${stat.status}</span>
+                                                    </c:when>
+                                                    <c:when test="${stat.status == 'Đang giao' || stat.status == 'Đang giao hàng'}">
+                                                        <span style="color: #3b82f6; display: flex; align-items: center; gap: 6px;"><ion-icon name="bicycle-outline"></ion-icon> ${stat.status}</span>
+                                                    </c:when>
+                                                    <c:when test="${stat.status == 'Giao hàng thành công' || stat.status == 'Đã giao'}">
+                                                        <span style="color: #10b981; display: flex; align-items: center; gap: 6px;"><ion-icon name="checkmark-circle-outline"></ion-icon> ${stat.status}</span>
+                                                    </c:when>
+                                                    <c:when test="${stat.status == 'Đã hủy'}">
+                                                        <span style="color: #ef4444; display: flex; align-items: center; gap: 6px;"><ion-icon name="close-circle-outline"></ion-icon> ${stat.status}</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span style="color: var(--text-main); display: flex; align-items: center; gap: 6px;"><ion-icon name="ellipse-outline"></ion-icon> ${stat.status}</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td style="text-align: right; font-weight: 700;">${stat.order_count}</td>
+                                            <td style="text-align: right; font-weight: 700; color: var(--text-muted);">
+                                                <fmt:formatNumber value="${percent}" maxFractionDigits="1" />%
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                            <c:if test="${totalOrdersStatus > 0}">
+                                <div style="margin-top: 15px; padding: 12px; background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; border-radius: 4px; font-size: 13px; color: var(--text-muted); line-height: 1.5;">
+                                    <strong><ion-icon name="information-circle-outline" style="vertical-align: middle; font-size: 16px;"></ion-icon> Phân tích Điểm Nghẽn:</strong><br/>
+                                    Hãy theo dõi tỷ lệ đơn <strong>Chờ xác nhận</strong> và <strong>Đã hủy</strong>. Nếu tỷ lệ chờ quá cao (> 20%), cần tăng tốc độ xử lý hoặc kiểm tra lại nguồn lực nhân sự.
+                                </div>
+                            </c:if>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2: Customer classification and top spending -->
             <div class="charts-row">
                 <!-- Customer Class Donut Chart -->
                 <div class="chart-card">
@@ -520,6 +583,52 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const donutChart = new ApexCharts(document.querySelector("#customer-class-chart"), donutOptions);
     donutChart.render();
+
+    // 2.5 Render Order Status Pie Chart
+    const statusLabels = ${not empty statusLabelsJson ? statusLabelsJson : '[]'};
+    const statusCounts = ${not empty statusCountsJson ? statusCountsJson : '[]'};
+    
+    // Assign specific colors for common statuses
+    const statusColors = statusLabels.map(label => {
+        if (label === 'Chờ xác nhận' || label === 'Chờ xử lý') return '#f59e0b';
+        if (label === 'Đang giao' || label === 'Đang giao hàng') return '#3b82f6';
+        if (label === 'Giao hàng thành công' || label === 'Đã giao') return '#10b981';
+        if (label === 'Đã hủy') return '#ef4444';
+        return '#64748b';
+    });
+
+    const statusPieOptions = {
+        series: statusCounts,
+        chart: {
+            type: 'pie',
+            height: 320,
+            background: 'transparent'
+        },
+        labels: statusLabels,
+        colors: statusColors,
+        stroke: {
+            width: 1,
+            colors: ['var(--border)']
+        },
+        legend: {
+            position: 'bottom',
+            labels: {
+                colors: 'var(--text-main)'
+            }
+        },
+        tooltip: {
+            y: {
+                formatter: function (val) {
+                    return val + " đơn hàng";
+                }
+            }
+        }
+    };
+
+    if(statusCounts.length > 0 && document.querySelector("#order-status-chart")) {
+        const statusPieChart = new ApexCharts(document.querySelector("#order-status-chart"), statusPieOptions);
+        statusPieChart.render();
+    }
 
     // 3. Render Horizontal Bar Chart for Top 5 Spending Customers
     const barOptions = {

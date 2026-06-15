@@ -148,4 +148,25 @@ public class ReportDAO extends ADAO {
                         .orElse(Map.of("loyal_count", 0, "new_count", 0, "potential_count", 0))
         );
     }
+       public List<Map<String, Object>> getOrderStatusStats(String period) {
+        String timeCondition = "";
+        if ("this_month".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
+        } else if ("this_quarter".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND QUARTER(o.create_at) = QUARTER(NOW())";
+        }
+
+        final String sql = "SELECT COALESCE(so.status, 'Chưa xác định') as status, COUNT(o.id) as order_count " +
+                           "FROM orders o " +
+                           "LEFT JOIN ship_orders so ON o.id = so.order_id " +
+                           "WHERE o.is_delete IS NULL" + timeCondition + " " +
+                           "GROUP BY so.status " +
+                           "ORDER BY order_count DESC";
+                           
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .list()
+        );
+    }
 }
