@@ -102,8 +102,8 @@ public class PaymentDAO extends ADAO implements IDAO<Payment, Integer> {
         return jdbi.withHandle(handle -> handle.createQuery("""
                 SELECT id, order_id, pay_strategy, status, amount, paid_at 
                 FROM payments 
-                WHERE pay_strategy IN ('VNPay', 'MoMo') 
-                AND status = 'Pending' 
+                WHERE pay_strategy IN ('VNPay', 'PayPal') 
+                AND status IN ('Pending', 'Failed') 
                 AND paid_at <= DATE_SUB(NOW(), INTERVAL :hours HOUR)
                 """)
                 .bind("hours", hoursThreshold)

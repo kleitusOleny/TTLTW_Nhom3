@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
         <!DOCTYPE html>
         <html lang="vi">
 
@@ -146,15 +147,15 @@
                             <td style="text-align: center;">${status.index + 1}</td>
                             <td>${item.product_name}</td>
                             <td style="text-align: center;">${item.quantity}</td>
-                            <td style="text-align: right;">${item.formattedPrice}</td>
-                            <td style="text-align: right;">${item.formattedTotal}</td>
+                            <td style="text-align: right;"><fmt:formatNumber value="${item.unit_price}" pattern="#,### ₫" /></td>
+                            <td style="text-align: right;"><fmt:formatNumber value="${item.unit_price * item.quantity}" pattern="#,### ₫" /></td>
                         </tr>
                     </c:forEach>
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colspan="4" style="text-align: right; font-weight: bold;">Tổng cộng:</td>
-                        <td style="text-align: right; font-weight: bold;">${info.formattedTotal}</td>
+                        <td style="text-align: right; font-weight: bold;"><fmt:formatNumber value="${info.total_price}" pattern="#,### ₫" /></td>
                     </tr>
                 </tfoot>
             </table>

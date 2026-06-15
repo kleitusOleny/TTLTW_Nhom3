@@ -64,7 +64,11 @@ public class VnpayReturn extends HttpServlet {
             if (signValue.equals(vnpSecureHash)) {
 
                 String paymentCode = request.getParameter("vnp_TransactionNo");
-                String orderId = request.getParameter("vnp_TxnRef");
+                String txnRef = request.getParameter("vnp_TxnRef");
+                String orderId = txnRef;
+                if (txnRef != null && txnRef.contains("_")) {
+                    orderId = txnRef.split("_")[0];
+                }
                 System.out.println("VnpayReturn: Received orderId=" + orderId + ", paymentCode=" + paymentCode);
 
                 OrderDAO orderDao = new OrderDAO();
@@ -133,17 +137,9 @@ public class VnpayReturn extends HttpServlet {
                         session.removeAttribute("pendingOrder");
                         session.removeAttribute("checkoutType");
                     }
-                }else {
-                    dao.OrderItemDAO orderItemDAO = new dao.OrderItemDAO();
-                    services.ProductService productService = new services.ProductService();
-                    java.util.List<model.OrderItem> items = orderItemDAO.getByOrderId(Integer.parseInt(orderId));
-                    if (items != null) {
-                        for (model.OrderItem item : items) {
-                            int currentStock = productService.getQuantity(item.getProductId());
-                            productService.updateQuantity(item.getProductId(), currentStock + item.getQuantity());
-                        }
-                    }
-                    db.JdbiConnector.get().onDemand(dao.ProductIssueDAO.class).deleteByOrderId(Integer.parseInt(orderId));
+                } else {
+                    // Do not restore stock immediately. Give user 12 hours to retry payment.
+                    // The VnPayPendingScheduler will handle stock restoration if the order expires.
                 }
 
                 request.setAttribute("transResult", transSuccess);

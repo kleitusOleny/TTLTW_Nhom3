@@ -33,6 +33,10 @@
                             <div class="button-group">
                                 <h2>Quản Lí Khuyến Mãi</h2>
                                 <div class="func-group">
+                                    <a href="${pageContext.request.contextPath}/admin/promotion-stats" class="button" style="background-color: #8b5cf6; color: white; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                                        <ion-icon name="bar-chart-outline"></ion-icon>
+                                        Thống kê
+                                    </a>
                                     <button class="button apply" id="open-apply-modal-btn" data-require-perm="promotion:upsert">
                                         <ion-icon name="pricetag-outline"></ion-icon>
                                         Áp dụng mã

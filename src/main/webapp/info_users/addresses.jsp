@@ -219,6 +219,7 @@
                                         style="display:inline;" class="form-set-default">
                                         <input type="hidden" name="action" value="default">
                                         <input type="hidden" name="id" value="${addr.id}">
+                                        <input type="hidden" name="view" value="${param.view}">
                                         <input type="hidden" name="data-fullname" value="${addr.fullName}">
                                         <input type="hidden" name="data-phone" value="${addr.phoneNumber}">
                                         <input type="hidden" name="data-addressline" value="${addr.addressLine}">
@@ -238,6 +239,7 @@
                                     style="display:inline;" class="delete-form">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="${addr.id}">
+                                    <input type="hidden" name="view" value="${param.view}">
                                     <button type="button" class="btn-icon delete-btn trigger-delete" title="Xóa">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
@@ -264,7 +266,7 @@
                 <form id="addressForm" action="${pageContext.request.contextPath}/address" method="post" novalidate>
                     <input type="hidden" name="action" id="formAction" value="add">
                     <input type="hidden" name="id" id="addressId">
-                    <input type="hidden" name="view" value="${view}">
+                    <input type="hidden" name="view" value="${param.view}">
 
                     <div class="form-group" id="addr_group-fullName">
                         <label>Họ và tên</label>
