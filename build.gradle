@@ -22,7 +22,7 @@ group = 'vn.hcmuaf.nlu.fit'
 version = '1.0-SNAPSHOT'
 
 war {
-    archiveFileName = 'wine.war'
+    archiveFileName = 'ROOT.war'
 }
 
 java {
@@ -53,6 +53,7 @@ dependencies {
 
     // MySQL (Bản mới)
     implementation 'com.mysql:mysql-connector-j:8.3.0'
+    implementation 'com.zaxxer:HikariCP:5.1.0'
 
     // Env
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
