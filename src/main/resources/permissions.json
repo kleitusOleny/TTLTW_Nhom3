@@ -46,6 +46,7 @@
     "/product-manager/importExcel": "product:upsert",
     "/product-manager/confirmImportExcel": "product:upsert",
     "/admin/manage-promotions": "promotion:read",
+    "/admin/promotion-stats": "promotion:read",
     "/admin/get-promotion": "promotion:read",
     "/admin/add-promotion": "promotion:upsert",
     "/admin/update-promotion": "promotion:upsert",
