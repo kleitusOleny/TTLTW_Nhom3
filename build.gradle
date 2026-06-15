@@ -1,14 +1,33 @@
 plugins {
     id 'java'
     id 'war'
+    id 'org.hidetake.ssh' version '2.11.2'
+    id 'java-library'
+    id 'maven-publish'
 }
 
+apply plugin: 'org.hidetake.ssh'
+remotes {
+    host {
+        host = '100.94.177.113'
+        user = 'root'
+        password = '84642209'
+    }
+}
+
+ssh.settings {
+    knownHosts = allowAnyHosts
+}
 group = 'vn.hcmuaf.nlu.fit'
 version = '1.0-SNAPSHOT'
 
+war {
+    archiveFileName = 'wine.war'
+}
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(21)
     }
 }
 
@@ -79,4 +98,109 @@ test {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
+}
+
+task check_connection {
+    doLast {
+        println 'begin check_connection'
+        ssh.run {
+            session(remotes.host) {
+                println 'Dang nhap vao server thanh cong. Dang lay thong tin uptime...'
+                def result = execute 'uptime'
+                println "Thong tin server: ${result}"
+
+            }
+        }
+    }
+}
+
+task docker_app_start {
+    doLast {
+        println 'begin docker_app_start'
+        ssh.run {
+            session(remotes.host) {
+                execute 'docker stop tomcat10', ignoreError: true
+                execute 'docker run -it --rm -d ' +
+                        '--name tomcat10 ' +
+                        '-v /usr/deploy/wine:/usr/local/tomcat/webapps ' +
+                        '-v /usr/deploy/server.xml:/usr/local/tomcat/conf/server.xml ' +
+                        '-p 80:8080 ' +
+                        'tomcat:10&'
+            }
+        }
+    }
+}
+
+task docker_mysql_reinstall {
+    doLast {
+        println 'begin docker_mysql_reinstall'
+        ssh.run {
+            session(remotes.host) {
+                // 1. Dừng và xóa container hiện tại
+                execute 'docker rm -f mysql-db', ignoreError: true
+
+                // 2. XÓA VOLUME DỮ LIỆU CŨ (Bắt buộc để reset mật khẩu)
+                execute 'docker volume rm mysql_data', ignoreError: true
+
+                // 3. Khởi tạo lại MySQL với mật khẩu MỚI
+                def newPassword = '84642209' // Thay mật khẩu mới vào đây
+                execute "docker run --name mysql-db " +
+                        "-e MYSQL_ROOT_PASSWORD=${newPassword} " +
+                        "-p 3306:3306 " +
+                        "-v mysql_data:/var/lib/mysql " +
+                        "-d mysql:8.0"
+
+            }
+        }
+    }
+}
+
+task docker_upload_file_to_server {
+    doLast {
+        println 'begin docker_upload_file_to_server'
+        ssh.run {
+            session(remotes.host) {
+                execute 'mkdir -p /usr/deploy/wine'
+
+                execute 'rm -f /usr/deploy/wine/wine.war'
+                execute 'rm -rf /usr/deploy/wine/wine/'
+
+                // Thực hiện upload file war lên server
+                put from: "${project.projectDir}/build/libs/wine.war",
+                        into: "/usr/deploy/wine/wine.war"
+//                put from: "${project.projectDir}/build/libs/web_deloy.sql",
+//                        into: "/usr/deploy/wine/web_deloy.sql"
+            }
+        }
+    }
+}
+
+task docker_deploy {
+    docker_deploy.dependsOn docker_app_start
+    docker_deploy.dependsOn docker_upload_file_to_server
+    docker_deploy.dependsOn build
+    tasks.getByName('docker_app_start').mustRunAfter docker_upload_file_to_server
+}
+
+task deploy_sql {
+    doLast {
+        println 'Starting SQL deployment...'
+        ssh.run {
+            session(remotes.host) {
+                println 'Uploading web.sql to server...'
+                put from: "${project.projectDir}/src/main/resources/web.sql", into: "/tmp/web.sql"
+
+                println 'Re-creating database...'
+                execute 'docker exec -i mysql-db mysql -uroot -p84642209 -e "DROP DATABASE IF EXISTS web; CREATE DATABASE web;"'
+
+                println 'Executing web.sql in mysql container...'
+                execute 'docker exec -i mysql-db mysql -uroot -p84642209 web < /tmp/web.sql'
+
+                println 'Cleaning up temp file...'
+                execute 'rm -f /tmp/web.sql'
+
+                println 'SQL deployment completed successfully!'
+            }
+        }
+    }
 }
