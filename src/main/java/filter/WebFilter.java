@@ -1,101 +1,53 @@
 package filter;
 
+import com.google.gson.Gson;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import model.User;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 @jakarta.servlet.annotation.WebFilter("/*")
 public class WebFilter implements Filter {
-    private static final Map<String, String> urlPermissionMap = new HashMap<>();
-    static {
-        // Cấu hình quyền chi tiết cho từng URL Admin
-        urlPermissionMap.put("/account-manager", "account:read");
-        urlPermissionMap.put("/product-manager", "product:read");
-        urlPermissionMap.put("/banner-manager", "banner:read");
-        urlPermissionMap.put("/manage-blog", "blog:read");
-        urlPermissionMap.put("/manage-orders", "orders:read");
-        urlPermissionMap.put("/manage-promotions", "promotion:read");
-        urlPermissionMap.put("/product-receipt-manager", "inventory:read");
-        urlPermissionMap.put("/product-issue-manager", "inventory:read");
+    // Các biến sẽ được gán giá trị khi server khởi động
+    private Map<String, String> urlPermissionMap;
+    private List<String> protectedAuthUrls;
+    private List<String> protectedAdminUrls;
 
-        urlPermissionMap.put("/account-manager/add", "account:upsert");
-        urlPermissionMap.put("/account-manager/edit", "account:upsert");
-        urlPermissionMap.put("/account-manager/toggle-status", "account:delete");
-        urlPermissionMap.put("/account-manager/lock-multiple", "account:delete");
-
-        urlPermissionMap.put("/product-manager/add", "product:upsert");
-        urlPermissionMap.put("/product-manager/edit", "product:upsert");
-        urlPermissionMap.put("/product-manager/delete", "product:delete");
-        urlPermissionMap.put("/product-manager/delete-list", "product:delete");
-        urlPermissionMap.put("/product-manager/importExcel", "product:upsert");
-        urlPermissionMap.put("/product-manager/confirmImportExcel", "product:upsert");
-
-        urlPermissionMap.put("/admin/manage-promotions", "promotion:read");
-        urlPermissionMap.put("/admin/get-promotion", "promotion:read");
-        urlPermissionMap.put("/admin/add-promotion", "promotion:upsert");
-        urlPermissionMap.put("/admin/update-promotion", "promotion:upsert");
-        urlPermissionMap.put("/admin/delete-promotion", "promotion:delete");
-        
-        urlPermissionMap.put("/category-manager", "category:read");
-        urlPermissionMap.put("/category-manager/add", "category:upsert");
-        urlPermissionMap.put("/category-manager/edit", "category:upsert");
-        urlPermissionMap.put("/category-manager/delete", "category:delete");
-
-        urlPermissionMap.put("/manage-manufacturer", "manufacturer:read");
-        urlPermissionMap.put("/manage-manufacturer/add", "manufacturer:upsert");
-        urlPermissionMap.put("/manage-manufacturer/edit", "manufacturer:upsert");
-        urlPermissionMap.put("/manage-manufacturer/delete", "manufacturer:delete");
-
-        urlPermissionMap.put("/product-receipt-manager/create", "inventory:upsert");
-        urlPermissionMap.put("/product-receipt-manager/get-details", "inventory:read");
-
-        urlPermissionMap.put("/product-issue-manager/create", "inventory:upsert");
-        urlPermissionMap.put("/product-issue-manager/get-details", "inventory:read");
-
-        urlPermissionMap.put("/report-manager", "inventory:read");
-        urlPermissionMap.put("/admin/order-stats", "orders:read");
-
-        urlPermissionMap.put("/banner-manager/add", "banner:upsert");
-        urlPermissionMap.put("/banner-manager/edit", "banner:upsert");
-        urlPermissionMap.put("/banner-manager/delete", "banner:delete");
-        urlPermissionMap.put("/banner-manager/delete-list", "banner:delete");
-
-        urlPermissionMap.put("/staffs-manager", "staff:upsert");
-
-        urlPermissionMap.put("/roles-manager", "role:read");          // Quét khi load trang (GET)
-        urlPermissionMap.put("/roles-manager/add", "role:upsert");    // Quét khi tạo mới (POST)
-        urlPermissionMap.put("/roles-manager/edit", "role:upsert");   // Quét khi sửa (POST)
-        urlPermissionMap.put("/roles-manager/delete", "role:delete"); // Quét khi xóa (POST)
+    // Lớp DTO nội bộ để Gson tự động map dữ liệu từ file JSON vào
+    private static class FilterConfigData {
+        List<String> protectedAuthUrls;
+        List<String> protectedAdminUrls;
+        Map<String, String> urlPermissionMap;
     }
-    private static final String[] PROTECTED_AUTH_URLS = {
-            "/login",
-            "/register",
-            "/authentication",
-            "/forgotpassword",
-            "/onboarding"
-    };
-    private static final String[] PROTECTED_ADMIN_URLS = {
-            "/dashboard",
-            "/account-manager",
-            "/product-manager",
-            "/banner-manager",
-            "/category-manager",
-            "/manage-manufacturer",
-            "/manage-blog",
-            "/manage-orders",
-            "/manage-promotions",
-            "/product-receipt-manager",
-            "/product-issue-manager",
-            "/staffs-manager",
-            "/admin/",
-            "/roles-manager",
-            "/report-manager"
-    };
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // Nạp file JSON từ thư mục resources
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("permissions.json")) {
+            if (is == null) {
+                throw new RuntimeException("Không tìm thấy file permissions.json trong thư mục resources!");
+            }
+            try (InputStreamReader reader = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                FilterConfigData configData = gson.fromJson(reader, FilterConfigData.class);
+
+                // Đổ dữ liệu vào biến của Filter
+                this.protectedAuthUrls = configData.protectedAuthUrls;
+                this.protectedAdminUrls = configData.protectedAdminUrls;
+                this.urlPermissionMap = configData.urlPermissionMap;
+            }
+        } catch (Exception e) {
+            throw new ServletException("Lỗi khi đọc file cấu hình phân quyền", e);
+        }
+    }
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -113,14 +65,17 @@ public class WebFilter implements Filter {
 
         boolean isAdminPath = false;
         boolean isProtected = false;
-        for (String protectedUrl : PROTECTED_AUTH_URLS) {
+
+        // Duyệt qua List lấy từ JSON
+        for (String protectedUrl : protectedAuthUrls) {
             if (path.startsWith(protectedUrl)) {
                 isProtected = true;
                 break;
             }
         }
 
-        for (String adminUrl : PROTECTED_ADMIN_URLS) {
+        // Duyệt qua List lấy từ JSON
+        for (String adminUrl : protectedAdminUrls) {
             if (path.startsWith(adminUrl)) {
                 isAdminPath = true;
                 break;
@@ -145,17 +100,10 @@ public class WebFilter implements Filter {
                 response.sendRedirect(request.getContextPath() + "/home");
                 return;
             }
-            String requiredPermission = urlPermissionMap.get(path);
-
-            // Nếu path này không nằm trực tiếp trong Map, thử tìm theo tiền tố (Ví dụ: /account-manager/add)
-            if (requiredPermission == null) {
-                for (Map.Entry<String, String> entry : urlPermissionMap.entrySet()) {
-                    if (path.startsWith(entry.getKey())) {
-                        requiredPermission = entry.getValue();
-                        break;
-                    }
-                }
+            if (path.endsWith("/")) {
+                path = path.substring(0, path.length() - 1);
             }
+            String requiredPermission = urlPermissionMap.get(path);
 
             // Nếu trang yêu cầu quyền chi tiết
             if (requiredPermission != null && !permissions.contains(requiredPermission)) {

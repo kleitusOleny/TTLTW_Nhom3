@@ -35,7 +35,7 @@
             <div class="main-header">
                 <h1>Quản Lí Nhà Sản Xuất</h1>
                 <div class="header-actions">
-                    <button class="btn btn-primary add-product-btn" data-target="modal-san-pham">
+                    <button class="btn btn-primary add-product-btn" data-target="modal-san-pham" data-require-perm="manufacturer:upsert">
                         <ion-icon name="add-outline"></ion-icon>
                         Thêm Nhà SX
                     </button>
@@ -79,6 +79,7 @@
                                 <div class="cell-action">
                                     <button type="button"
                                             class="edit btn edit-button"
+                                            data-require-perm="manufacturer:upsert"
                                             data-id="${m.id}"
                                             data-name="${m.manufacturerName}"
                                             data-location="${m.location}">
@@ -92,6 +93,7 @@
                                                value="${m.id}">
                                         <button type="submit"
                                                 class="delete btn delete-button"
+                                                data-require-perm="manufacturer:delete"
                                                 onclick="return confirm('Xóa nhà sản xuất này?');">Xoá
                                         </button>
                                     </form>
