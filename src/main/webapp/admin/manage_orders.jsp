@@ -223,7 +223,7 @@
                                     Trạng Thái</label>
                                 <select id="status" name="status" required>
                                     <option value="processing">Đang xử lý</option>
-                                    <option value="delivered">Đã giao</option>
+                                    <option value="delivered">Giao hàng thành công</option>
                                     <option value="cancelled">Đã hủy</option>
                                 </select>
                             </div>
@@ -398,8 +398,8 @@
                                         <div class="step-dot" id="dot-delivered"
                                             style="width: 25px; height: 25px; background-color: #ddd; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; position: relative;">
                                             <span
-                                                style="position: absolute; bottom: -25px; color: #999; font-size: 12px; white-space: nowrap;">Đã
-                                                giao</span>
+                                                style="position: absolute; bottom: -25px; color: #999; font-size: 12px; white-space: nowrap;">Giao thành
+                                                công</span>
                                         </div>
                                     </div>
                                 </div>
@@ -415,7 +415,6 @@
                                             <option value="Đang xử lý">Đang xử lý</option>
                                             <option value="Đang giao hàng">Đang giao hàng</option>
                                             <option value="Giao hàng thành công">Giao hàng thành công</option>
-                                            <option value="Đã giao">Đã giao</option>
                                             <option value="Đã hủy">Đã hủy</option>
                                             <option value="Thanh toán thất bại">Thanh toán thất bại</option>
                                         </select>
@@ -835,7 +834,7 @@
                                     statusSelect.value = status;
                                 }
 
-                                const statusOrder = ['Đang xử lý', 'Chuẩn bị đơn hàng', 'Đang giao hàng', 'Giao hàng thành công', 'Đã giao'];
+                                const statusOrder = ['Đang xử lý', 'Chuẩn bị đơn hàng', 'Đang giao hàng', 'Giao hàng thành công'];
                                 const currentIndex = statusOrder.indexOf(status);
                                 
                                 Array.from(statusSelect.options).forEach(opt => {

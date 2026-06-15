@@ -148,7 +148,7 @@
                                         </div>
                                         <div class="tracking-step ${status == 'Giao hàng thành công' ? 'active' : ''}">
                                             <div class="step-dot"></div>
-                                            <div class="step-label">Đã giao</div>
+                                            <div class="step-label">Giao thành công</div>
                                         </div>
                                     </div>
                                 </div>
