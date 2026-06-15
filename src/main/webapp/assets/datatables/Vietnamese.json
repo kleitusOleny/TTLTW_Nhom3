@@ -1,0 +1,23 @@
+{
+  "sEmptyTable": "Không có dữ liệu",
+  "sInfo": "Hiển thị _START_ đến _END_ trong tổng _TOTAL_ mục",
+  "sInfoEmpty": "Hiển thị 0 đến 0 trong tổng 0 mục",
+  "sInfoFiltered": "(được lọc từ _MAX_ mục)",
+  "sInfoPostFix": "",
+  "sInfoThousands": ".",
+  "sLengthMenu": "Hiển thị _MENU_ mục",
+  "sLoadingRecords": "Đang tải...",
+  "sProcessing": "Đang xử lý...",
+  "sSearch": "Tìm kiếm:",
+  "sZeroRecords": "Không tìm thấy kết quả phù hợp",
+  "oPaginate": {
+    "sFirst": "Đầu",
+    "sPrevious": "Trước",
+    "sNext": "Tiếp",
+    "sLast": "Cuối"
+  },
+  "oAria": {
+    "sSortAscending": ": kích hoạt để sắp xếp cột tăng dần",
+    "sSortDescending": ": kích hoạt để sắp xếp cột giảm dần"
+  }
+}
