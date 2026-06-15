@@ -13,7 +13,12 @@ import model.User;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "StaffPermissionController", value = "/staffs-manager")
+@WebServlet(name = "StaffPermissionController", urlPatterns = {
+        "/staffs-manager",
+        "/staffs-manager/add",
+        "/staffs-manager/edit",
+        "/staffs-manager/delete"
+})
 public class StaffPermissionController extends HttpServlet {
 
     @Override

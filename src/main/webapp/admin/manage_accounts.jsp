@@ -36,15 +36,15 @@
                     <p>Với các records được đánh dấu đỏ, nghĩa là đã khoá tài khoản</p>
                 </div>
                 <div class="func-group">
-                    <button class="button del" id="deleteAll-modal-btn">
+                    <button class="button del" id="deleteAll-modal-btn" data-require-perm="account:delete">
                         <ion-icon name="trash-outline"></ion-icon>
                         Khoá (Đã Chọn)
                     </button>
-                    <button class="button unlockAll" id="unlock-modal-btn">
+                    <button class="button unlockAll" id="unlock-modal-btn" data-require-perm="account:upsert">
                         <ion-icon name="checkmark-outline"></ion-icon>
                         Mở (Đã Chọn)
                     </button>
-                    <button class="button add" id="open-modal-btn">
+                    <button class="button add" id="open-modal-btn" data-require-perm="account:upsert">
                         <ion-icon name="add-outline" class="type-needCss"></ion-icon>
                         Thêm
                     </button>
@@ -78,15 +78,15 @@
                             <td class="cell-create">${user.createdAt}</td>
                             <td class="cell-action">
                                 <a href="${pageContext.request.contextPath}/account-manager/detail?id=${user.id}" class="detail btn" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 14px;">Chi tiết</a>
-                                <button class="edit btn edit-btn-trigger" data-target="modal-edit-${user.id}">Sửa</button>
+                                <button class="edit btn edit-btn-trigger" data-require-perm="account:upsert" data-target="modal-edit-${user.id}">Sửa</button>
                                 <c:choose>
                                     <c:when test="${user.active == 1}">
                                         <%-- Đang hoạt động --%>
-                                        <button class="lock btn" onclick="toggleUserStatus(${user.id}, 'block')">Khoá</button>
+                                        <button class="lock btn" data-require-perm="account:delete" onclick="toggleUserStatus(${user.id}, 'block')">Khoá</button>
                                     </c:when>
                                     <c:otherwise>
                                         <%-- Đang bị khoá --%>
-                                        <button class="unlock btn" onclick="toggleUserStatus(${user.id}, 'unlock')">Mở</button>
+                                        <button class="unlock btn" data-require-perm="account:upsert" onclick="toggleUserStatus(${user.id}, 'unlock')">Mở</button>
                                     </c:otherwise>
                                 </c:choose>
                             </td>

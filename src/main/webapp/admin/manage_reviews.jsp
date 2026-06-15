@@ -39,7 +39,7 @@
                                     </div>
                                 </div>
                                 <div class="func-group">
-                                    <button class="button del" id="deleteAll-modal-btn">
+                                    <button class="button del" id="deleteAll-modal-btn" data-require-perm="review:delete">
                                         <ion-icon name="trash-outline"></ion-icon>
                                         Xoá (Đã Chọn)
                                     </button>

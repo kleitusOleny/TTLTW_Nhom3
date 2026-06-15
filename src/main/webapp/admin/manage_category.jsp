@@ -36,7 +36,7 @@
             <div class="main-header">
                 <h1>Quản Lí Danh Mục</h1>
                 <div class="header-actions">
-                    <button class="btn btn-primary add-product-btn" data-target="modal-san-pham">
+                    <button class="btn btn-primary add-product-btn" data-target="modal-san-pham" data-require-perm="category:upsert">
                         <ion-icon name="add-outline"></ion-icon>
                         Thêm Danh Mục
                     </button>
@@ -77,7 +77,7 @@
                             </td>
                             <td>
                                 <div class="cell-action">
-                                    <button type="button" class="edit btn edit-button"
+                                    <button type="button" class="edit btn edit-button" data-require-perm="category:upsert"
                                             data-id="${c.id}" data-name="${c.categoryName}"
                                             data-slug="${c.slug}">
                                         Sửa
@@ -86,7 +86,7 @@
                                           style="margin:0;">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="${c.id}">
-                                        <button type="submit" class="delete btn delete-button"
+                                        <button type="submit" class="delete btn delete-button" data-require-perm="category:delete"
                                                 onclick="return confirm('Bạn chắc chắn muốn xóa danh mục ID: ${c.id}?');">
                                             Xoá
                                         </button>

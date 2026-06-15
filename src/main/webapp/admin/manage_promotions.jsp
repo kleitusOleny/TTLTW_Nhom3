@@ -33,12 +33,12 @@
                             <div class="button-group">
                                 <h2>Quản Lí Khuyến Mãi</h2>
                                 <div class="func-group">
-                                    <button class="button apply" id="open-apply-modal-btn">
+                                    <button class="button apply" id="open-apply-modal-btn" data-require-perm="promotion:upsert">
                                         <ion-icon name="pricetag-outline"></ion-icon>
                                         Áp dụng mã
                                     </button>
                                     <button class="button add" id="open-add-modal-btn">
-                                        <ion-icon name="add-circle-outline" class="type-needCss"></ion-icon>
+                                        <ion-icon name="add-circle-outline" class="type-needCss" data-require-perm="promotion:upsert"></ion-icon>
                                         Thêm khuyến mãi
                                     </button>
                                 </div>
@@ -92,17 +92,17 @@
                                                     <c:choose>
                                                         <c:when test="${d.isDelete}">
                                                             <button onclick="openEditModal(${d.id})" class="edit btn"
-                                                                title="Sửa">
+                                                                title="Sửa" data-require-perm="promotion:upsert">
                                                                 <ion-icon name="create-outline"></ion-icon>
                                                             </button>
                                                         </c:when>
                                                         <c:otherwise>
                                                             <button onclick="openEditModal(${d.id})" class="edit btn"
-                                                                title="Sửa">
+                                                                title="Sửa" data-require-perm="promotion:upsert">
                                                                 <ion-icon name="create-outline"></ion-icon>
                                                             </button>
                                                             <button onclick="confirmDelete(${d.id})" class="delete btn"
-                                                                title="Xóa">
+                                                                title="Xóa" data-require-perm="promotion:delete">
                                                                 <ion-icon name="trash-outline"></ion-icon>
                                                             </button>
                                                         </c:otherwise>
