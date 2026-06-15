@@ -34,11 +34,11 @@
                 <h1>Quản Lý Nhập Kho</h1>
                 <div class="header-actions">
                     <button class="btn btn-danger remove-receipt-btn">
-                        <ion-icon name="trash-outline"></ion-icon> Xóa (Đã chọn)
+                        <ion-icon name="trash-outline" data-require-perm="inventory:delete"></ion-icon> Xóa (Đã chọn)
                     </button>
 
                     <button class="btn btn-primary add-receipt-btn" id="btn-open-add">
-                        <ion-icon name="add-circle-outline"></ion-icon> Tạo Phiếu Nhập
+                        <ion-icon name="add-circle-outline" data-require-perm="inventory:upsert"></ion-icon> Tạo Phiếu Nhập
                     </button>
                 </div>
             </div>

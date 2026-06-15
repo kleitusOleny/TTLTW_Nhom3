@@ -1,7 +1,28 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/admin_sidebar.css?v=1.0.3">
+<c:set var="perms" value="${sessionScope.userPermissions}" />
+
+<c:set var="canViewCategory" value="${fn:contains(perms, 'category:read')}" />
+<c:set var="canViewProduct" value="${fn:contains(perms, 'product:read')}" />
+<c:set var="canViewManufacturer" value="${fn:contains(perms, 'manufacturer:read')}" />
+
+<c:set var="canViewOrder" value="${fn:contains(perms, 'orders:read')}" />
+<c:set var="canViewReview" value="${fn:contains(perms, 'review:read')}" />
+
+<c:set var="canViewBanner" value="${fn:contains(perms, 'banner:read')}" />
+<c:set var="canViewBlog" value="${fn:contains(perms, 'blog:read')}" />
+
+<c:set var="canViewInventory" value="${fn:contains(perms, 'inventory:read')}" />
+
+<c:set var="canViewAccount" value="${fn:contains(perms, 'account:read')}" />
+<c:set var="canViewStaff" value="${fn:contains(perms, 'staff:read')}" />
+<c:set var="canViewRole" value="${fn:contains(perms, 'role:read')}" />
+
+<c:set var="canViewPromotion" value="${fn:contains(perms, 'promotion:read')}" />
+<c:set var="canViewFiles" value="${fn:contains(perms, 'file:read')}" />
 
 <div class="group-avatar-new">
     <div class="admin-sidebar-header">
@@ -45,6 +66,7 @@
     </a>
 </li>
 
+<c:if test="${canViewCategory || canViewProduct || canViewManufacturer}">
 <c:set var="isProductActive" value="${activePage == 'product' || activePage == 'category' || activePage == 'manufacturer'}" />
 <li class="sidebar-dropdown ${isProductActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isProductActive ? 'selected' : ''}">
@@ -75,7 +97,9 @@
         </li>
     </ul>
 </li>
+</c:if>
 
+<c:if test="${canViewOrder || canViewReview}">
 <c:set var="isOrderActive" value="${activePage == 'order' || activePage == 'review'}" />
 <li class="sidebar-dropdown ${isOrderActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isOrderActive ? 'selected' : ''}">
@@ -106,7 +130,9 @@
         </li>
     </ul>
 </li>
+</c:if>
 
+<c:if test="${canViewBanner || canViewBlog}">
 <c:set var="isMediaActive" value="${activePage == 'banner' || activePage == 'blog'}" />
 <li class="sidebar-dropdown ${isMediaActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isMediaActive ? 'selected' : ''}">
@@ -131,7 +157,9 @@
         </li>
     </ul>
 </li>
+</c:if>
 
+<c:if test="${canViewInventory}">
 <c:set var="isWarehouseActive" value="${activePage == 'receipt' || activePage == 'issue' || activePage == 'report'}" />
 <li class="sidebar-dropdown ${isWarehouseActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isWarehouseActive ? 'selected' : ''}">
@@ -162,7 +190,9 @@
         </li>
     </ul>
 </li>
+</c:if>
 
+<c:if test="${canViewAccount || canViewStaff || canViewRole}">
 <c:set var="isUserManagementActive" value="${activePage == 'account' ||  activePage == 'staff' || activePage == 'role'}" />
 <li class="sidebar-dropdown ${isUserManagementActive ? 'expanded' : ''}">
     <div class="a-with-icon dropdown-toggle ${isUserManagementActive ? 'selected' : ''}">
@@ -193,7 +223,9 @@
         </li>
     </ul>
 </li>
+</c:if>
 
+<c:if test="${canViewPromotion}">
 <li>
     <a href="${pageContext.request.contextPath}/admin/manage-promotions"
        class="a-with-icon ${activePage == 'promotion' ? 'selected' : ''}">
@@ -204,7 +236,9 @@
         <ion-icon name="chevron-back-outline" class="item-arrow-icon"></ion-icon>
     </a>
 </li>
+</c:if>
 
+<c:if test="${canViewFiles}">
 <li>
     <a href="${pageContext.request.contextPath}/admin/manage-files"
        class="a-with-icon ${activePage == 'files' ? 'selected' : ''}">
@@ -215,6 +249,7 @@
         <ion-icon name="chevron-back-outline" class="item-arrow-icon"></ion-icon>
     </a>
 </li>
+</c:if>
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -288,4 +323,12 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 });
+</script>
+<script src="${pageContext.request.contextPath}/admin/admin_security.js"></script>
+<script>
+    const USER_PERMISSIONS = [
+        <c:forEach items="${sessionScope.userPermissions}" var="perm" varStatus="loop">
+        "${perm}"${!loop.last ? ',' : ''}
+        </c:forEach>
+    ];
 </script>

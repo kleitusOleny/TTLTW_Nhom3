@@ -34,7 +34,7 @@
                 <h1>Quản Lý Xuất Kho</h1>
                 <div class="header-actions">
                     <button class="btn btn-primary add-issue-btn" id="btn-open-add">
-                        <ion-icon name="add-circle-outline"></ion-icon> Tạo Phiếu Xuất
+                        <ion-icon name="add-circle-outline" data-require-perm="inventory:upsert"></ion-icon> Tạo Phiếu Xuất
                     </button>
                 </div>
             </div>

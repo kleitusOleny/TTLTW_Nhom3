@@ -66,11 +66,11 @@
             <div class="main-header">
                 <h1>Quản Lí Slideshow Trang Chủ</h1>
                 <div class="header-actions">
-                    <button class="btn btn-danger remove-banner-btn">
+                    <button class="btn btn-danger remove-banner-btn" data-require-perm="banner:delete">
                         <ion-icon name="trash-outline"></ion-icon>
                         Xóa (Đã chọn)
                     </button>
-                    <button class="btn btn-primary add-banner-btn" data-target="banner-form-modal">
+                    <button class="btn btn-primary add-banner-btn" data-target="banner-form-modal" data-require-perm="banner:upsert">
                         <ion-icon name="add-circle-outline"></ion-icon>
                         Thêm Banner
                     </button>
@@ -131,7 +131,7 @@
                                 </td>
                                 <td>
                                     <div class="cell-action" style="justify-content: center;">
-                                        <button type="button" class="btn btn-secondary edit-banner-btn"
+                                        <button type="button" class="btn btn-secondary edit-banner-btn" data-require-perm="banner:upsert"
                                                 data-id="${b.id}"
                                                 data-name="<c:out value='${b.name}'/>"
                                                 data-url="${b.urlBanner}"
@@ -147,7 +147,7 @@
                                               onsubmit="return confirm('Bạn có chắc chắn muốn xóa banner ID: ${b.id}?');">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="id" value="${b.id}">
-                                            <button type="submit" class="btn btn-danger">Xoá</button>
+                                            <button type="submit" class="btn btn-danger" data-require-perm="banner:delete">Xoá</button>
                                         </form>
                                     </div>
                                 </td>
