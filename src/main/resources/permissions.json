@@ -64,6 +64,7 @@
     "/admin/delete-order": "orders:delete",
     "/admin/refund-order": "orders:delete",
     "/admin/send-feedback": "orders:delete",
+    "/admin/print-invoice": "orders:read",
     "/category-manager": "category:read",
     "/category-manager/add": "category:upsert",
     "/category-manager/edit": "category:upsert",
