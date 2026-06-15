@@ -34,7 +34,7 @@
             <div class="main-header">
                 <h1>Quản Lý Vai Trò & Quyền Hạn</h1>
                 <div class="header-actions">
-                    <button class="btn btn-primary add-role-btn">
+                    <button class="btn btn-primary add-role-btn" data-require-perm="role:upsert">
                         <ion-icon name="add-outline"></ion-icon>
                         Tạo Vai Trò Mới
                     </button>
@@ -81,14 +81,14 @@
                             <td>
                                 <div class="cell-action">
                                     <c:if test="${item.role_name != 'ADMIN'}">
-                                        <button type="button" class="edit btn edit-role-button"
+                                        <button type="button" class="edit btn edit-role-button" data-require-perm="role:upsert"
                                                 data-id="${item.role_id}"
                                                 data-name="${item.role_name}"
                                                 data-desc="${item.role_desc}"
                                                 data-keys="${item.permission_keys}">
                                             Sửa Quyền
                                         </button>
-                                        <button type="button" class="delete btn delete-button" onclick="deleteSystemRole(${item.role_id}, '${item.role_name}')">
+                                        <button type="button" class="delete btn delete-button" data-require-perm="role:delete" onclick="deleteSystemRole(${item.role_id}, '${item.role_name}')">
                                             Xóa Bỏ
                                         </button>
                                     </c:if>
