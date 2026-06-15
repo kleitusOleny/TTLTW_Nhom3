@@ -148,7 +148,7 @@
                                         </div>
                                         <div class="tracking-step ${status == 'Giao hàng thành công' ? 'active' : ''}">
                                             <div class="step-dot"></div>
-                                            <div class="step-label">Đã giao</div>
+                                            <div class="step-label">Giao thành công</div>
                                         </div>
                                     </div>
                                 </div>
@@ -169,6 +169,22 @@
                                             <input type="hidden" name="orderId" value="${order.id}">
                                             <button type="submit" class="btn" style="background-color: #dc3545; color: white;">Hủy đơn hàng</button>
                                         </form>
+                                    </c:if>
+                                    <c:if test="${status == 'Thanh toán thất bại'}">
+                                        <c:choose>
+                                            <c:when test="${payment.payStrategy == 'PayPal'}">
+                                                <button class="btn" style="background-color: #f0ad4e; color: white;"
+                                                    onclick="checkPaymentRetry(${order.id}, ${payment.paidAt.time}, 'PayPal', '${pageContext.request.contextPath}')">
+                                                    Thanh toán lại (PayPal)
+                                                </button>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <button class="btn" style="background-color: #f0ad4e; color: white;"
+                                                    onclick="checkPaymentRetry(${order.id}, ${payment.paidAt.time}, 'VNPay', '${pageContext.request.contextPath}')">
+                                                    Thanh toán lại (VNPay)
+                                                </button>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </c:if>
                                     <c:if test="${status == 'Giao hàng thành công'}">
                                         <c:if test="${!order.evaluated}">
@@ -217,8 +233,39 @@
                 </div>
             </div>
 
+            <!-- Payment Expired Modal -->
+            <div id="payment-expired-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center;">
+                <div style="background: white; padding: 30px; border-radius: 8px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <i class="fa-solid fa-clock-rotate-left" style="font-size: 40px; color: #dc3545; margin-bottom: 15px;"></i>
+                    <h3 style="margin-bottom: 15px;">Đã quá hạn thanh toán</h3>
+                    <p style="margin-bottom: 20px; color: #555; line-height: 1.5;">Đơn hàng này đã vượt quá thời gian cho phép thanh toán lại (12 giờ).<br>Vui lòng đặt một đơn hàng mới.</p>
+                    <div style="display: flex; justify-content: center; gap: 15px;">
+                        <button class="btn" style="background-color: #ccc; color: #333;" onclick="closePaymentExpiredModal()">Đóng</button>
+                        <button class="btn" style="background-color: #8c3333; color: white;" onclick="location.href='${pageContext.request.contextPath}/store'">Đặt hàng mới</button>
+                    </div>
+                </div>
+            </div>
+
             <script>
                 let currentRefundOrderId = null;
+
+                function checkPaymentRetry(orderId, paidAtTime, payStrategy, contextPath) {
+                    const now = new Date().getTime();
+                    const hoursDiff = (now - paidAtTime) / (1000 * 60 * 60);
+                    if (hoursDiff >= 12) {
+                        document.getElementById('payment-expired-modal').style.display = 'flex';
+                        return;
+                    }
+                    if (payStrategy === 'PayPal') {
+                        location.href = contextPath + '/paypalPayment?orderId=' + orderId;
+                    } else {
+                        location.href = contextPath + '/payment?orderId=' + orderId;
+                    }
+                }
+
+                function closePaymentExpiredModal() {
+                    document.getElementById('payment-expired-modal').style.display = 'none';
+                }
 
                 function openRefundModal(orderId) {
                     currentRefundOrderId = orderId;

@@ -338,13 +338,10 @@ public class CheckoutController extends HttpServlet {
             payment.setAmount(order.getTotalPrice() + actualShippingFee);
             payment.setPaidAt(new Timestamp(System.currentTimeMillis()));
 
-            if ("ewallet".equals(paymentMethod) || "momo".equals(paymentMethod) || "paypal".equals(paymentMethod)) {
+            if ("ewallet".equals(paymentMethod) || "paypal".equals(paymentMethod)) {
                 String strategy = "VNPay";
                 String trackingPrefix = "VNPAY";
-                if ("momo".equals(paymentMethod)) {
-                    strategy = "MoMo";
-                    trackingPrefix = "MOMO";
-                } else if ("paypal".equals(paymentMethod)) {
+                if ("paypal".equals(paymentMethod)) {
                     strategy = "PayPal";
                     trackingPrefix = "PAYPAL";
                 }
@@ -379,8 +376,6 @@ public class CheckoutController extends HttpServlet {
 
                 if ("ewallet".equals(paymentMethod)) {
                     response.sendRedirect("payment?orderId=" + orderId);
-                } else if ("momo".equals(paymentMethod)) {
-                    response.sendRedirect("momoPayment?orderId=" + orderId);
                 } else {
                     response.sendRedirect("paypalPayment?orderId=" + orderId);
                 }

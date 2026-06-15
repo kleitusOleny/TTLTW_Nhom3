@@ -58,7 +58,7 @@ public class ajaxServlet extends HttpServlet {
         double amount = order.getTotalPrice();
         String bankCode = req.getParameter("bankCode");
 
-        String vnp_TxnRef = order.getId() + "";
+        String vnp_TxnRef = order.getId() + "_" + System.currentTimeMillis();
         String vnp_IpAddr = Config.getIpAddress(req);
 
         String vnp_TmnCode = Config.vnp_TmnCode;

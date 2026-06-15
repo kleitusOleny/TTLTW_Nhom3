@@ -31,15 +31,16 @@
             </div>
 
             <div class="header-right">
-<%--                <c:if test="${not empty sessionScope.user}">--%>
-<%--                    <c:if test="${sessionScope.user.administrator == 1}">--%>
-<%--                        <a href="${pageContext.request.contextPath}/dashboard"--%>
-<%--                           aria-label="Admin Dashboard"--%>
-<%--                           title="Trang quản trị"--%>
-<%--                           class="admin-nav-link"> <i class="fas fa-user-shield"></i>--%>
-<%--                        </a>--%>
-<%--                    </c:if>--%>
-<%--                </c:if>--%>
+                <c:if test="${not empty sessionScope.user}">
+                    <%-- check quyền dashboard:read --%>
+                    <c:if test="${fn:contains(sessionScope.userPermissions, 'dashboard:read')}">
+                        <a href="${pageContext.request.contextPath}/dashboard"
+                           aria-label="Admin Dashboard"
+                           title="Trang quản trị"
+                           class="admin-nav-link"> <i class="fas fa-user-shield"></i>
+                        </a>
+                    </c:if>
+                </c:if>
                 <c:if test="${empty sessionScope.user}">
                     <c:set var="reqUri" value="${requestScope['jakarta.servlet.forward.request_uri']}"/>
                     <c:if test="${empty reqUri}">
@@ -84,6 +85,9 @@
                    aria-label="Cart" title="Giỏ hàng">
                     <i class="fa-solid fa-cart-shopping"></i>
                     <span class="cart-count">${sessionScope.cart.totalQuantity}</span>
+                </a>
+                <a href="javascript:void(0)" onclick="openSettings()" class="settings-btn-global" aria-label="Settings" title="Cài đặt hệ thống">
+                    <i class="fas fa-cog"></i>
                 </a>
             </div>
         </div>
@@ -176,4 +180,5 @@
         </div>
     </div>
 </header>
+<%@ include file="system_settings.jsp" %>
 </html>

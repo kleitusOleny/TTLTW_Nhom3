@@ -11,6 +11,10 @@
                     <link rel="stylesheet"
                         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
                     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/detail_style.css?v=2">
+                    <style>
+                        .hide-scrollbar::-webkit-scrollbar { display: none; }
+                        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+                    </style>
                 </head>
 
                 <body>
@@ -352,53 +356,119 @@
                                 </div>
                             </div>
 
-                            <section class="related-products-section">
-                                <h2 class="section-title">Các Sản Phẩm Khác</h2>
-                                <div
-                                    style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; padding-top: 5px;">
-                                    <c:forEach var="r" items="${relatedProducts}">
-                                        <div class="product-card">
-                                            <div class="product-image" style="position: relative;">
-                                                <c:set var="isRelFavorited" value="false" />
-                                                <c:if test="${not empty userFavouritesList}">
-                                                    <c:forEach var="item" items="${userFavouritesList}">
-                                                        <c:if test="${item.product_id == r.id}">
-                                                            <c:set var="isRelFavorited" value="true" />
-                                                        </c:if>
-                                                    </c:forEach>
-                                                </c:if>
-                                                <form action="${pageContext.request.contextPath}/favorites"
-                                                    method="post" class="wishlist-form"
-                                                    onsubmit="toggleFavorite(event, this)">
-                                                    <input type="hidden" name="action"
-                                                        value="${isRelFavorited ? 'remove' : 'add'}">
-                                                    <input type="hidden" name="productId" value="${r.id}">
-                                                    <button type="submit"
-                                                        class="wishlist-btn ${isRelFavorited ? 'active' : ''}"
-                                                        aria-label="Yêu thích">
-                                                        <i
-                                                            class="fa-${isRelFavorited ? 'solid' : 'regular'} fa-heart"></i>
-                                                    </button>
-                                                </form>
-                                                <a href="${pageContext.request.contextPath}/detail?id=${r.id}">
-                                                    <img src="${pageContext.request.contextPath}/${r.imageUrl}"
-                                                        alt="${r.productName}">
-                                                </a>
+                            <section class="featured-products container" style="max-width: 1300px; margin: 40px auto; padding: 0 20px;">
+                                <h2 class="section-title mb-4">Các Sản Phẩm Khác</h2>
+                                
+                                <div class="scroll-container">
+                                    <button class="scroll-btn scroll-btn-left"
+                                        onclick="scrollSection('relatedProductsGrid', 'left')">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                    <button class="scroll-btn scroll-btn-right"
+                                        onclick="scrollSection('relatedProductsGrid', 'right')">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+
+                                    <div class="horizontal-grid" id="relatedProductsGrid">
+                                        <c:forEach var="r" items="${relatedProducts}">
+                                            <div class="product-card">
+                                                <div class="product-image" style="position: relative;">
+                                                    <c:set var="isRelFavorited" value="false" />
+                                                    <c:if test="${not empty userFavouritesList}">
+                                                        <c:forEach var="item" items="${userFavouritesList}">
+                                                            <c:if test="${item.product_id == r.id}">
+                                                                <c:set var="isRelFavorited" value="true" />
+                                                            </c:if>
+                                                        </c:forEach>
+                                                    </c:if>
+                                                    <form action="${pageContext.request.contextPath}/favorites"
+                                                        method="post" class="wishlist-form"
+                                                        onsubmit="toggleFavorite(event, this)">
+                                                        <input type="hidden" name="action"
+                                                            value="${isRelFavorited ? 'remove' : 'add'}">
+                                                        <input type="hidden" name="productId" value="${r.id}">
+                                                        <button type="submit"
+                                                            class="wishlist-btn ${isRelFavorited ? 'active' : ''}"
+                                                            aria-label="Yêu thích">
+                                                            <i
+                                                                class="fa-${isRelFavorited ? 'solid' : 'regular'} fa-heart"></i>
+                                                        </button>
+                                                    </form>
+                                                    <a href="${pageContext.request.contextPath}/detail?id=${r.id}">
+                                                        <c:choose>
+                                                            <c:when test="${not empty r.imageUrl}">
+                                                                <img src="${pageContext.request.contextPath}/${r.imageUrl}"
+                                                                    alt="${r.productName}">
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <img src="https://via.placeholder.com/300x400?text=Wine"
+                                                                    alt="${r.productName}">
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </a>
+                                                    
+                                                    <!-- hiển thị giảm giá -->
+                                                    <c:if test="${r.discountType == 'PERCENT' or r.discountType == 'percent'}">
+                                                        <div style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                                            - <fmt:formatNumber value="${r.discountValue}" maxFractionDigits="0" />%
+                                                        </div>
+                                                    </c:if>
+                                                    <c:if test="${r.discountType == 'AMOUNT' or r.discountType == 'amount'}">
+                                                        <div style="position: absolute; top: 10px; left: 10px; background: #dc3545; color: white; padding: 8px 12px; border-radius: 5px; font-weight: bold; font-size: 14px; z-index: 5; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                                            Giảm <fmt:formatNumber value="${r.discountValue}" maxFractionDigits="0" />₫
+                                                        </div>
+                                                    </c:if>
+                                                </div>
+                                                <div class="product-info">
+                                                    <h3 class="product-name"><a
+                                                            href="${pageContext.request.contextPath}/detail?id=${r.id}">
+                                                        <c:choose>
+                                                            <c:when test="${fn:length(r.productName) > 50}">
+                                                                ${fn:substring(r.productName, 0, 50)}...
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                ${r.productName}
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </a>
+                                                    </h3>
+                                                    
+                                                    <div class="product-extra-details">
+                                                        <ul>
+                                                            <li><strong>Xuất xứ:</strong> ${r.origin}</li>
+                                                            <li><strong>Loại:</strong> ${r.typeId}</li>
+                                                            <li><strong>Nồng độ:</strong> ${r.alcohol}%</li>
+                                                        </ul>
+                                                    </div>
+                                                    
+                                                    <p class="product-price">
+                                                        <c:choose>
+                                                            <c:when test="${r.discountedPrice < r.price}">
+                                                                <span style="color: #8c3333; font-weight: bold;">
+                                                                    <fmt:formatNumber value="${r.discountedPrice}" type="number" maxFractionDigits="0" />₫
+                                                                </span>
+                                                                <span style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-left: 5px;">
+                                                                    <fmt:formatNumber value="${r.price}" type="number" maxFractionDigits="0" />₫
+                                                                </span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span style="color: #8c3333; font-weight: bold;">
+                                                                    <fmt:formatNumber value="${r.price}" type="number" maxFractionDigits="0" />₫
+                                                                </span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </p>
+                                                    
+                                                    <div class="product-actions">
+                                                        <a href="${pageContext.request.contextPath}/add-cart?productId=${r.id}&quantity=1"
+                                                           class="add-to-cart-btn"><i class="fa-solid fa-cart-plus"></i> Thêm giỏ</a>
+                                                        <a href="${pageContext.request.contextPath}/add-cart?productId=${r.id}&quantity=1&redirect=checkout"
+                                                           class="buy-now-btn"><i class="fa-solid fa-bolt"></i> Mua ngay</a>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div class="product-info">
-                                                <h3 class="product-name"><a
-                                                        href="${pageContext.request.contextPath}/detail?id=${r.id}">${r.productName}</a>
-                                                </h3>
-                                                <p class="product-price">
-                                                    <fmt:formatNumber value="${r.price}" type="currency"
-                                                        currencySymbol="₫" maxFractionDigits="0" />
-                                                </p>
-                                                <a href="${pageContext.request.contextPath}/cart?action=add&productId=${r.id}&quantity=1"
-                                                    class="add-to-cart-btn">Thêm vào
-                                                    giỏ</a>
-                                            </div>
-                                        </div>
-                                    </c:forEach>
+                                        </c:forEach>
+                                    </div>
                                 </div>
                             </section>
                         </main>
@@ -559,128 +629,73 @@
                                 document.addEventListener('DOMContentLoaded', function() {
                                     syncGuestFavorites();
 
-                                    // Xử lý thay đổi số lượng và kiểm tra tồn kho
-                                    const qtyInput = document.getElementById('product-quantity');
-                                    const decreaseBtn = document.getElementById('decrease-qty');
-                                    const increaseBtn = document.getElementById('increase-qty');
-                                    const addToCartLink = document.getElementById('add-to-cart-link');
-                                    const buyNowLink = document.getElementById('buy-now-link');
-                                    const maxStock = parseInt("${product.quantity}") || 0;
-
-                                    function updateLinks(qty) {
-                                        if (addToCartLink) {
-                                            addToCartLink.href = "add-cart?productId=${product.id}&quantity=" + qty;
+                                    function imageZoom(imgID, resultID) {
+                                        var img, lens, result, cx, cy;
+                                        img = document.getElementById(imgID);
+                                        result = document.getElementById(resultID);
+                                        if (!img || !result) return;
+                                        
+                                        lens = document.getElementById("lens");
+                                        if (!lens) {
+                                            lens = document.createElement("DIV");
+                                            lens.setAttribute("id", "lens");
+                                            lens.setAttribute("class", "img-zoom-lens");
+                                            img.parentElement.insertBefore(lens, img);
                                         }
-                                        if (buyNowLink) {
-                                            buyNowLink.href = "add-cart?productId=${product.id}&quantity=" + qty + "&redirect=checkout";
-                                        }
-                                    }
-
-                                    function validateQuantity(value, showAlert = true) {
-                                        let qty = parseInt(value);
-
-                                        if (maxStock <= 0) {
-                                            if (showAlert) {
-                                                showNotification('Sản phẩm này hiện đã hết hàng!', 'error');
-                                            }
-                                            qtyInput.value = 0;
-                                            updateLinks(0);
-                                            return false;
-                                        }
-
-                                        if (isNaN(qty) || qty < 1) {
-                                            qtyInput.value = 1;
-                                            updateLinks(1);
-                                            return true;
-                                        }
-
-                                        if (qty > maxStock) {
-                                            if (showAlert) {
-                                                showNotification('Số lượng đặt hàng vượt quá số lượng trong kho!', 'warning');
-                                            }
-                                            qtyInput.value = maxStock;
-                                            updateLinks(maxStock);
-                                            return false;
-                                        }
-
-                                        updateLinks(qty);
-                                        return true;
-                                    }
-
-                                    // Khởi tạo trạng thái ban đầu khi tải trang
-                                    if (qtyInput) {
-                                        validateQuantity(qtyInput.value, false);
-
-                                        qtyInput.addEventListener('input', function() {
-                                            validateQuantity(qtyInput.value, true);
+                                        
+                                        cx = result.offsetWidth / lens.offsetWidth;
+                                        cy = result.offsetHeight / lens.offsetHeight;
+                                        
+                                        result.style.backgroundImage = "url('" + img.src + "')";
+                                        result.style.backgroundSize = (img.width * cx) + "px " + (img.height * cy) + "px";
+                                        
+                                        lens.addEventListener("mousemove", moveLens);
+                                        img.addEventListener("mousemove", moveLens);
+                                        lens.addEventListener("touchmove", moveLens);
+                                        img.addEventListener("touchmove", moveLens);
+                                        
+                                        img.addEventListener("mouseenter", function() {
+                                            lens.style.display = "block";
+                                            result.style.display = "block";
                                         });
-
-                                        qtyInput.addEventListener('blur', function() {
-                                            validateQuantity(qtyInput.value, true);
+                                        img.parentElement.addEventListener("mouseleave", function() {
+                                            lens.style.display = "none";
+                                            result.style.display = "none";
                                         });
-                                    }
-
-                                    if (decreaseBtn && qtyInput) {
-                                        decreaseBtn.addEventListener('click', function(e) {
+                                        
+                                        function moveLens(e) {
+                                            var pos, x, y;
                                             e.preventDefault();
-                                            let currentQty = parseInt(qtyInput.value) || 1;
-                                            if (currentQty > 1) {
-                                                qtyInput.value = currentQty - 1;
-                                                validateQuantity(qtyInput.value, false);
-                                            }
-                                        });
+                                            pos = getCursorPos(e);
+                                            x = pos.x - (lens.offsetWidth / 2);
+                                            y = pos.y - (lens.offsetHeight / 2);
+                                            
+                                            if (x > img.width - lens.offsetWidth) {x = img.width - lens.offsetWidth;}
+                                            if (x < 0) {x = 0;}
+                                            if (y > img.height - lens.offsetHeight) {y = img.height - lens.offsetHeight;}
+                                            if (y < 0) {y = 0;}
+                                            
+                                            lens.style.left = x + "px";
+                                            lens.style.top = y + "px";
+                                            result.style.backgroundPosition = "-" + (x * cx) + "px -" + (y * cy) + "px";
+                                        }
+                                        
+                                        function getCursorPos(e) {
+                                            var a, x = 0, y = 0;
+                                            e = e || window.event;
+                                            a = img.getBoundingClientRect();
+                                            x = e.pageX - a.left;
+                                            y = e.pageY - a.top;
+                                            x = x - window.pageXOffset;
+                                            y = y - window.pageYOffset;
+                                            return {x : x, y : y};
+                                        }
                                     }
-
-                                    if (increaseBtn && qtyInput) {
-                                        increaseBtn.addEventListener('click', function(e) {
-                                            e.preventDefault();
-                                            let currentQty = parseInt(qtyInput.value) || 1;
-                                            if (currentQty >= maxStock) {
-                                                showNotification('Số lượng đặt hàng vượt quá số lượng trong kho!', 'warning');
-                                                qtyInput.value = maxStock;
-                                                updateLinks(maxStock);
-                                            } else {
-                                                qtyInput.value = currentQty + 1;
-                                                validateQuantity(qtyInput.value, false);
-                                            }
-                                        });
-                                    }
-
-                                    if (addToCartLink) {
-                                        addToCartLink.addEventListener('click', function(e) {
-                                            if (maxStock <= 0) {
-                                                e.preventDefault();
-                                                showNotification('Sản phẩm này hiện đã hết hàng!', 'error');
-                                                return false;
-                                            }
-                                            let currentQty = parseInt(qtyInput.value) || 1;
-                                            if (currentQty > maxStock) {
-                                                e.preventDefault();
-                                                showNotification('Số lượng đặt hàng vượt quá số lượng trong kho!', 'warning');
-                                                qtyInput.value = maxStock;
-                                                updateLinks(maxStock);
-                                                return false;
-                                            }
-                                        });
-                                    }
-
-                                    if (buyNowLink) {
-                                        buyNowLink.addEventListener('click', function(e) {
-                                            if (maxStock <= 0) {
-                                                e.preventDefault();
-                                                showNotification('Sản phẩm này hiện đã hết hàng!', 'error');
-                                                return false;
-                                            }
-                                            let currentQty = parseInt(qtyInput.value) || 1;
-                                            if (currentQty > maxStock) {
-                                                e.preventDefault();
-                                                showNotification('Số lượng đặt hàng vượt quá số lượng trong kho!', 'warning');
-                                                qtyInput.value = maxStock;
-                                                updateLinks(maxStock);
-                                                return false;
-                                            }
-                                        });
-                                    }
+                                    
+                                    // Initialize image zoom
+                                    setTimeout(function() {
+                                        imageZoom("main-product-image", "myresult");
+                                    }, 100);
 
                                     // Xử lý chuyển đổi Tab (Mô tả - Đánh giá)
                                     const tabLinks = document.querySelectorAll('.tab-link');
@@ -694,7 +709,7 @@
 
                                             // Thêm class active vào tab được click
                                             this.classList.add('active');
-
+                                            
                                             // Hiển thị nội dung tương ứng
                                             const targetId = this.getAttribute('data-tab');
                                             const targetElement = document.getElementById(targetId);
@@ -704,15 +719,19 @@
                                         });
                                     });
                                 });
+                                
+                                function scrollSection(gridId, direction) {
+                                    const grid = document.getElementById(gridId);
+                                    if(!grid) return;
+                                    const scrollAmount = grid.offsetWidth * 0.8; // Scroll 80% of visible area
+
+                                    if (direction === 'left') {
+                                        grid.scrollLeft -= scrollAmount;
+                                    } else {
+                                        grid.scrollLeft += scrollAmount;
+                                    }
+                                }
                             </script>
-                            <c:if test="${not empty sessionScope.failedMsg}">
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function() {
-                                        showNotification("${sessionScope.failedMsg}", "error");
-                                    });
-                                </script>
-                                <% session.removeAttribute("failedMsg"); %>
-                            </c:if>
                 </body>
 
                 </html>

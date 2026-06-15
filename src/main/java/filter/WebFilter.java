@@ -106,11 +106,20 @@ public class WebFilter implements Filter {
             String requiredPermission = urlPermissionMap.get(path);
 
             // Nếu trang yêu cầu quyền chi tiết
-            if (requiredPermission != null && !permissions.contains(requiredPermission)) {
-                HttpSession currentSession = request.getSession(true);
-                currentSession.setAttribute("authError", "Bạn không có quyền truy cập vào tính năng này!");
-                response.sendRedirect(request.getContextPath() + "/dashboard");
-                return;
+            if (requiredPermission != null) {
+                if (!permissions.contains(requiredPermission)) {
+                    HttpSession currentSession = request.getSession(true);
+                    currentSession.setAttribute("authError", "Bạn không có quyền truy cập vào tính năng này!");
+                    response.sendRedirect(request.getContextPath() + "/dashboard");
+                    return;
+                }
+            } else {
+                if (!path.equals("/dashboard") && !path.equals("/admin") && !path.equals("/admin/")) {
+                    HttpSession currentSession = request.getSession(true);
+                    currentSession.setAttribute("authError", "Tính năng này chưa được phân quyền truy cập!");
+                    response.sendRedirect(request.getContextPath() + "/dashboard");
+                    return;
+                }
             }
         }
         filterChain.doFilter(request, response);

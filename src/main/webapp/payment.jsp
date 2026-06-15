@@ -456,18 +456,7 @@
                                         </div>
                                     </label>
                                 </div>
-                                <div class="payment-option" data-value="momo">
-                                    <input type="radio" id="momo" name="payment_method" value="momo">
-                                    <label for="momo">
-                                        <div class="payment-icon" style="background:#e11b74; color:#fff; display:flex; align-items:center; justify-content:center; border-radius:50%; width:32px; height:32px; margin-top:2px;">
-                                            <span style="font-weight:900; font-size:14px; font-family:'Outfit', sans-serif;">m</span>
-                                        </div>
-                                        <div class="payment-info">
-                                            <div class="payment-name">Ví điện tử MoMo</div>
-                                            <div class="payment-desc">Thanh toán nhanh chóng qua MoMo Sandbox</div>
-                                        </div>
-                                    </label>
-                                </div>
+
                                 <div class="payment-option" data-value="paypal">
                                     <input type="radio" id="paypal" name="payment_method" value="paypal">
                                     <label for="paypal">
@@ -592,7 +581,7 @@
                         const paymentNames = {
                             'cod': 'Thanh toán khi nhận hàng',
                             'ewallet': 'Ví điện tử (VNPay)',
-                            'momo': 'Ví điện tử MoMo'
+                            'paypal': 'Cổng thanh toán PayPal'
                         };
 
                         const savedPaymentMethod = sessionStorage.getItem('selectedPaymentMethod');

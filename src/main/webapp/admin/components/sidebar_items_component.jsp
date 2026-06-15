@@ -3,6 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/admin_sidebar.css?v=1.0.3">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/admin_darkmode.css?v=1.0.0">
 <c:set var="perms" value="${sessionScope.userPermissions}" />
 
 <c:set var="canViewCategory" value="${fn:contains(perms, 'category:read')}" />
@@ -226,15 +227,29 @@
 </c:if>
 
 <c:if test="${canViewPromotion}">
-<li>
-    <a href="${pageContext.request.contextPath}/admin/manage-promotions"
-       class="a-with-icon ${activePage == 'promotion' ? 'selected' : ''}">
+<c:set var="isPromotionActive" value="${activePage == 'promotion' || activePage == 'promotion-stats'}" />
+<li class="sidebar-dropdown ${isPromotionActive ? 'expanded' : ''}">
+    <div class="a-with-icon dropdown-toggle ${isPromotionActive ? 'selected' : ''}">
         <span class="sidebar-link-content">
             <ion-icon name="ticket-outline"></ion-icon>
-            Quản Lí Mã Giảm Giá và Khuyến Mãi
+            Khuyến mãi & Mã giảm giá
         </span>
-        <ion-icon name="chevron-back-outline" class="item-arrow-icon"></ion-icon>
-    </a>
+        <ion-icon name="${isPromotionActive ? 'chevron-down-outline' : 'chevron-back-outline'}" class="item-arrow-icon arrow-icon"></ion-icon>
+    </div>
+    <ul class="dropdown-menu">
+        <li>
+            <a href="${pageContext.request.contextPath}/admin/manage-promotions"
+               class="submenu-item ${activePage == 'promotion' ? 'selected' : ''}">
+                Danh sách
+            </a>
+        </li>
+        <li>
+            <a href="${pageContext.request.contextPath}/admin/promotion-stats"
+               class="submenu-item ${activePage == 'promotion-stats' ? 'selected' : ''}">
+                Thống kê
+            </a>
+        </li>
+    </ul>
 </li>
 </c:if>
 
@@ -331,4 +346,51 @@ document.addEventListener("DOMContentLoaded", function() {
         "${perm}"${!loop.last ? ',' : ''}
         </c:forEach>
     ];
+</script>
+
+<!-- Admin Dark Mode Toggle -->
+<div class="admin-darkmode-toggle" id="adminDarkModeToggle" title="Bật/Tắt chế độ tối">
+    <ion-icon name="moon-outline"></ion-icon>
+    <span>Dark Mode</span>
+    <div class="admin-dm-switch"></div>
+</div>
+
+<script>
+(function() {
+    // Apply dark mode immediately (before DOMContentLoaded to prevent flash)
+    var isDark = localStorage.getItem('theme') === 'dark';
+    if (isDark) {
+        document.body.classList.add('dark-theme');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggleBtn = document.getElementById('adminDarkModeToggle');
+        if (!toggleBtn) return;
+
+        // Sync state on load
+        var currentTheme = localStorage.getItem('theme') === 'dark';
+        if (currentTheme) {
+            document.body.classList.add('dark-theme');
+        }
+
+        toggleBtn.addEventListener('click', function() {
+            var isDarkNow = document.body.classList.toggle('dark-theme');
+            localStorage.setItem('theme', isDarkNow ? 'dark' : 'light');
+
+            // Update icon
+            var icon = toggleBtn.querySelector('ion-icon');
+            if (icon) {
+                icon.setAttribute('name', isDarkNow ? 'sunny-outline' : 'moon-outline');
+            }
+        });
+
+        // Set correct icon on load
+        if (currentTheme) {
+            var icon = toggleBtn.querySelector('ion-icon');
+            if (icon) {
+                icon.setAttribute('name', 'sunny-outline');
+            }
+        }
+    });
+})();
 </script>
