@@ -38,10 +38,6 @@ public class AddCart extends HttpServlet {
         Product product = productService.getProduct(productId);
         
         User user = (User) session.getAttribute("user");
-        if (user != null) {
-            dao.CartDAO cartDAO = new dao.CartDAO();
-            cartDAO.upsertCartItem(user.getId(), product.getId(), quantityToAdd);
-        }
         if (product != null) {
             int currentInCart = 0;
             for (CartItem item : cart.getItems()) {
@@ -62,6 +58,11 @@ public class AddCart extends HttpServlet {
                 String referer = request.getHeader("Referer");
                 response.sendRedirect(referer != null ? referer : "store");
                 return;
+            }
+            
+            if (user != null) {
+                dao.CartDAO cartDAO = new dao.CartDAO();
+                cartDAO.upsertCartItem(user.getId(), product.getId(), quantityToAdd);
             }
             
             String redirect = request.getParameter("redirect");

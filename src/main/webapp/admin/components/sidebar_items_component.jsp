@@ -3,6 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/admin_sidebar.css?v=1.0.3">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/admin_darkmode.css?v=1.0.0">
 <c:set var="perms" value="${sessionScope.userPermissions}" />
 
 <c:set var="canViewCategory" value="${fn:contains(perms, 'category:read')}" />
@@ -345,4 +346,51 @@ document.addEventListener("DOMContentLoaded", function() {
         "${perm}"${!loop.last ? ',' : ''}
         </c:forEach>
     ];
+</script>
+
+<!-- Admin Dark Mode Toggle -->
+<div class="admin-darkmode-toggle" id="adminDarkModeToggle" title="Bật/Tắt chế độ tối">
+    <ion-icon name="moon-outline"></ion-icon>
+    <span>Dark Mode</span>
+    <div class="admin-dm-switch"></div>
+</div>
+
+<script>
+(function() {
+    // Apply dark mode immediately (before DOMContentLoaded to prevent flash)
+    var isDark = localStorage.getItem('theme') === 'dark';
+    if (isDark) {
+        document.body.classList.add('dark-theme');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggleBtn = document.getElementById('adminDarkModeToggle');
+        if (!toggleBtn) return;
+
+        // Sync state on load
+        var currentTheme = localStorage.getItem('theme') === 'dark';
+        if (currentTheme) {
+            document.body.classList.add('dark-theme');
+        }
+
+        toggleBtn.addEventListener('click', function() {
+            var isDarkNow = document.body.classList.toggle('dark-theme');
+            localStorage.setItem('theme', isDarkNow ? 'dark' : 'light');
+
+            // Update icon
+            var icon = toggleBtn.querySelector('ion-icon');
+            if (icon) {
+                icon.setAttribute('name', isDarkNow ? 'sunny-outline' : 'moon-outline');
+            }
+        });
+
+        // Set correct icon on load
+        if (currentTheme) {
+            var icon = toggleBtn.querySelector('ion-icon');
+            if (icon) {
+                icon.setAttribute('name', 'sunny-outline');
+            }
+        }
+    });
+})();
 </script>
