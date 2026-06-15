@@ -185,7 +185,7 @@
              data-width="300">
         </div>
         <%-- Đăng nhập bằng Facebook --%>
-        <a href="https://www.facebook.com/v19.0/dialog/oauth?client_id=1455204079314019&redirect_uri=http://localhost:8080/TTLTW_Nhom3_war_exploded/login-facebook&scope=email,public_profile"
+        <a href="https://www.facebook.com/v19.0/dialog/oauth?client_id=1455204079314019&redirect_uri=${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}/login-facebook&scope=email,public_profile"
            class="fb-signin-btn">
                         <span class="fb-icon-wrapper">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">

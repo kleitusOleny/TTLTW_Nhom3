@@ -61,8 +61,8 @@ public class UpdateItem extends HttpServlet {
         }
 
         if (newQuantity > currentStock) {
-//            out.print("{\"status\":\"error\", \"message\":\"Xin lỗi, kho chỉ còn " + currentStock + " sản phẩm.\", \"currentQuantity\":" + currentInCart + "}");
-//            out.flush();
+            request.getSession().setAttribute("failedMsg", "Xin lỗi, kho chỉ còn " + currentStock + " sản phẩm.");
+            response.sendRedirect("my-cart");
             return;
         }
 

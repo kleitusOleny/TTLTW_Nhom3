@@ -282,5 +282,13 @@
         });
     });
 </script>
+<c:if test="${not empty sessionScope.failedMsg}">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            showPopup("${sessionScope.failedMsg}", false);
+        });
+    </script>
+    <% session.removeAttribute("failedMsg"); %>
+</c:if>
 </body>
 </html>

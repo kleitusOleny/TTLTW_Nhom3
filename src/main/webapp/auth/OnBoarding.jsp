@@ -15,7 +15,7 @@
 </head>
 <body>
 <div class="register-page">
-  <h2>Tiếp Tục Đăng Kí Với Google</h2>
+  <h2>Tiếp Tục Đăng Kí Với Dịch Vụ Bên Thứ Ba</h2>
   <p>(* là trường bắt buộc)</p>
   <form id="register-form" action="${pageContext.request.contextPath}/onboarding" method="POST">
     <div class="fullname-form">

@@ -40,6 +40,9 @@ public class FacebookUtils {
 
         HttpResponse<String> response = client.send(req, HttpResponse.BodyHandlers.ofString());
         JsonObject jsonObject = new Gson().fromJson(response.body(), JsonObject.class);
+        if (jsonObject == null || jsonObject.get("access_token") == null) {
+            throw new RuntimeException("Facebook API error: " + response.body());
+        }
         return jsonObject.get("access_token").getAsString();
     }
 
