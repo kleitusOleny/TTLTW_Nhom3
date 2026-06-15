@@ -31,15 +31,16 @@
             </div>
 
             <div class="header-right">
-<%--                <c:if test="${not empty sessionScope.user}">--%>
-<%--                    <c:if test="${sessionScope.user.roleId == 1}">--%>
-<%--                        <a href="${pageContext.request.contextPath}/dashboard"--%>
-<%--                           aria-label="Admin Dashboard"--%>
-<%--                           title="Trang quản trị"--%>
-<%--                           class="admin-nav-link"> <i class="fas fa-user-shield"></i>--%>
-<%--                        </a>--%>
-<%--                    </c:if>--%>
-<%--                </c:if>--%>
+                <c:if test="${not empty sessionScope.user}">
+                    <%-- check quyền dashboard:read --%>
+                    <c:if test="${fn:contains(sessionScope.userPermissions, 'dashboard:read')}">
+                        <a href="${pageContext.request.contextPath}/dashboard"
+                           aria-label="Admin Dashboard"
+                           title="Trang quản trị"
+                           class="admin-nav-link"> <i class="fas fa-user-shield"></i>
+                        </a>
+                    </c:if>
+                </c:if>
                 <c:if test="${empty sessionScope.user}">
                     <c:set var="reqUri" value="${requestScope['jakarta.servlet.forward.request_uri']}"/>
                     <c:if test="${empty reqUri}">
