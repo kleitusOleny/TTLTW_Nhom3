@@ -390,7 +390,90 @@
                 </div>
             </div>
 
-            <!-- Charts Row 2: Customer classification and top spending -->
+            <!-- Charts Row 2: Payment Stats and Alert -->
+            <div class="charts-row">
+                <!-- Payment Summary & Methods -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">
+                            <ion-icon name="wallet-outline"></ion-icon>
+                            Thống Kê Thanh Toán & Phương Thức
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                        <div style="flex: 1; background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 15px; border-radius: 4px;">
+                            <div style="color: var(--text-muted); font-size: 13px; margin-bottom: 5px;">Tổng Tiền Đã Thu</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #10b981;">
+                                <fmt:formatNumber value="${paymentSummary.total_collected}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                            </div>
+                        </div>
+                        <div style="flex: 1; background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 15px; border-radius: 4px;">
+                            <div style="color: var(--text-muted); font-size: 13px; margin-bottom: 5px;">Tổng Tiền Còn Nợ</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #ef4444;">
+                                <fmt:formatNumber value="${paymentSummary.total_owed}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="payment-method-chart"></div>
+                </div>
+
+                <!-- Delivered but Unpaid Orders Alert -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title" style="color: #ef4444;">
+                            <ion-icon name="warning-outline"></ion-icon>
+                            Cảnh Báo: Đã Giao Nhưng Chưa Thu Tiền
+                        </div>
+                        <span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;">
+                            ${unpaidDeliveredOrders.size()} đơn
+                        </span>
+                    </div>
+                    <c:choose>
+                        <c:when test="${not empty unpaidDeliveredOrders}">
+                            <div style="max-height: 350px; overflow-y: auto; padding-right: 5px;">
+                                <table class="product-table" style="box-shadow: none; border: 1px solid var(--border); border-radius: var(--radius-md);">
+                                    <thead>
+                                        <tr>
+                                            <th>Mã Đơn</th>
+                                            <th>Khách Hàng</th>
+                                            <th style="text-align: right;">Cần Thu</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <c:forEach var="order" items="${unpaidDeliveredOrders}">
+                                            <tr>
+                                                <td style="font-weight: 600;">
+                                                    <a href="${pageContext.request.contextPath}/admin/order-detail?id=${order.id}" style="color: var(--primary); text-decoration: none;">
+                                                        #${order.id}
+                                                    </a>
+                                                </td>
+                                                <td>
+                                                    <div style="font-weight: 500;">${order.full_name}</div>
+                                                    <div style="font-size: 12px; color: var(--text-muted);">${order.pay_strategy}</div>
+                                                </td>
+                                                <td style="text-align: right; font-weight: 700; color: #ef4444;">
+                                                    <fmt:formatNumber value="${order.total_price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div style="margin-top: 15px; font-size: 13px; color: var(--text-muted);">
+                                * Vui lòng đối soát với shipper hoặc đơn vị vận chuyển (GHN) để đảm bảo không thất thoát tiền COD.
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 250px; color: var(--text-muted);">
+                                <ion-icon name="checkmark-circle" style="font-size: 48px; color: #10b981; margin-bottom: 10px;"></ion-icon>
+                                <p style="font-size: 15px;">Tuyệt vời! Không có đơn hàng nào bị nợ đọng sau khi giao.</p>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </div>
+            </div>
+
+            <!-- Charts Row 3: Customer classification and top spending -->
             <div class="charts-row">
                 <!-- Customer Class Donut Chart -->
                 <div class="chart-card">
@@ -628,6 +711,71 @@ document.addEventListener("DOMContentLoaded", function() {
     if(statusCounts.length > 0 && document.querySelector("#order-status-chart")) {
         const statusPieChart = new ApexCharts(document.querySelector("#order-status-chart"), statusPieOptions);
         statusPieChart.render();
+    }
+
+    // 2.6 Render Payment Method Bar Chart
+    const methodLabels = ${not empty methodLabelsJson ? methodLabelsJson : '[]'};
+    const methodAmounts = ${not empty methodAmountsJson ? methodAmountsJson : '[]'};
+
+    const methodOptions = {
+        series: [{
+            name: 'Tổng tiền',
+            data: methodAmounts
+        }],
+        chart: {
+            type: 'bar',
+            height: 250,
+            background: 'transparent',
+            toolbar: { show: false }
+        },
+        plotOptions: {
+            bar: {
+                borderRadius: 4,
+                horizontal: true,
+                distributed: true
+            }
+        },
+        colors: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b', '#ef4444'],
+        dataLabels: {
+            enabled: true,
+            textAnchor: 'start',
+            style: {
+                colors: ['#fff']
+            },
+            formatter: function (val, opt) {
+                return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+            },
+            offsetX: 0,
+            dropShadow: { enabled: true }
+        },
+        xaxis: {
+            categories: methodLabels,
+            labels: {
+                formatter: function (val) {
+                    return val.toLocaleString() + " đ";
+                },
+                style: { colors: 'var(--text-muted)' }
+            }
+        },
+        yaxis: {
+            labels: {
+                style: { colors: 'var(--text-main)', fontSize: '13px' }
+            }
+        },
+        tooltip: {
+            theme: 'dark',
+            y: {
+                formatter: function (val) {
+                    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+                }
+            }
+        },
+        legend: { show: false }
+    };
+
+    if(methodAmounts.length > 0 && document.querySelector("#payment-method-chart")) {
+        const methodChart = new ApexCharts(document.querySelector("#payment-method-chart"), methodOptions);
+        methodChart.render();
     }
 
     // 3. Render Horizontal Bar Chart for Top 5 Spending Customers

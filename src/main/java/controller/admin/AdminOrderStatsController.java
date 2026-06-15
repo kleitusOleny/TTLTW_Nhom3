@@ -23,16 +23,13 @@ public class AdminOrderStatsController extends HttpServlet {
 
         ReportDAO reportDAO = new ReportDAO();
 
-        // 1. Get detailed customer order stats list based on period
         List<Map<String, Object>> customerStats = reportDAO.getCustomerOrderStats(period);
         request.setAttribute("customerStats", customerStats);
         request.setAttribute("period", period);
 
-        // 2. Get customer stats summary for Donut Chart (loyal, new, potential count)
         Map<String, Object> summary = reportDAO.getCustomerStatsSummary();
         request.setAttribute("summary", summary);
 
-        // 3. Format data for Top Spend customers Bar Chart (Top 5)
         StringBuilder topNamesJson = new StringBuilder("[");
         StringBuilder topSpendJson = new StringBuilder("[");
         int limit = Math.min(5, customerStats.size());
@@ -88,6 +85,33 @@ public class AdminOrderStatsController extends HttpServlet {
         
         request.setAttribute("statusLabelsJson", statusLabelsJson.toString());
         request.setAttribute("statusCountsJson", statusCountsJson.toString());
+        Map<String, Object> paymentSummary = reportDAO.getPaymentStatusSummary(period);
+        request.setAttribute("paymentSummary", paymentSummary);
+
+        List<Map<String, Object>> paymentMethodStats = reportDAO.getPaymentMethodStats(period);
+        request.setAttribute("paymentMethodStats", paymentMethodStats);
+        
+        StringBuilder methodLabelsJson = new StringBuilder("[");
+        StringBuilder methodAmountsJson = new StringBuilder("[");
+        for (int i = 0; i < paymentMethodStats.size(); i++) {
+            Map<String, Object> row = paymentMethodStats.get(i);
+            String method = row.get("method") != null ? row.get("method").toString().replace("\"", "\\\"") : "Khác";
+            double amount = row.get("total_amount") != null ? ((Number) row.get("total_amount")).doubleValue() : 0;
+            
+            methodLabelsJson.append("\"").append(method).append("\"");
+            methodAmountsJson.append(amount);
+            if (i < paymentMethodStats.size() - 1) {
+                methodLabelsJson.append(",");
+                methodAmountsJson.append(",");
+            }
+        }
+        methodLabelsJson.append("]");
+        methodAmountsJson.append("]");
+        request.setAttribute("methodLabelsJson", methodLabelsJson.toString());
+        request.setAttribute("methodAmountsJson", methodAmountsJson.toString());
+
+        List<Map<String, Object>> unpaidDeliveredOrders = reportDAO.getDeliveredButUnpaidOrders(period);
+        request.setAttribute("unpaidDeliveredOrders", unpaidDeliveredOrders);
 
         request.setAttribute("activePage", "order-stats");
         request.getRequestDispatcher("/admin/manage_order_stats.jsp").forward(request, response);

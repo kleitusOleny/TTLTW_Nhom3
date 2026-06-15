@@ -148,7 +148,7 @@ public class ReportDAO extends ADAO {
                         .orElse(Map.of("loyal_count", 0, "new_count", 0, "potential_count", 0))
         );
     }
-       public List<Map<String, Object>> getOrderStatusStats(String period) {
+    public List<Map<String, Object>> getOrderStatusStats(String period) {
         String timeCondition = "";
         if ("this_month".equals(period)) {
             timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
@@ -163,6 +163,74 @@ public class ReportDAO extends ADAO {
                            "GROUP BY so.status " +
                            "ORDER BY order_count DESC";
                            
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .list()
+        );
+    }
+    public Map<String, Object> getPaymentStatusSummary(String period) {
+        String timeCondition = "";
+        if ("this_month".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
+        } else if ("this_quarter".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND QUARTER(o.create_at) = QUARTER(NOW())";
+        }
+
+        final String sql = "SELECT " +
+            "COALESCE(SUM(CASE WHEN p.status IN ('Success', 'Đã thanh toán', 'Completed') THEN p.amount ELSE 0 END), 0) as total_collected, " +
+            "COALESCE(SUM(CASE WHEN p.status IN ('Pending', 'Chưa thanh toán', 'Failed') THEN p.amount ELSE 0 END), 0) as total_owed " +
+            "FROM payments p " +
+            "JOIN orders o ON p.order_id = o.id " +
+            "WHERE o.is_delete IS NULL" + timeCondition;
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .findOne()
+                        .orElse(Map.of("total_collected", 0, "total_owed", 0))
+        );
+    }
+    public List<Map<String, Object>> getPaymentMethodStats(String period) {
+        String timeCondition = "";
+        if ("this_month".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
+        } else if ("this_quarter".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND QUARTER(o.create_at) = QUARTER(NOW())";
+        }
+
+        final String sql = "SELECT COALESCE(p.pay_strategy, 'Khác') as method, COUNT(p.id) as count, COALESCE(SUM(p.amount), 0) as total_amount " +
+                           "FROM payments p " +
+                           "JOIN orders o ON p.order_id = o.id " +
+                           "WHERE o.is_delete IS NULL" + timeCondition + " " +
+                           "GROUP BY p.pay_strategy " +
+                           "ORDER BY total_amount DESC";
+                           
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .list()
+        );
+    }
+
+    public List<Map<String, Object>> getDeliveredButUnpaidOrders(String period) {
+        String timeCondition = "";
+        if ("this_month".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
+        } else if ("this_quarter".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND QUARTER(o.create_at) = QUARTER(NOW())";
+        }
+
+        final String sql = "SELECT o.id, u.full_name, u.email, o.total_price, p.pay_strategy, so.status as ship_status " +
+                           "FROM orders o " +
+                           "JOIN users u ON o.user_id = u.id " +
+                           "JOIN ship_orders so ON o.id = so.order_id " +
+                           "JOIN payments p ON o.id = p.order_id " +
+                           "WHERE o.is_delete IS NULL " +
+                           "AND so.status IN ('Đã giao', 'Giao hàng thành công') " +
+                           "AND p.status IN ('Pending', 'Chưa thanh toán', 'Failed')" + timeCondition + " " +
+                           "ORDER BY o.create_at DESC";
+
         return jdbi.withHandle(handle ->
                 handle.createQuery(sql)
                         .mapToMap()
