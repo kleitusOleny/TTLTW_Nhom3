@@ -108,11 +108,11 @@
             <!-- Period selection sub filters -->
             <div class="report-sub-filters" style="margin-top: 20px;">
                 <span style="font-size: 14px; font-weight: 600; color: var(--text-muted, #666);">Khoảng thời gian:</span>
-                <a href="${pageContext.request.contextPath}/admin/promotion-stats?period=all"
+                <a href="${pageContext.request.contextPath}/admin/promotion-stats?period=all&timeFilter=${timeFilter}"
                    class="sub-filter-btn ${period == 'all' ? 'active' : ''}">Tất cả thời gian</a>
-                <a href="${pageContext.request.contextPath}/admin/promotion-stats?period=this_month"
+                <a href="${pageContext.request.contextPath}/admin/promotion-stats?period=this_month&timeFilter=${timeFilter}"
                    class="sub-filter-btn ${period == 'this_month' ? 'active' : ''}">Tháng này</a>
-                <a href="${pageContext.request.contextPath}/admin/promotion-stats?period=this_quarter"
+                <a href="${pageContext.request.contextPath}/admin/promotion-stats?period=this_quarter&timeFilter=${timeFilter}"
                    class="sub-filter-btn ${period == 'this_quarter' ? 'active' : ''}">Quý này</a>
             </div>
 
@@ -135,47 +135,104 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <c:choose>
-                            <c:when test="${not empty promoProductStats}">
-                                <c:forEach var="promo" items="${promoProductStats}">
-                                    <tr>
-                                        <td style="font-weight: 500;">
-                                            <a href="${pageContext.request.contextPath}/admin/product/detail?id=${promo.product_id}" style="color: #0ea5e9; text-decoration: none;">
-                                                ${promo.product_name}
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <span style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
-                                                ${promo.discount_code}
-                                            </span>
-                                            <div style="font-size: 11px; color: #666; margin-top: 4px;">
-                                                <c:choose>
-                                                    <c:when test="${promo.discount_type == 'PERCENT' || promo.discount_type == '%'}">Giảm ${promo.discount_value}%</c:when>
-                                                    <c:otherwise>Giảm <fmt:formatNumber value="${promo.discount_value}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></c:otherwise>
-                                                </c:choose>
-                                            </div>
-                                        </td>
-                                        <td style="text-align: right; text-decoration: line-through; color: #999;">
-                                            <fmt:formatNumber value="${promo.original_price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
-                                        </td>
-                                        <td style="text-align: right; font-weight: 700; color: #ef4444;">
-                                            <fmt:formatNumber value="${promo.discounted_price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
-                                        </td>
-                                        <td style="text-align: right; font-weight: 600;">${promo.total_sold}</td>
-                                        <td style="text-align: right; font-weight: 700; color: #10b981;">
-                                            <fmt:formatNumber value="${promo.total_revenue}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
-                                        </td>
-                                    </tr>
-                                </c:forEach>
-                            </c:when>
-                            <c:otherwise>
-                                <tr>
-                                    <td colspan="6" style="text-align: center; padding: 30px; color: #888;">
-                                        Không có sản phẩm nào đang chạy khuyến mãi trong thời gian này.
-                                    </td>
-                                </tr>
-                            </c:otherwise>
-                        </c:choose>
+                        <c:forEach var="promo" items="${promoProductStats}">
+                            <tr>
+                                <td style="font-weight: 500;">
+                                    <a href="${pageContext.request.contextPath}/admin/product/detail?id=${promo.product_id}" style="color: #0ea5e9; text-decoration: none;">
+                                        ${promo.product_name}
+                                    </a>
+                                </td>
+                                <td>
+                                    <span style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                                        ${promo.discount_code}
+                                    </span>
+                                    <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                                        <c:choose>
+                                            <c:when test="${promo.discount_type == 'PERCENT' || promo.discount_type == '%'}">Giảm ${promo.discount_value}%</c:when>
+                                            <c:otherwise>Giảm <fmt:formatNumber value="${promo.discount_value}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                </td>
+                                <td style="text-align: right; text-decoration: line-through; color: #999;">
+                                    <fmt:formatNumber value="${promo.original_price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                </td>
+                                <td style="text-align: right; font-weight: 700; color: #ef4444;">
+                                    <fmt:formatNumber value="${promo.discounted_price}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                </td>
+                                <td style="text-align: right; font-weight: 600;">${promo.total_sold}</td>
+                                <td style="text-align: right; font-weight: 700; color: #10b981;">
+                                    <fmt:formatNumber value="${promo.total_revenue}" type="currency" currencySymbol="đ" maxFractionDigits="0"/>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- New Section for Active Promotions -->
+            <div class="report-sub-filters" style="margin-top: 40px;">
+                <span style="font-size: 14px; font-weight: 600; color: var(--text-muted, #666);">Lọc khuyến mãi sắp hết hạn:</span>
+                <a href="${pageContext.request.contextPath}/admin/promotion-stats?period=${period}&timeFilter=all_active"
+                   class="sub-filter-btn ${timeFilter == 'all_active' ? 'active' : ''}">Đang hoạt động</a>
+                <a href="${pageContext.request.contextPath}/admin/promotion-stats?period=${period}&timeFilter=expiring_24h"
+                   class="sub-filter-btn ${timeFilter == 'expiring_24h' ? 'active' : ''}">Sắp hết hạn (24h)</a>
+                <a href="${pageContext.request.contextPath}/admin/promotion-stats?period=${period}&timeFilter=expiring_3days"
+                   class="sub-filter-btn ${timeFilter == 'expiring_3days' ? 'active' : ''}">Sắp hết hạn (3 ngày)</a>
+            </div>
+
+            <div class="table-container">
+                <div class="chart-header" style="margin-bottom: 15px;">
+                    <div class="chart-title" style="color: #f59e0b; font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                        <ion-icon name="timer-outline"></ion-icon>
+                        Tình Trạng Số Lượng & Thời Hạn Khuyến Mãi
+                    </div>
+                </div>
+                <table class="promotion-table" style="width:100%" id="active-promo-table">
+                    <thead>
+                        <tr class="sample">
+                            <th>Mã KM / Loại</th>
+                            <th>Bắt Đầu</th>
+                            <th>Kết Thúc</th>
+                            <th style="text-align: right;">Đã Dùng / Tổng</th>
+                            <th style="text-align: right;">Còn Lại (Tỷ lệ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="ap" items="${activePromoStats}">
+                            <c:set var="totalQuantity" value="${ap.used_quantity + ap.remaining_quantity}" />
+                            <c:set var="usedPercent" value="${totalQuantity > 0 ? (ap.used_quantity * 100 / totalQuantity) : 0}" />
+                            <tr>
+                                <td>
+                                    <span style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; padding: 2px 8px; border-radius: 4px; font-size: 13px; font-weight: 600;">
+                                        ${ap.discount_code}
+                                    </span>
+                                    <div style="font-size: 11px; color: #666; margin-top: 4px;">
+                                        <c:choose>
+                                            <c:when test="${ap.discount_type == 'PERCENT' || ap.discount_type == '%'}">Giảm ${ap.discount_value}%</c:when>
+                                            <c:otherwise>Giảm <fmt:formatNumber value="${ap.discount_value}" type="currency" currencySymbol="đ" maxFractionDigits="0"/></c:otherwise>
+                                        </c:choose>
+                                        <br/>
+                                        <span style="color:#10b981;">(Áp dụng: ${ap.apply_type})</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    ${ap.discount_from_str}
+                                </td>
+                                <td style="color: #ef4444; font-weight: 500;">
+                                    ${ap.discount_to_str}
+                                </td>
+                                <td style="text-align: right; font-weight: 600;">
+                                    <span style="color: #10b981;">${ap.used_quantity}</span> / <span style="color: #666;">${totalQuantity}</span>
+                                </td>
+                                <td style="text-align: right;">
+                                    <div style="font-weight: 700; color: #3b82f6;">${ap.remaining_quantity} mã</div>
+                                    <div style="width: 100%; background-color: #e5e7eb; border-radius: 4px; height: 6px; margin-top: 4px; overflow: hidden;">
+                                        <div style="background-color: ${usedPercent >= 90 ? '#ef4444' : (usedPercent >= 70 ? '#f59e0b' : '#10b981')}; height: 100%; width: ${usedPercent}%;"></div>
+                                    </div>
+                                    <div style="font-size: 10px; color: #888; margin-top: 2px;">Đã dùng <fmt:formatNumber value="${usedPercent}" maxFractionDigits="1"/>%</div>
+                                </td>
+                            </tr>
+                        </c:forEach>
                     </tbody>
                 </table>
             </div>
@@ -193,6 +250,17 @@ document.addEventListener("DOMContentLoaded", function() {
         pageLength: 10,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Tất cả"]],
         order: [[4, 'desc']], // Sort by "Đã bán" descending
+        searching: true,
+        info: true
+    });
+
+    $('#active-promo-table').DataTable({
+        language: {
+            url: '${pageContext.request.contextPath}/assets/datatables/Vietnamese.json',
+        },
+        pageLength: 10,
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Tất cả"]],
+        order: [[2, 'asc']], // Sort by "Kết thúc" ascending
         searching: true,
         info: true
     });

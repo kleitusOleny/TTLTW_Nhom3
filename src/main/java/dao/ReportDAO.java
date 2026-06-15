@@ -265,4 +265,32 @@ public class ReportDAO extends ADAO {
                         .list()
         );
     }
+    public List<Map<String, Object>> getActivePromotionStats(String timeFilter) {
+        String filterCondition = "";
+        if ("expiring_24h".equals(timeFilter)) {
+            filterCondition = " AND d.discount_to <= DATE_ADD(NOW(), INTERVAL 24 HOUR) ";
+        } else if ("expiring_3days".equals(timeFilter)) {
+            filterCondition = " AND d.discount_to <= DATE_ADD(NOW(), INTERVAL 3 DAY) ";
+        }
+
+        final String sql = "SELECT d.id as discount_id, d.discount_code, d.discount_type, " +
+                           "d.discount_value, d.apply_type, " +
+                           "DATE_FORMAT(d.discount_from, '%d/%m/%Y %H:%i') as discount_from_str, " +
+                           "DATE_FORMAT(d.discount_to, '%d/%m/%Y %H:%i') as discount_to_str, " +
+                           "d.quantity as remaining_quantity, " +
+                           "(SELECT COUNT(*) FROM orders o WHERE o.is_delete IS NULL AND " +
+                           "(o.discount_id = d.id OR o.shipping_discount_id = d.id OR o.voucher_discount_id = d.id OR o.loyalty_discount_id = d.id)) as used_quantity " +
+                           "FROM discounts d " +
+                           "WHERE d.is_active = 1 " +
+                           "AND d.is_delete = 0 " +
+                           "AND d.discount_to >= NOW() " +
+                           filterCondition +
+                           "ORDER BY d.discount_to ASC";
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .list()
+        );
+    }
 }
