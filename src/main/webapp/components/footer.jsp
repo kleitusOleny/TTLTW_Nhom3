@@ -126,6 +126,20 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        <%
+    String failedMsg = (String) session.getAttribute("failedMsg");
+    if (failedMsg != null) {
+        session.removeAttribute("failedMsg");
+%>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Thông báo',
+            text: '<%= failedMsg %>',
+            confirmButtonColor: '#8c3333'
+        });
+        <%
+            }
+        %>
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('loginSuccess')) {
             Swal.fire({

@@ -559,6 +559,129 @@
                                 document.addEventListener('DOMContentLoaded', function() {
                                     syncGuestFavorites();
 
+                                    // Xử lý thay đổi số lượng và kiểm tra tồn kho
+                                    const qtyInput = document.getElementById('product-quantity');
+                                    const decreaseBtn = document.getElementById('decrease-qty');
+                                    const increaseBtn = document.getElementById('increase-qty');
+                                    const addToCartLink = document.getElementById('add-to-cart-link');
+                                    const buyNowLink = document.getElementById('buy-now-link');
+                                    const maxStock = parseInt("${product.quantity}") || 0;
+
+                                    function updateLinks(qty) {
+                                        if (addToCartLink) {
+                                            addToCartLink.href = "add-cart?productId=${product.id}&quantity=" + qty;
+                                        }
+                                        if (buyNowLink) {
+                                            buyNowLink.href = "add-cart?productId=${product.id}&quantity=" + qty + "&redirect=checkout";
+                                        }
+                                    }
+
+                                    function validateQuantity(value, showAlert = true) {
+                                        let qty = parseInt(value);
+
+                                        if (maxStock <= 0) {
+                                            if (showAlert) {
+                                                showNotification('Sản phẩm này hiện đã hết hàng!', 'error');
+                                            }
+                                            qtyInput.value = 0;
+                                            updateLinks(0);
+                                            return false;
+                                        }
+
+                                        if (isNaN(qty) || qty < 1) {
+                                            qtyInput.value = 1;
+                                            updateLinks(1);
+                                            return true;
+                                        }
+
+                                        if (qty > maxStock) {
+                                            if (showAlert) {
+                                                showNotification('Số lượng đặt hàng vượt quá số lượng trong kho!', 'warning');
+                                            }
+                                            qtyInput.value = maxStock;
+                                            updateLinks(maxStock);
+                                            return false;
+                                        }
+
+                                        updateLinks(qty);
+                                        return true;
+                                    }
+
+                                    // Khởi tạo trạng thái ban đầu khi tải trang
+                                    if (qtyInput) {
+                                        validateQuantity(qtyInput.value, false);
+
+                                        qtyInput.addEventListener('input', function() {
+                                            validateQuantity(qtyInput.value, true);
+                                        });
+
+                                        qtyInput.addEventListener('blur', function() {
+                                            validateQuantity(qtyInput.value, true);
+                                        });
+                                    }
+
+                                    if (decreaseBtn && qtyInput) {
+                                        decreaseBtn.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            let currentQty = parseInt(qtyInput.value) || 1;
+                                            if (currentQty > 1) {
+                                                qtyInput.value = currentQty - 1;
+                                                validateQuantity(qtyInput.value, false);
+                                            }
+                                        });
+                                    }
+
+                                    if (increaseBtn && qtyInput) {
+                                        increaseBtn.addEventListener('click', function(e) {
+                                            e.preventDefault();
+                                            let currentQty = parseInt(qtyInput.value) || 1;
+                                            if (currentQty >= maxStock) {
+                                                showNotification('Số lượng đặt hàng vượt quá số lượng trong kho!', 'warning');
+                                                qtyInput.value = maxStock;
+                                                updateLinks(maxStock);
+                                            } else {
+                                                qtyInput.value = currentQty + 1;
+                                                validateQuantity(qtyInput.value, false);
+                                            }
+                                        });
+                                    }
+
+                                    if (addToCartLink) {
+                                        addToCartLink.addEventListener('click', function(e) {
+                                            if (maxStock <= 0) {
+                                                e.preventDefault();
+                                                showNotification('Sản phẩm này hiện đã hết hàng!', 'error');
+                                                return false;
+                                            }
+                                            let currentQty = parseInt(qtyInput.value) || 1;
+                                            if (currentQty > maxStock) {
+                                                e.preventDefault();
+                                                showNotification('Số lượng đặt hàng vượt quá số lượng trong kho!', 'warning');
+                                                qtyInput.value = maxStock;
+                                                updateLinks(maxStock);
+                                                return false;
+                                            }
+                                        });
+                                    }
+
+                                    if (buyNowLink) {
+                                        buyNowLink.addEventListener('click', function(e) {
+                                            if (maxStock <= 0) {
+                                                e.preventDefault();
+                                                showNotification('Sản phẩm này hiện đã hết hàng!', 'error');
+                                                return false;
+                                            }
+                                            let currentQty = parseInt(qtyInput.value) || 1;
+                                            if (currentQty > maxStock) {
+                                                e.preventDefault();
+                                                showNotification('Số lượng đặt hàng vượt quá số lượng trong kho!', 'warning');
+                                                qtyInput.value = maxStock;
+                                                updateLinks(maxStock);
+                                                return false;
+                                            }
+                                        });
+                                    }
+
                                     // Xử lý chuyển đổi Tab (Mô tả - Đánh giá)
                                     const tabLinks = document.querySelectorAll('.tab-link');
                                     const tabContents = document.querySelectorAll('.tab-content');
@@ -571,7 +694,7 @@
 
                                             // Thêm class active vào tab được click
                                             this.classList.add('active');
-                                            
+
                                             // Hiển thị nội dung tương ứng
                                             const targetId = this.getAttribute('data-tab');
                                             const targetElement = document.getElementById(targetId);
@@ -582,6 +705,14 @@
                                     });
                                 });
                             </script>
+                            <c:if test="${not empty sessionScope.failedMsg}">
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        showNotification("${sessionScope.failedMsg}", "error");
+                                    });
+                                </script>
+                                <% session.removeAttribute("failedMsg"); %>
+                            </c:if>
                 </body>
 
                 </html>
