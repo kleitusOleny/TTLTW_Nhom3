@@ -828,7 +828,7 @@
 
                             const status = '${orderInfo.ship_status}' || 'Đang xử lý';
                             const statusSelect = document.getElementById('modal-status-select');
-                            const isAdmin = ${sessionScope.user.roleId == 1 ? 'true' : 'false'};
+                            const hasUpsertPerm = ${sessionScope.userPermissions != null && sessionScope.userPermissions.contains('orders:upsert') ? 'true' : 'false'};
                             if (statusSelect) {
                                 const matchedOption = Array.from(statusSelect.options).find(option => option.value === status);
                                 if (matchedOption) {
@@ -866,7 +866,9 @@
                                 statusSelect.options[statusSelect.selectedIndex].style.color = '#333';
                                 
                                 const updateBtn = document.getElementById('update-order-btn');
-                                if (!isAdmin && (status === 'Đã hủy' || status === 'Thanh toán thất bại' || status === 'Giao hàng thành công' || status === 'Đã giao' || status === 'Đã xóa')) {
+                                const isCompleted = (status === 'Đã hủy' || status === 'Thanh toán thất bại' || status === 'Giao hàng thành công' || status === 'Đã giao' || status === 'Đã xóa');
+                                
+                                if (!hasUpsertPerm || isCompleted) {
                                     if (updateBtn) updateBtn.style.display = 'none';
                                     statusSelect.disabled = true;
                                 } else {

@@ -5,7 +5,6 @@ import java.util.Map;
 
 public class ReportDAO extends ADAO {
 
-    // 1. Doanh thu theo ngày (30 ngày qua)
     public List<Map<String, Object>> getRevenueByDay() {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT CONCAT(DATE(create_at), '') as time_label, SUM(total_price) as revenue " +
@@ -17,8 +16,6 @@ public class ReportDAO extends ADAO {
                         .list()
         );
     }
-
-    // 2. Doanh thu theo tháng (12 tháng qua)
     public List<Map<String, Object>> getRevenueByMonth() {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT DATE_FORMAT(create_at, '%Y-%m') as time_label, SUM(total_price) as revenue " +
@@ -31,7 +28,6 @@ public class ReportDAO extends ADAO {
         );
     }
 
-    // 3. Doanh thu theo quý (8 quý qua)
     public List<Map<String, Object>> getRevenueByQuarter() {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT CONCAT(YEAR(create_at), '-Q', QUARTER(create_at)) as time_label, SUM(total_price) as revenue " +
@@ -44,7 +40,6 @@ public class ReportDAO extends ADAO {
         );
     }
 
-    // 4. Doanh thu theo năm (tất cả các năm)
     public List<Map<String, Object>> getRevenueByYear() {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT CONCAT(YEAR(create_at), '') as time_label, SUM(total_price) as revenue " +
@@ -57,7 +52,6 @@ public class ReportDAO extends ADAO {
         );
     }
 
-    // 5. Top 10 sản phẩm bán chạy nhất
     public List<Map<String, Object>> getBestSellingProducts(int limit) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT p.id, p.product_name as product_name, SUM(oi.quantity) as total_sold, SUM(oi.quantity * oi.unit_price) as total_revenue " +
@@ -74,7 +68,6 @@ public class ReportDAO extends ADAO {
         );
     }
 
-    // 6. Sản phẩm không bán được trong N tháng qua
     public List<Map<String, Object>> getUnsoldProducts(int months) {
         return jdbi.withHandle(handle ->
                 handle.createQuery("SELECT p.id, p.product_name, p.price, p.quantity " +
@@ -93,7 +86,6 @@ public class ReportDAO extends ADAO {
         );
     }
 
-    // 7. Thống kê chi tiết khách hàng và đơn hàng theo khoảng thời gian
     public List<Map<String, Object>> getCustomerOrderStats(String period) {
         String timeCondition = "";
         if ("this_month".equals(period)) {
@@ -126,7 +118,6 @@ public class ReportDAO extends ADAO {
         );
     }
 
-    // 8. Thống kê tóm tắt số lượng khách hàng theo phân loại
     public Map<String, Object> getCustomerStatsSummary() {
         final String sql = "SELECT " +
                 "SUM(CASE WHEN all_time_orders >= 5 OR all_time_spend >= 5000000 THEN 1 ELSE 0 END) as loyal_count, " +
@@ -146,6 +137,132 @@ public class ReportDAO extends ADAO {
                         .mapToMap()
                         .findOne()
                         .orElse(Map.of("loyal_count", 0, "new_count", 0, "potential_count", 0))
+        );
+    }
+    public List<Map<String, Object>> getOrderStatusStats(String period) {
+        String timeCondition = "";
+        if ("this_month".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
+        } else if ("this_quarter".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND QUARTER(o.create_at) = QUARTER(NOW())";
+        }
+
+        final String sql = "SELECT COALESCE(so.status, 'Chưa xác định') as status, COUNT(o.id) as order_count " +
+                           "FROM orders o " +
+                           "LEFT JOIN ship_orders so ON o.id = so.order_id " +
+                           "WHERE o.is_delete IS NULL" + timeCondition + " " +
+                           "GROUP BY so.status " +
+                           "ORDER BY order_count DESC";
+                           
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .list()
+        );
+    }
+    public Map<String, Object> getPaymentStatusSummary(String period) {
+        String timeCondition = "";
+        if ("this_month".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
+        } else if ("this_quarter".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND QUARTER(o.create_at) = QUARTER(NOW())";
+        }
+
+        final String sql = "SELECT " +
+            "COALESCE(SUM(CASE WHEN p.status IN ('Success', 'Đã thanh toán', 'Completed') THEN p.amount ELSE 0 END), 0) as total_collected, " +
+            "COALESCE(SUM(CASE WHEN p.status IN ('Pending', 'Chưa thanh toán', 'Failed') THEN p.amount ELSE 0 END), 0) as total_owed " +
+            "FROM payments p " +
+            "JOIN orders o ON p.order_id = o.id " +
+            "WHERE o.is_delete IS NULL" + timeCondition;
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .findOne()
+                        .orElse(Map.of("total_collected", 0, "total_owed", 0))
+        );
+    }
+    public List<Map<String, Object>> getPaymentMethodStats(String period) {
+        String timeCondition = "";
+        if ("this_month".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
+        } else if ("this_quarter".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND QUARTER(o.create_at) = QUARTER(NOW())";
+        }
+
+        final String sql = "SELECT COALESCE(p.pay_strategy, 'Khác') as method, COUNT(p.id) as count, COALESCE(SUM(p.amount), 0) as total_amount " +
+                           "FROM payments p " +
+                           "JOIN orders o ON p.order_id = o.id " +
+                           "WHERE o.is_delete IS NULL" + timeCondition + " " +
+                           "GROUP BY p.pay_strategy " +
+                           "ORDER BY total_amount DESC";
+                           
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .list()
+        );
+    }
+
+    public List<Map<String, Object>> getDeliveredButUnpaidOrders(String period) {
+        String timeCondition = "";
+        if ("this_month".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
+        } else if ("this_quarter".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND QUARTER(o.create_at) = QUARTER(NOW())";
+        }
+
+        final String sql = "SELECT o.id, u.full_name, u.email, o.total_price, p.pay_strategy, so.status as ship_status " +
+                           "FROM orders o " +
+                           "JOIN users u ON o.user_id = u.id " +
+                           "JOIN ship_orders so ON o.id = so.order_id " +
+                           "JOIN payments p ON o.id = p.order_id " +
+                           "WHERE o.is_delete IS NULL " +
+                           "AND so.status IN ('Đã giao', 'Giao hàng thành công') " +
+                           "AND p.status IN ('Pending', 'Chưa thanh toán', 'Failed')" + timeCondition + " " +
+                           "ORDER BY o.create_at DESC";
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .list()
+        );
+    }
+    public List<Map<String, Object>> getPromotionalProductStats(String period) {
+        String timeCondition = "";
+        if ("this_month".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND MONTH(o.create_at) = MONTH(NOW())";
+        } else if ("this_quarter".equals(period)) {
+            timeCondition = " AND YEAR(o.create_at) = YEAR(NOW()) AND QUARTER(o.create_at) = QUARTER(NOW())";
+        }
+
+        final String sql = "SELECT p.id as product_id, p.product_name, p.price as original_price, " +
+                           "d.id as discount_id, d.discount_code, d.discount_type, d.discount_value, " +
+                           "d.discount_from, d.discount_to, " +
+                           "CASE " +
+                           "    WHEN d.discount_type = '%' OR d.discount_type = 'PERCENT' THEN p.price * (1 - d.discount_value / 100.0) " +
+                           "    WHEN d.discount_type = 'VND' OR d.discount_type = 'AMOUNT' THEN GREATEST(p.price - d.discount_value, 0) " +
+                           "    ELSE p.price " +
+                           "END as discounted_price, " +
+                           "COALESCE(SUM(oi.quantity), 0) as total_sold, " +
+                           "COALESCE(SUM(oi.quantity * oi.unit_price), 0) as total_revenue " +
+                           "FROM products p " +
+                           "JOIN dis_process dp ON p.id = dp.product_id " +
+                           "JOIN discounts d ON dp.discount_id = d.id " +
+                           "LEFT JOIN order_items oi ON p.id = oi.product_id " +
+                           "LEFT JOIN orders o ON oi.order_id = o.id AND o.is_delete IS NULL" + timeCondition + " AND o.create_at BETWEEN d.discount_from AND d.discount_to " +
+                           "WHERE p.is_delete = 0 " +
+                           "AND dp.is_delete = 0 " +
+                           "AND d.is_delete = 0 " +
+                           "AND d.is_active = 1 " +
+                           "AND NOW() BETWEEN d.discount_from AND d.discount_to " +
+                           "GROUP BY p.id, p.product_name, p.price, d.id, d.discount_code, d.discount_type, d.discount_value, d.discount_from, d.discount_to " +
+                           "ORDER BY total_sold DESC, total_revenue DESC";
+
+        return jdbi.withHandle(handle ->
+                handle.createQuery(sql)
+                        .mapToMap()
+                        .list()
         );
     }
 }

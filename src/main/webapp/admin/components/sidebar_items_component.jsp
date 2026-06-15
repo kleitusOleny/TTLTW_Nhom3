@@ -226,15 +226,29 @@
 </c:if>
 
 <c:if test="${canViewPromotion}">
-<li>
-    <a href="${pageContext.request.contextPath}/admin/manage-promotions"
-       class="a-with-icon ${activePage == 'promotion' ? 'selected' : ''}">
+<c:set var="isPromotionActive" value="${activePage == 'promotion' || activePage == 'promotion-stats'}" />
+<li class="sidebar-dropdown ${isPromotionActive ? 'expanded' : ''}">
+    <div class="a-with-icon dropdown-toggle ${isPromotionActive ? 'selected' : ''}">
         <span class="sidebar-link-content">
             <ion-icon name="ticket-outline"></ion-icon>
-            Quản Lí Mã Giảm Giá và Khuyến Mãi
+            Khuyến mãi & Mã giảm giá
         </span>
-        <ion-icon name="chevron-back-outline" class="item-arrow-icon"></ion-icon>
-    </a>
+        <ion-icon name="${isPromotionActive ? 'chevron-down-outline' : 'chevron-back-outline'}" class="item-arrow-icon arrow-icon"></ion-icon>
+    </div>
+    <ul class="dropdown-menu">
+        <li>
+            <a href="${pageContext.request.contextPath}/admin/manage-promotions"
+               class="submenu-item ${activePage == 'promotion' ? 'selected' : ''}">
+                Danh sách
+            </a>
+        </li>
+        <li>
+            <a href="${pageContext.request.contextPath}/admin/promotion-stats"
+               class="submenu-item ${activePage == 'promotion-stats' ? 'selected' : ''}">
+                Thống kê
+            </a>
+        </li>
+    </ul>
 </li>
 </c:if>
 
