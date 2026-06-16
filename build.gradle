@@ -167,8 +167,8 @@ task docker_upload_file_to_server {
                 execute 'rm -rf /usr/deploy/wine/wine/'
 
                 // Thực hiện upload file war lên server
-                put from: "${project.projectDir}/build/libs/wine.war",
-                        into: "/usr/deploy/wine/wine.war"
+                put from: "${project.projectDir}/build/libs/ROOT.war",
+                        into: "/usr/deploy/wine/ROOT.war"
 //                put from: "${project.projectDir}/build/libs/web_deloy.sql",
 //                        into: "/usr/deploy/wine/web_deloy.sql"
             }

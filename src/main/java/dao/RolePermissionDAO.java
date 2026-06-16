@@ -30,7 +30,7 @@ public class RolePermissionDAO extends ADAO {
                 u.email, 
                 u.full_name, 
                 u.active, 
-                r.id AS role_id,
+                MAX(r.id) AS role_id,
                 GROUP_CONCAT(r.description SEPARATOR ',') AS description 
             FROM user_roles ur 
             JOIN users u ON ur.user_id = u.id 

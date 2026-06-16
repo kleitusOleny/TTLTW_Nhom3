@@ -14,6 +14,10 @@ import java.util.UUID;
 public class Payment {
 
     public static String createPaymentUrl(String orderId, double amountValue, String orderInfo) {
+        return createPaymentUrl(orderId, amountValue, orderInfo, Config.REDIRECT_URL, Config.NOTIFY_URL);
+    }
+
+    public static String createPaymentUrl(String orderId, double amountValue, String orderInfo, String redirectUrl, String ipnUrl) {
 
         try {
 
@@ -29,7 +33,7 @@ public class Payment {
 
             orderInfo = "Thanh_toan_don_hang";
 
-            String rawHash = "accessKey=" + Config.ACCESS_KEY + "&amount=" + amount + "&extraData=" + extraData + "&ipnUrl=" + Config.NOTIFY_URL + "&orderId=" + momoOrderId + "&orderInfo=" + orderInfo + "&partnerCode=" + Config.PARTNER_CODE + "&redirectUrl=" + Config.REDIRECT_URL + "&requestId=" + requestId + "&requestType=" + requestType;
+            String rawHash = "accessKey=" + Config.ACCESS_KEY + "&amount=" + amount + "&extraData=" + extraData + "&ipnUrl=" + ipnUrl + "&orderId=" + momoOrderId + "&orderInfo=" + orderInfo + "&partnerCode=" + Config.PARTNER_CODE + "&redirectUrl=" + redirectUrl + "&requestId=" + requestId + "&requestType=" + requestType;
 
             System.out.println("RAW HASH:");
             System.out.println(rawHash);
@@ -51,9 +55,9 @@ public class Payment {
 
             payload.put("orderInfo", orderInfo);
 
-            payload.put("redirectUrl", Config.REDIRECT_URL);
+            payload.put("redirectUrl", redirectUrl);
 
-            payload.put("ipnUrl", Config.NOTIFY_URL);
+            payload.put("ipnUrl", ipnUrl);
 
             payload.put("lang", "vi");
 

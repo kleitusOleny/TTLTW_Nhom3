@@ -44,8 +44,20 @@ public class MomoPaymentController extends HttpServlet {
 
             String orderInfo = "Thanh toan don hang:" + orderId;
             
+            String scheme = req.getScheme();
+            String serverName = req.getServerName();
+            int serverPort = req.getServerPort();
+            String contextPath = req.getContextPath();
+            String baseUrl = scheme + "://" + serverName;
+            if (("http".equals(scheme) && serverPort != 80) || ("https".equals(scheme) && serverPort != 443)) {
+                baseUrl += ":" + serverPort;
+            }
+            baseUrl += contextPath;
+            String redirectUrl = baseUrl + "/momoReturn";
+            String ipnUrl = Config.NOTIFY_URL.equals("https://google.com.vn") ? redirectUrl : Config.NOTIFY_URL;
+            
             System.out.println("MomoPaymentController: Creating payment for orderId=" + orderId + ", amount=" + amount);
-            String payUrl = external_service.momo.Payment.createPaymentUrl(String.valueOf(orderId), amount, orderInfo);
+            String payUrl = external_service.momo.Payment.createPaymentUrl(String.valueOf(orderId), amount, orderInfo, redirectUrl, ipnUrl);
             
             if (payUrl != null && !payUrl.isEmpty()) {
                 System.out.println("MomoPaymentController: Redirecting to MoMo payUrl=" + payUrl);

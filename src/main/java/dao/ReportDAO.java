@@ -10,8 +10,8 @@ public class ReportDAO extends ADAO {
                 handle.createQuery("SELECT CONCAT(DATE(create_at), '') as time_label, SUM(total_price) as revenue " +
                                 "FROM orders " +
                                 "WHERE is_delete IS NULL AND create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) " +
-                                "GROUP BY DATE(create_at) " +
-                                "ORDER BY DATE(create_at) ASC")
+                                "GROUP BY CONCAT(DATE(create_at), '') " +
+                                "ORDER BY CONCAT(DATE(create_at), '') ASC")
                         .mapToMap()
                         .list()
         );
@@ -33,8 +33,8 @@ public class ReportDAO extends ADAO {
                 handle.createQuery("SELECT CONCAT(YEAR(create_at), '-Q', QUARTER(create_at)) as time_label, SUM(total_price) as revenue " +
                                 "FROM orders " +
                                 "WHERE is_delete IS NULL AND create_at >= DATE_SUB(NOW(), INTERVAL 24 MONTH) " +
-                                "GROUP BY YEAR(create_at), QUARTER(create_at) " +
-                                "ORDER BY YEAR(create_at) ASC, QUARTER(create_at) ASC")
+                                "GROUP BY CONCAT(YEAR(create_at), '-Q', QUARTER(create_at)) " +
+                                "ORDER BY CONCAT(YEAR(create_at), '-Q', QUARTER(create_at)) ASC")
                         .mapToMap()
                         .list()
         );
@@ -45,8 +45,8 @@ public class ReportDAO extends ADAO {
                 handle.createQuery("SELECT CONCAT(YEAR(create_at), '') as time_label, SUM(total_price) as revenue " +
                                 "FROM orders " +
                                 "WHERE is_delete IS NULL " +
-                                "GROUP BY YEAR(create_at) " +
-                                "ORDER BY YEAR(create_at) ASC")
+                                "GROUP BY CONCAT(YEAR(create_at), '') " +
+                                "ORDER BY CONCAT(YEAR(create_at), '') ASC")
                         .mapToMap()
                         .list()
         );

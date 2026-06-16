@@ -26,4 +26,8 @@ public class HeaderController implements ServletContextListener {
         context.setAttribute("globalListRegions", manufacturerDAO.getTop6Regions());
     }
     
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        db.JdbiConnector.shutdown();
+    }
 }
