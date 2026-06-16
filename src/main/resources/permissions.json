@@ -33,6 +33,7 @@
     "/admin/delete-blog": "blog:delete",
     "/admin/bulk-delete-blog": "blog:delete",
     "/account-manager": "account:read",
+    "/account-manager/detail": "account:read",
     "/account-manager/add": "account:upsert",
     "/account-manager/edit": "account:upsert",
     "/account-manager/toggle-status": "account:delete",

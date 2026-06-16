@@ -28,10 +28,6 @@
 <div class="group-avatar-new">
     <div class="admin-sidebar-header">
 
-        <div class="admin-logo-box">
-            <span class="logo-text-your">Your</span><span class="logo-text-logo">LOGO</span><span class="logo-text-q">?</span>
-        </div>
-
         <div class="admin-name" id="avatar-modal-btn" style="cursor: pointer;" title="Nhấn để cài đặt / đăng xuất">
             <c:out value="${not empty sessionScope.user.fullName ? sessionScope.user.fullName : 'ADMIN'}" />
         </div>
