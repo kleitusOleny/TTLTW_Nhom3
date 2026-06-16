@@ -1,6 +1,7 @@
 package controller;
 
 import dao.SecurityAttemptDAO;
+import dao.UserDAO;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -20,6 +21,7 @@ public class AuthenticationController extends HttpServlet {
     AuthServices authService = new AuthServices();
     EmailServices emailServices = new EmailServices();
     UserService userService = new UserService();
+    UserDAO userDAO = new UserDAO();
     SecurityAttemptDAO securityAttemptDAO = new SecurityAttemptDAO();
     private final AuthTypes actionTypeAuthentication = AuthTypes.AUTHENTICATION;
     private static final Logger log = LoggerFactory.getLogger(AuthenticationController.class);
@@ -37,14 +39,8 @@ public class AuthenticationController extends HttpServlet {
         String otpInput = request.getParameter("otpInput");
 
         HttpSession session = request.getSession();
-        User account = (User) session.getAttribute("pendingUser");
-
-        String finalEmail = "GUEST";
-        if (account != null && account.getEmail() != null) {
-            finalEmail = account.getEmail();
-        } else if (emailInput != null && !emailInput.isEmpty()) {
-            finalEmail = emailInput.toLowerCase();
-        }
+        String pendingEmail = (String) session.getAttribute("pendingEmail");
+        String finalEmail = (pendingEmail != null) ? pendingEmail : "GUEST";
 
         authService.baseSetupMdc(request, finalEmail);
 
@@ -62,9 +58,9 @@ public class AuthenticationController extends HttpServlet {
                         request.setAttribute("emailError", "Vui lòng đợi " + secondsLeft + " giây nữa để gửi lại mã");
                     }
                     else {
-                        if (account != null) {
+                        if (pendingEmail != null) {
                             // luồng từ register
-                            if (!emailInput.equalsIgnoreCase(account.getEmail())) {
+                            if (!emailInput.equalsIgnoreCase(pendingEmail)) {
                                 log.warn("Người dùng đang cố xác thực với email khác: {}", emailInput);
                                 request.setAttribute("emailError", "Email không khớp với thông tin đã đăng ký!");
                             } else {
@@ -97,18 +93,23 @@ public class AuthenticationController extends HttpServlet {
                 String storedOtp = (String) session.getAttribute("otpCode");
                 if (otpInput != null && otpInput.equals(storedOtp)) {
                     securityAttemptDAO.resetAttempts(finalEmail, clientIp, actionTypeAuthentication);
-                    if (account != null) {
+                    if (pendingEmail != null) {
                         // luồng từ register
-                        User realAccount = authService.register(
-                                account.getFullName(), account.getEmail(), account.getUsername(),
-                                account.getPasswordHash(), account.getPhoneNumber(), account.getBirthDay()
-                        );
-                        if (realAccount != null) {
+                        User pendingUserFromDb = userDAO.findByEmail(pendingEmail);
+                        if (pendingUserFromDb != null) {
                             log.info("Xác thực OTP thành công, đã khởi tạo tài khoản hệ thống");
-                            session.removeAttribute("pendingUser");
-                            session.setAttribute("user", realAccount);
-                            session.removeAttribute("otpCode");
-                            response.sendRedirect(request.getContextPath() + "?registerSuccess");
+                            boolean isActivated = authService.activateUser(pendingUserFromDb.getId());
+                            if (isActivated) {
+                                pendingUserFromDb.setActive(1);
+                                session.setAttribute("user", pendingUserFromDb);
+                                session.removeAttribute("pendingEmail");
+                                session.removeAttribute("otpCode");
+                                response.sendRedirect(request.getContextPath() + "?registerSuccess");
+                            } else {
+                                log.error("Lỗi cập nhật trạng thái active vào DB");
+                                request.setAttribute("otpError", "Lỗi lưu dữ liệu, vui lòng thử lại!");
+                                request.getRequestDispatcher("/auth/Authentication.jsp").forward(request, response);
+                            }
                         } else {
                             log.error("Lỗi lưu dữ liệu");
                             request.setAttribute("otpError", "Lỗi lưu dữ liệu, vui lòng thử lại!");
