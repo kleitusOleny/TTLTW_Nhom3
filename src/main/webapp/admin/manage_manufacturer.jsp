@@ -42,13 +42,10 @@
                 </div>
             </div>
 
-            <div class="filter-card" style="justify-content: flex-end;">
-                <div class="filter-right" style="margin: 0; width: 100%;">
-                    <div class="search-wrapper">
-                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                        <input type="text" id="custom-search-input"
-                               placeholder="Tìm tên nhà sản xuất, quốc gia..." class="search-input">
-                    </div>
+            <div class="filter-bar">
+                <div class="filter-item" style="flex: 1;">
+                    <label>Tìm kiếm</label>
+                    <input type="text" id="custom-search-input" class="filter-input" placeholder="Tìm tên nhà sản xuất, quốc gia...">
                 </div>
             </div>
 

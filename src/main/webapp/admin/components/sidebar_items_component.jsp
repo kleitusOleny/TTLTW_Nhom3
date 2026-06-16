@@ -4,6 +4,8 @@
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/admin_sidebar.css?v=1.0.3">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/admin_darkmode.css?v=1.0.0">
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <c:set var="perms" value="${sessionScope.userPermissions}" />
 
 <c:set var="canViewCategory" value="${fn:contains(perms, 'category:read')}" />
