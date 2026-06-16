@@ -92,17 +92,9 @@ public class RegisterController extends HttpServlet {
                 LocalDate birthDay = LocalDate.parse(birth);
                 Timestamp ts = Timestamp.valueOf(birthDay.atStartOfDay());
 
-                // user này chỉ là tạm thời (chỉ dùng để authentication)
-                User pendingUser = new User();
-                pendingUser.setFullName(fullName);
-                pendingUser.setEmail(email);
-                pendingUser.setUsername(username);
-                pendingUser.setPasswordHash(plainPassword);
-                pendingUser.setPhoneNumber(phoneNumber);
-                pendingUser.setBirthDay(ts);
-
+                authServices.register(fullName, email, username, plainPassword, phoneNumber, ts);
                 HttpSession session = request.getSession();
-                session.setAttribute("pendingUser", pendingUser);
+                session.setAttribute("pendingEmail", email);
                 response.sendRedirect("authentication");
             } else {
                 log.warn("Lỗi validation khi đăng ký");

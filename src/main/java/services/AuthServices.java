@@ -102,7 +102,7 @@ public class AuthServices {
 
     public User register(String fullName, String email, String username, String plainPassword, String phoneNumber, Timestamp birthday) {
         if (userDAO.countUserId(email) > 0) return null;
-        String hashedPass = null;
+        String hashedPass;
         if (plainPassword != null && !plainPassword.isEmpty()){
                hashedPass = BCrypt.hashpw(plainPassword, BCrypt.gensalt(12));
         } else {
@@ -116,11 +116,16 @@ public class AuthServices {
         user.setPhoneNumber(phoneNumber);
         user.setFullName(fullName);
         user.setBirthDay(birthday);
-        user.setActive(1);
+        user.setActive(0);
         user.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
         userDAO.save(user);
         return user;
+    }
+
+    public boolean activateUser(int id) {
+        Timestamp newTimestamp = new Timestamp(System.currentTimeMillis());
+        return userDAO.updateActive(id, 1, newTimestamp);
     }
 
     public boolean updatePasswordAfterAuthentication(String email, String newPlainPassword) {
