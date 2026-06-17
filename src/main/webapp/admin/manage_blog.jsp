@@ -11,6 +11,8 @@
                 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
                 <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
                 <script src="../popup.js"></script>
+                <link rel="stylesheet"
+                    href="${pageContext.request.contextPath}/admin/admin_css/manage_product_style.css">
                 <link rel="stylesheet" type="text/css"
                     href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
                 <link rel="stylesheet"
@@ -28,23 +30,22 @@
                             <c:set var="activePage" value="blog" scope="request" />
                             <%@ include file="/admin/components/sidebar_items_component.jsp" %>
                         </ul>
-                        <div class="text">━ Được update tới 2025 ━</div>
                     </nav>
                     <div class="dashboard-content">
                         <main class="dashboard-main-content">
-                            <div class="button-group">
-                                <h2>Quản lí Blog và Tin tức</h2>
-                                <div class="func-group">
-                                    <button class="button del" id="deleteAll-modal-btn" data-require-perm="blog:delete">
+                            <div class="main-header">
+                                <h1>Quản lí Blog và Tin tức</h1>
+                                <div class="header-actions">
+                                    <button class="btn btn-danger" id="deleteAll-modal-btn" data-require-perm="blog:delete" style="display: flex; align-items: center; gap: 8px;">
                                         <ion-icon name="trash-outline"></ion-icon>
                                         Xoá (Đã chọn)
                                     </button>
-                                    <button class="button" id="fetch-news-btn" style="background-color: #4CAF50;">
+                                    <button class="btn btn-success" id="fetch-news-btn" style="display: flex; align-items: center; gap: 8px;">
                                         <ion-icon name="refresh-outline"></ion-icon>
                                         Lấy Tin Tức
                                     </button>
-                                    <button class="button add" id="open-modal-btn">
-                                        <ion-icon name="add-outline" class="type-needCss" data-require-perm="blog:upsert"></ion-icon>
+                                    <button class="btn btn-primary" id="open-modal-btn" data-require-perm="blog:upsert" style="display: flex; align-items: center; gap: 8px;">
+                                        <ion-icon name="add-circle-outline"></ion-icon>
                                         Thêm Bài
                                     </button>
                                 </div>
@@ -52,7 +53,8 @@
                             <form action="${pageContext.request.contextPath}/admin/bulk-delete-blog" method="post"
                                 id="bulk-delete-form">
                                 <div class="table-container">
-                                    <table id="account-table-main" class="account-table">
+                                    <div class="table-scroll-wrapper">
+                                        <table id="account-table-main" class="product-table">
                                         <thead>
                                             <tr class="sample">
                                                 <th class="col-tick">Chọn</th>
@@ -75,17 +77,18 @@
                                                     <td class="cell-date">${blog.cardDate}</td>
                                                     <td class="cell-status">${blog.display ? 'Hiện' : 'Ẩn'}</td>
                                                     <td class="cell-action">
-                                                        <button type="button" class="edit-blog-btn btn" data-require-perm="blog:upsert" data-blog-id="${blog.id}" style="background-color: #f39c12; color: white; margin-right: 5px;">Sửa</button>
+                                                        <button type="button" class="btn btn-secondary edit-blog-btn" data-require-perm="blog:upsert" data-blog-id="${blog.id}">Sửa</button>
                                                         <form id="delete-form-${blog.id}"
                                                             action="${pageContext.request.contextPath}/admin/delete-blog?id=${blog.id}"
                                                             method="post" style="display: inline;">
-                                                            <button type="button" class="delete btn" data-require-perm="blog:delete" onclick="showDeleteSingleModal('${blog.id}')">Xoá</button>
+                                                            <button type="button" class="btn btn-danger delete" data-require-perm="blog:delete" onclick="showDeleteSingleModal('${blog.id}')">Xoá</button>
                                                         </form>
                                                     </td>
                                                 </tr>
                                             </c:forEach>
                                         </tbody>
-                                    </table>
+                                        </table>
+                                    </div>
                                 </div>
                             </form>
                         </main>

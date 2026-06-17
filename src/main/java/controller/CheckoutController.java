@@ -309,6 +309,15 @@ public class CheckoutController extends HttpServlet {
             String carrierName = "Giao Hàng Nhanh (GHN)";
             double shippingFee = 0.0;
             int estimatedDays = 3;
+            boolean isGhtk = "ghtk".equalsIgnoreCase(selectedCarrier);
+
+            AddressDAO addressDAO = new AddressDAO();
+            Address shippingAddress = addressDAO.findById(order.getShippingAddressId()).orElse(null);
+            Map<String, Product> productMap = new HashMap<>();
+            for (OrderItem item : order.getItems()) {
+                Product p = productService.getProductById(item.getProductId());
+                if (p != null) productMap.put(p.getId(), p);
+            }
 
             String shippingFeeParam = request.getParameter("shipping_fee");
             if (shippingFeeParam != null && !shippingFeeParam.isEmpty()) {
@@ -362,17 +371,24 @@ public class CheckoutController extends HttpServlet {
                         new Timestamp(System.currentTimeMillis() + (long) estimatedDays * 24 * 60 * 60 * 1000));
                 shipOrderDAO.save(shipOrder);
 
-//                if ("buyNow".equals(checkoutType)) {
-//                    session.removeAttribute("buyNowCart");
-//                } else {
-//                    session.removeAttribute("cart");
-//                    CartDAO cartDAO = new CartDAO();
-//                    cartDAO.clearCart(user.getId());
-//                }
-//                session.removeAttribute("pendingOrder");
-//                session.removeAttribute("checkoutType");
-//
-//                handleDiscountsAfterOrder(order, user);
+                if (isGhtk && shippingAddress != null) {
+                    try {
+                        Map<String, Object> ghtkResult = external_service.ghtk.Service.createOrder(
+                                order, shippingAddress, order.getItems(), productMap,
+                                0.5, actualShippingFee);
+                        System.out.println("[GHTK CREATE ORDER] result=" + ghtkResult);
+                        if ("success".equals(ghtkResult.get("status"))) {
+                            String ghtkLabel = (String) ghtkResult.get("label");
+                            if (ghtkLabel != null && !ghtkLabel.isEmpty()) {
+                                shipOrder.setTrackingNumber(ghtkLabel);
+                                shipOrderDAO.save(shipOrder);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println("[GHTK CREATE ORDER] Failed: " + e.getMessage());
+                    }
+                }
 
                 if ("ewallet".equals(paymentMethod)) {
                     response.sendRedirect("payment?orderId=" + orderId);
@@ -394,6 +410,25 @@ public class CheckoutController extends HttpServlet {
                 shipOrder.setEstimatedDeliveryDate(
                         new Timestamp(System.currentTimeMillis() + (long) estimatedDays * 24 * 60 * 60 * 1000));
                 shipOrderDAO.save(shipOrder);
+
+                if (isGhtk && shippingAddress != null) {
+                    try {
+                        Map<String, Object> ghtkResult = external_service.ghtk.Service.createOrder(
+                                order, shippingAddress, order.getItems(), productMap,
+                                0.5, actualShippingFee);
+                        System.out.println("[GHTK CREATE ORDER] result=" + ghtkResult);
+                        if ("success".equals(ghtkResult.get("status"))) {
+                            String ghtkLabel = (String) ghtkResult.get("label");
+                            if (ghtkLabel != null && !ghtkLabel.isEmpty()) {
+                                shipOrder.setTrackingNumber(ghtkLabel);
+                                shipOrderDAO.save(shipOrder);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        System.out.println("[GHTK CREATE ORDER] Failed: " + e.getMessage());
+                    }
+                }
 
                 if ("buyNow".equals(checkoutType)) {
                     session.removeAttribute("buyNowCart");

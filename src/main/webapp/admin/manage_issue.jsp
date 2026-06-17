@@ -10,6 +10,7 @@
     <title>Quản Lý Xuất Kho</title>
     <script src="<%= request.getContextPath() %>/popup.js"></script>
     <link rel="stylesheet" href="<%= request.getContextPath() %>/admin/admin_css/manage_product_style.css">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
 

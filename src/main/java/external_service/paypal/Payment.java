@@ -51,6 +51,10 @@ public class Payment {
     }
 
     public static String createPaymentUrl(String orderId, double amountVnd, String orderInfo) {
+        return createPaymentUrl(orderId, amountVnd, orderInfo, Config.REDIRECT_URL, Config.CANCEL_URL);
+    }
+
+    public static String createPaymentUrl(String orderId, double amountVnd, String orderInfo, String redirectUrl, String cancelUrl) {
         try {
             String accessToken = getAccessToken();
             if (accessToken == null) {
@@ -83,8 +87,8 @@ public class Payment {
             appContext.put("brand_name", "TTLTW Nhom3 Shop");
             appContext.put("landing_page", "NO_PREFERENCE");
             appContext.put("user_action", "PAY_NOW");
-            appContext.put("return_url", Config.REDIRECT_URL + "?orderId=" + orderId);
-            appContext.put("cancel_url", Config.CANCEL_URL);
+            appContext.put("return_url", redirectUrl + "?orderId=" + orderId);
+            appContext.put("cancel_url", cancelUrl);
             payload.put("application_context", appContext);
 
             String jsonPayload = gson.toJson(payload);

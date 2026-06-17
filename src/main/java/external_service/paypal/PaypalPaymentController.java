@@ -44,8 +44,20 @@ public class PaypalPaymentController extends HttpServlet {
 
             String orderInfo = "Thanh toan don hang:" + orderId;
             
+            String scheme = req.getScheme();
+            String serverName = req.getServerName();
+            int serverPort = req.getServerPort();
+            String contextPath = req.getContextPath();
+            String baseUrl = scheme + "://" + serverName;
+            if (("http".equals(scheme) && serverPort != 80) || ("https".equals(scheme) && serverPort != 443)) {
+                baseUrl += ":" + serverPort;
+            }
+            baseUrl += contextPath;
+            String redirectUrl = baseUrl + "/paypalReturn";
+            String cancelUrl = baseUrl + "/checkout";
+            
             System.out.println("PaypalPaymentController: Creating payment for orderId=" + orderId + ", amount=" + amount);
-            String payUrl = external_service.paypal.Payment.createPaymentUrl(String.valueOf(orderId), amount, orderInfo);
+            String payUrl = external_service.paypal.Payment.createPaymentUrl(String.valueOf(orderId), amount, orderInfo, redirectUrl, cancelUrl);
             
             if (payUrl != null && !payUrl.isEmpty()) {
                 System.out.println("PaypalPaymentController: Redirecting to PayPal payUrl=" + payUrl);

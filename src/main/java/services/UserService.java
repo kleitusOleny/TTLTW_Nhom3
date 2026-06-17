@@ -77,6 +77,7 @@ public class UserService {
         String birthStr = request.getParameter("birthDay");
         String oldPassword = request.getParameter("oldPassword");
         String newPassword = request.getParameter("newPassword");
+        String confirmNewPassword = request.getParameter("confirmNewPassword");
 
         UserValidationServices userValidationServices = new UserValidationServices();
         Map<String, String> allErrors = new HashMap<>();
@@ -87,22 +88,20 @@ public class UserService {
 
         System.out.println(allErrors);
 
+        if (newPassword != null && !newPassword.isEmpty()) {
+            if (oldPassword == null || !BCrypt.checkpw(oldPassword, user.getPasswordHash())) {
+                allErrors.put("errorPass", "Mật khẩu cũ không chính xác");
+            }
+            allErrors.putAll(userValidationServices.validatePassword(newPassword));
+            allErrors.putAll(userValidationServices.isPasswordEqualConfirmed(newPassword, confirmNewPassword));
+        }
+
         if (allErrors.isEmpty()) {
             try {
                 LocalDate birthDay = LocalDate.parse(birthStr);
                 Timestamp ts = Timestamp.valueOf(birthDay.atStartOfDay());
                 if (newPassword != null && !newPassword.isEmpty()) {
-                    if (!BCrypt.checkpw(oldPassword, user.getPasswordHash())) {
-                        request.setAttribute("errorPass", "Mật khẩu cũ không chính xác");
-                        request.setAttribute("user", user);
-                        request.getRequestDispatcher("/info_users/user_sidebar.jsp").forward(request,
-                                response);
-                        return;
-                    }
-                    allErrors.putAll(userValidationServices.validatePassword(newPassword));
-                    if (!allErrors.containsKey("passwordError")) {
-                        user.setPasswordHash(BCrypt.hashpw(newPassword, BCrypt.gensalt(12)));
-                    }
+                    user.setPasswordHash(BCrypt.hashpw(newPassword, BCrypt.gensalt(12)));
                 }
 
                 user.setFullName(fullName);

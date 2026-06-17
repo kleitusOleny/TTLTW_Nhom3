@@ -4,6 +4,8 @@
 
 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/admin_sidebar.css?v=1.0.3">
 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/admin_darkmode.css?v=1.0.0">
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 <c:set var="perms" value="${sessionScope.userPermissions}" />
 
 <c:set var="canViewCategory" value="${fn:contains(perms, 'category:read')}" />
@@ -27,10 +29,6 @@
 
 <div class="group-avatar-new">
     <div class="admin-sidebar-header">
-
-        <div class="admin-logo-box">
-            <span class="logo-text-your">Your</span><span class="logo-text-logo">LOGO</span><span class="logo-text-q">?</span>
-        </div>
 
         <div class="admin-name" id="avatar-modal-btn" style="cursor: pointer;" title="Nhấn để cài đặt / đăng xuất">
             <c:out value="${not empty sessionScope.user.fullName ? sessionScope.user.fullName : 'ADMIN'}" />

@@ -19,17 +19,12 @@
     <nav class="dashboard-sidebar">
         <ul class="sidebar-items">
             <div class="group-avatar">
-                <img src="<%= request.getContextPath() %>/assets/avatar.jpg" class="user-avatar"
-                     id="avatar-modal-btn"/>
-                <ion-icon name="notifications-outline" class="icon-header"
-                          id="notification-modal-btn"></ion-icon>
+                <%@ include file="/admin/components/avatar.jsp" %>
+                <%@ include file="/admin/components/notify_icon.jsp" %>
             </div>
-
             <c:set var="activePage" value="category" scope="request"/>
-
-            <jsp:include page="/admin/components/sidebar_items_component.jsp"/>
+            <%@ include file="/admin/components/sidebar_items_component.jsp" %>
         </ul>
-        <div class="text">━ Được update tới 2025 ━</div>
     </nav>
     <div class="dashboard-content">
         <main class="dashboard-main-content">
@@ -43,13 +38,10 @@
                 </div>
             </div>
 
-            <div class="filter-card" style="justify-content: flex-end;">
-                <div class="filter-right" style="margin: 0; width: 100%;">
-                    <div class="search-wrapper">
-                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                        <input type="text" id="custom-search-input"
-                               placeholder="Tìm tên danh mục, slug..." class="search-input">
-                    </div>
+            <div class="filter-bar">
+                <div class="filter-item" style="flex: 1;">
+                    <label>Tìm kiếm</label>
+                    <input type="text" id="custom-search-input" class="filter-input" placeholder="Tìm tên danh mục, slug...">
                 </div>
             </div>
 
@@ -70,14 +62,14 @@
                         <tr>
                             <td class="cell-tick"><input type="checkbox" class="row-checkbox"></td>
                             <td style="text-align: center;">${c.id}</td>
-                            <td style="font-weight: bold; color: #333;">${c.categoryName}</td>
+                            <td style="font-weight: bold;">${c.categoryName}</td>
                                 <%-- <td><span class="stock-status low-stock">${c.slug}</span></td>--%>
                             <td>
                                 <fmt:formatDate value="${c.createAt}" pattern="yyyy-MM-dd"/>
                             </td>
                             <td>
                                 <div class="cell-action">
-                                    <button type="button" class="edit btn edit-button" data-require-perm="category:upsert"
+                                    <button type="button" class="btn btn-secondary edit-button" data-require-perm="category:upsert"
                                             data-id="${c.id}" data-name="${c.categoryName}"
                                             data-slug="${c.slug}">
                                         Sửa
@@ -86,7 +78,7 @@
                                           style="margin:0;">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="${c.id}">
-                                        <button type="submit" class="delete btn delete-button" data-require-perm="category:delete"
+                                        <button type="submit" class="btn btn-danger delete-button" data-require-perm="category:delete"
                                                 onclick="return confirm('Bạn chắc chắn muốn xóa danh mục ID: ${c.id}?');">
                                             Xoá
                                         </button>

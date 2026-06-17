@@ -18,7 +18,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
-@WebServlet(name = "VnpayReturn", value = { "/VnpayReturn", "/order-success" })
+@WebServlet(name = "VnpayReturn", value = { "/vnpayReturn", "/order-success" })
 public class VnpayReturn extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

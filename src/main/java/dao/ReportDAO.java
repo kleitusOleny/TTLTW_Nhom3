@@ -10,8 +10,8 @@ public class ReportDAO extends ADAO {
                 handle.createQuery("SELECT CONCAT(DATE(create_at), '') as time_label, SUM(total_price) as revenue " +
                                 "FROM orders " +
                                 "WHERE is_delete IS NULL AND create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) " +
-                                "GROUP BY DATE(create_at) " +
-                                "ORDER BY DATE(create_at) ASC")
+                                "GROUP BY CONCAT(DATE(create_at), '') " +
+                                "ORDER BY CONCAT(DATE(create_at), '') ASC")
                         .mapToMap()
                         .list()
         );
@@ -33,8 +33,8 @@ public class ReportDAO extends ADAO {
                 handle.createQuery("SELECT CONCAT(YEAR(create_at), '-Q', QUARTER(create_at)) as time_label, SUM(total_price) as revenue " +
                                 "FROM orders " +
                                 "WHERE is_delete IS NULL AND create_at >= DATE_SUB(NOW(), INTERVAL 24 MONTH) " +
-                                "GROUP BY YEAR(create_at), QUARTER(create_at) " +
-                                "ORDER BY YEAR(create_at) ASC, QUARTER(create_at) ASC")
+                                "GROUP BY CONCAT(YEAR(create_at), '-Q', QUARTER(create_at)) " +
+                                "ORDER BY CONCAT(YEAR(create_at), '-Q', QUARTER(create_at)) ASC")
                         .mapToMap()
                         .list()
         );
@@ -45,27 +45,47 @@ public class ReportDAO extends ADAO {
                 handle.createQuery("SELECT CONCAT(YEAR(create_at), '') as time_label, SUM(total_price) as revenue " +
                                 "FROM orders " +
                                 "WHERE is_delete IS NULL " +
-                                "GROUP BY YEAR(create_at) " +
-                                "ORDER BY YEAR(create_at) ASC")
+                                "GROUP BY CONCAT(YEAR(create_at), '') " +
+                                "ORDER BY CONCAT(YEAR(create_at), '') ASC")
                         .mapToMap()
                         .list()
         );
     }
 
     public List<Map<String, Object>> getBestSellingProducts(int limit) {
-        return jdbi.withHandle(handle ->
-                handle.createQuery("SELECT p.id, p.product_name as product_name, SUM(oi.quantity) as total_sold, SUM(oi.quantity * oi.unit_price) as total_revenue " +
-                                "FROM order_items oi " +
-                                "JOIN orders o ON oi.order_id = o.id " +
-                                "JOIN products p ON oi.product_id = p.id " +
-                                "WHERE o.is_delete IS NULL " +
-                                "GROUP BY p.id, p.product_name " +
-                                "ORDER BY total_sold DESC " +
-                                "LIMIT :limit")
-                        .bind("limit", limit)
-                        .mapToMap()
-                        .list()
-        );
+        return getBestSellingProducts(limit, null, null);
+    }
+
+    public List<Map<String, Object>> getBestSellingProducts(int limit, String startDate, String endDate) {
+        return jdbi.withHandle(handle -> {
+            String sql = "SELECT p.id, p.product_name as product_name, SUM(oi.quantity) as total_sold, SUM(oi.quantity * oi.unit_price) as total_revenue " +
+                         "FROM order_items oi " +
+                         "JOIN orders o ON oi.order_id = o.id " +
+                         "JOIN products p ON oi.product_id = p.id " +
+                         "WHERE o.is_delete IS NULL ";
+            
+            if (startDate != null && !startDate.trim().isEmpty()) {
+                sql += "AND o.create_at >= :startDate ";
+            }
+            if (endDate != null && !endDate.trim().isEmpty()) {
+                sql += "AND o.create_at <= :endDate ";
+            }
+            
+            sql += "GROUP BY p.id, p.product_name " +
+                   "ORDER BY total_sold DESC " +
+                   "LIMIT :limit";
+                   
+            var query = handle.createQuery(sql).bind("limit", limit);
+            
+            if (startDate != null && !startDate.trim().isEmpty()) {
+                query = query.bind("startDate", startDate + " 00:00:00");
+            }
+            if (endDate != null && !endDate.trim().isEmpty()) {
+                query = query.bind("endDate", endDate + " 23:59:59");
+            }
+            
+            return query.mapToMap().list();
+        });
     }
 
     public List<Map<String, Object>> getUnsoldProducts(int months) {

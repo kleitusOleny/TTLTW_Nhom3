@@ -648,3 +648,29 @@ main
     background-color: #fff;
     color: #8c3333;
 }
+
+
+/* Responsive layout for cart page */
+@media (max-width: 768px) {
+    .cart-container {
+        flex-direction: column !important;
+    }
+    .cart-main, .cart-summary-sidebar {
+        width: 100% !important;
+    }
+    
+    .cart-item {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+    .item-image {
+        margin-right: 0 !important;
+        margin-bottom: 15px !important;
+    }
+    .item-details {
+        margin-right: 0 !important;
+        margin-bottom: 15px !important;
+    }
+}
+

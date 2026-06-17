@@ -1441,3 +1441,96 @@ CSS FOR PRODUCT SLIDER
         flex-direction: column !important;
     }
 }
+
+/* Responsive Media Queries */
+@media (max-width: 768px) {
+    .header-top > .container {
+        flex-wrap: wrap;
+    }
+    
+    .header-nav-bar {
+        display: none;
+        width: 100%;
+    }
+    
+    .header-nav-bar.active-mobile {
+        display: block;
+    }
+
+    .header-right.active-mobile {
+        display: flex !important;
+        width: 100%;
+        justify-content: space-around;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+        margin-top: 10px;
+    }
+
+    .header-nav ul {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-nav ul li {
+        width: 100%;
+    }
+
+    .header-nav ul li a {
+        padding: 15px;
+        border-bottom: 1px solid #444;
+    }
+
+    .mega-menu {
+        position: static;
+        width: 100%;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        display: none; /* Hide by default on mobile, use JS or toggle to show */
+        padding: 15px;
+        box-shadow: none;
+        border: none;
+    }
+
+    .header-nav ul li.has-dropdown:hover > .mega-menu {
+        display: block;
+    }
+
+    .mega-menu-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .search-form {
+        max-width: 100%;
+        margin-top: 15px;
+        display: flex;
+    }
+    
+    .header-center {
+        display: flex !important; /* Always show search bar below logo on mobile */
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    /* Fix product grid for mobile */
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px;
+    }
+    
+    @media (max-width: 480px) {
+        .product-grid {
+            grid-template-columns: 1fr !important;
+        }
+    }
+    
+    .horizontal-grid {
+        padding: 10px 5px;
+    }
+    .horizontal-grid .product-card {
+        flex: 0 0 250px;
+        width: 250px;
+    }
+}
+

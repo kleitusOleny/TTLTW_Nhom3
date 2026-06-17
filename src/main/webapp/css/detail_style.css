@@ -1294,3 +1294,24 @@ textarea.form-control {
     transform: translateY(-2px);
     background: #e04050;
 }
+
+/* Responsive layout for detail page */
+@media (max-width: 768px) {
+    .detail-grid-container {
+        grid-template-columns: 1fr !important;
+        gap: 20px !important;
+    }
+    .product-gallery-column {
+        position: static !important;
+    }
+    .product-actions-container {
+        flex-direction: column !important;
+    }
+    .btn {
+        width: 100% !important;
+    }
+    .img-zoom-lens, .img-zoom-result {
+        display: none !important; /* Disable zoom on mobile */
+    }
+}
+

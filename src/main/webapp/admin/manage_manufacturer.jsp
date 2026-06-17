@@ -18,17 +18,12 @@
     <nav class="dashboard-sidebar">
         <ul class="sidebar-items">
             <div class="group-avatar">
-                <img src="<%= request.getContextPath() %>/assets/avatar.jpg" class="user-avatar"
-                     id="avatar-modal-btn"/>
-                <ion-icon name="notifications-outline" class="icon-header"
-                          id="notification-modal-btn"></ion-icon>
+                <%@ include file="/admin/components/avatar.jsp" %>
+                <%@ include file="/admin/components/notify_icon.jsp" %>
             </div>
-
             <c:set var="activePage" value="manufacturer" scope="request"/>
-
-            <jsp:include page="/admin/components/sidebar_items_component.jsp"/>
+            <%@ include file="/admin/components/sidebar_items_component.jsp" %>
         </ul>
-        <div class="text">━ Được update tới 2025 ━</div>
     </nav>
     <div class="dashboard-content">
         <main class="dashboard-main-content">
@@ -42,13 +37,10 @@
                 </div>
             </div>
 
-            <div class="filter-card" style="justify-content: flex-end;">
-                <div class="filter-right" style="margin: 0; width: 100%;">
-                    <div class="search-wrapper">
-                        <ion-icon name="search-outline" class="search-icon"></ion-icon>
-                        <input type="text" id="custom-search-input"
-                               placeholder="Tìm tên nhà sản xuất, quốc gia..." class="search-input">
-                    </div>
+            <div class="filter-bar">
+                <div class="filter-item" style="flex: 1;">
+                    <label>Tìm kiếm</label>
+                    <input type="text" id="custom-search-input" class="filter-input" placeholder="Tìm tên nhà sản xuất, quốc gia...">
                 </div>
             </div>
 
@@ -68,7 +60,7 @@
                         <tr>
                             <td class="cell-tick"><input type="checkbox" class="row-checkbox"></td>
                             <td style="text-align: center;">${m.id}</td>
-                            <td style="font-weight: bold; color: #333;">${m.manufacturerName}</td>
+                            <td style="font-weight: bold;">${m.manufacturerName}</td>
                                 <%-- <td>--%>
                                 <%-- <span class="stock-status in-stock"
                                     style="color:#000; background-color: #f1f3f5;">--%>
@@ -78,7 +70,7 @@
                             <td>
                                 <div class="cell-action">
                                     <button type="button"
-                                            class="edit btn edit-button"
+                                            class="btn btn-secondary edit-button"
                                             data-require-perm="manufacturer:upsert"
                                             data-id="${m.id}"
                                             data-name="${m.manufacturerName}"
@@ -92,7 +84,7 @@
                                         <input type="hidden" name="id"
                                                value="${m.id}">
                                         <button type="submit"
-                                                class="delete btn delete-button"
+                                                class="btn btn-danger delete-button"
                                                 data-require-perm="manufacturer:delete"
                                                 onclick="return confirm('Xóa nhà sản xuất này?');">Xoá
                                         </button>

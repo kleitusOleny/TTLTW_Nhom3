@@ -9,6 +9,7 @@
     <title>Quản Lý Nhân Sự</title>
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/admin/admin_css/manage_product_style.css">
     <link rel="stylesheet" href="<%= request.getContextPath() %>/admin/admin_css/manage_staff.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.dataTables.css"/>
 </head>
@@ -18,13 +19,12 @@
     <nav class="dashboard-sidebar">
         <ul class="sidebar-items">
             <div class="group-avatar">
-                <img src="<%= request.getContextPath() %>/assets/avatar.jpg" class="user-avatar"/>
-                <ion-icon name="notifications-outline" class="icon-header"></ion-icon>
+                <%@ include file="/admin/components/avatar.jsp" %>
+                <%@ include file="/admin/components/notify_icon.jsp" %>
             </div>
             <c:set var="activePage" value="staff" scope="request"/>
-            <jsp:include page="/admin/components/sidebar_items_component.jsp"/>
+            <%@ include file="/admin/components/sidebar_items_component.jsp" %>
         </ul>
-        <div class="text">━ Được update tới 2025 ━</div>
     </nav>
 
     <div class="dashboard-content">
@@ -39,14 +39,16 @@
                 </div>
             </div>
 
-            <div class="filter-bar" style="justify-content: flex-end; padding: 10px 0; background: transparent; border: none; box-shadow: none;">
-                <div class="filter-item" style="max-width: 300px; min-width: 250px;">
+            <div class="filter-bar">
+                <div class="filter-item" style="flex: 1;">
+                    <label>Tìm kiếm</label>
                     <input type="text" id="custom-search-input" placeholder="Tìm kiếm email, chức danh..." class="filter-input">
                 </div>
             </div>
 
             <div class="table-container">
-                <table id="staff-datatable" class="product-table">
+                <div class="table-scroll-wrapper">
+                    <table id="staff-datatable" class="product-table">
                     <thead>
                     <tr class="sample">
                         <th style="width: 1%;" class="col-tick"><input type="checkbox" id="select-all-checkbox"></th>
@@ -97,23 +99,24 @@
                             </td>
                             <td>
                                 <div class="cell-action">
-                                    <c:if test="${staff.description != 'Quản trị viên'}">
-                                    <button type="button" class="edit btn edit-staff-button" data-require-perm="staff:upsert"
-                                            data-id="${staff.id}"
-                                            data-email="${staff.email}"
-                                            data-roles="${staff.description}"> Đổi Chức Vụ
-                                    </button>
-                                    <button type="button" class="delete btn delete-button" data-require-perm="staff:upsert"
-                                            onclick="revokeStaffRole(${staff.id}, '${staff.email}')">
-                                        Cách Chức
-                                    </button>
-                                    </c:if>
+                                     <c:if test="${staff.description != 'Quản trị viên'}">
+                                     <button type="button" class="btn btn-secondary edit-staff-button" data-require-perm="staff:upsert"
+                                             data-id="${staff.id}"
+                                             data-email="${staff.email}"
+                                             data-roles="${staff.description}"> Đổi Chức Vụ
+                                     </button>
+                                     <button type="button" class="btn btn-danger delete-button" data-require-perm="staff:upsert"
+                                             onclick="revokeStaffRole(${staff.id}, '${staff.email}')">
+                                         Cách Chức
+                                     </button>
+                                     </c:if>
                                 </div>
                             </td>
                         </tr>
                     </c:forEach>
                     </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
