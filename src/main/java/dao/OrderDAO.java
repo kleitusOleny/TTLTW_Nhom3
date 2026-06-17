@@ -200,13 +200,13 @@ public class OrderDAO extends ADAO implements IDAO<Order, Integer> {
     }
 
     public int countOrderIdLastWeek() {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT COUNT(id) FROM orders WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND is_delete = 0")
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT COUNT(id) FROM orders WHERE create_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) AND is_delete IS NULL")
                 .mapTo(Integer.class)
                 .findOnly());
     }
 
     public double sumTotalPriceLastMonth() {
-        return jdbi.withHandle(handle -> handle.createQuery("SELECT SUM(total_price) FROM orders WHERE create_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH) AND is_delete = 0")
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT SUM(total_price) FROM orders WHERE create_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH) AND is_delete IS NULL")
                 .mapTo(Double.class)
                 .findOne().orElse(0.0));
     }
