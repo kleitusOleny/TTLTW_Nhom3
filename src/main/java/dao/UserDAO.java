@@ -21,7 +21,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                              active,\s
                              created_at,
                              birth_day,
-                             full_name                            
+                             full_name
                          FROM users
                         \s""")
                 .mapToBean(User.class)
@@ -91,7 +91,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                 sql.append("phone_number = :phone_number, ");
                 sql.append("birth_day = :birth_day, ");
                 sql.append("active = :active, ");
-                sql.append("update_at = NOW(), ");
+                sql.append("update_at = NOW() ");
                 sql.append("WHERE id = :id");
 
                 int rows = handle.createUpdate(sql.toString())
@@ -115,7 +115,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
     @Override
     public boolean deleteById(Integer id) {
         jdbi.withHandle(handle -> handle.createUpdate("""
-                            UPDATE users 
+                            UPDATE users
                             SET active:= 0
                             WHERE id:=id
                         """)
@@ -149,7 +149,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                             password_hash,
                             phone_number,
                             full_name,
-                            birth_day,                          
+                            birth_day,
                             active,
                             created_at,
                             update_at
@@ -171,7 +171,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                             password_hash,
                             phone_number,
                             full_name,
-                            birth_day,                          
+                            birth_day,
                             active,
                             created_at,
                             update_at
@@ -239,7 +239,7 @@ public class UserDAO extends ADAO implements IDAO<User, Integer> {
                             password_hash,
                             phone_number,
                             full_name,
-                            birth_day,                          
+                            birth_day,
                             active,
                             created_at,
                             update_at
