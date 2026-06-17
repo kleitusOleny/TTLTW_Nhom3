@@ -69,8 +69,52 @@ public class ReportManagerController extends HttpServlet {
             request.setAttribute("valuesJson", valuesJson.toString());
 
         } else if ("bestsellers".equals(tab)) {
-            List<Map<String, Object>> bestSellers = reportDAO.getBestSellingProducts(10);
+            String period = request.getParameter("period");
+            if (period == null || period.isEmpty()) {
+                period = "all";
+            }
+            
+            String startDate = request.getParameter("startDate");
+            String endDate = request.getParameter("endDate");
+            
+            if (startDate == null || startDate.isEmpty() || endDate == null || endDate.isEmpty()) {
+                java.time.LocalDate today = java.time.LocalDate.now();
+                switch (period) {
+                    case "today":
+                        startDate = today.toString();
+                        endDate = today.toString();
+                        break;
+                    case "yesterday":
+                        startDate = today.minusDays(1).toString();
+                        endDate = today.minusDays(1).toString();
+                        break;
+                    case "7days":
+                        startDate = today.minusDays(7).toString();
+                        endDate = today.toString();
+                        break;
+                    case "30days":
+                        startDate = today.minusDays(30).toString();
+                        endDate = today.toString();
+                        break;
+                    case "month":
+                        startDate = today.withDayOfMonth(1).toString();
+                        endDate = today.toString();
+                        break;
+                    case "all":
+                    default:
+                        startDate = "";
+                        endDate = "";
+                        break;
+                }
+            } else {
+                period = "custom";
+            }
+            
+            List<Map<String, Object>> bestSellers = reportDAO.getBestSellingProducts(10, startDate, endDate);
             request.setAttribute("bestSellers", bestSellers);
+            request.setAttribute("startDate", startDate);
+            request.setAttribute("endDate", endDate);
+            request.setAttribute("period", period);
             
             // Build JS arrays for ApexCharts
             StringBuilder labelsJson = new StringBuilder("[");

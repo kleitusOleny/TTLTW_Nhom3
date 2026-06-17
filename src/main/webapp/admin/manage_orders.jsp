@@ -8,95 +8,50 @@
                 <meta charset="UTF-8">
                 <title>Orders Manage</title>
                 <link rel="stylesheet"
-                    href="${pageContext.request.contextPath}/admin/admin_css/manage_promotion_style.css">
+                    href="${pageContext.request.contextPath}/admin/admin_css/manage_product_style.css">
                 <style>
-                    /* Modern Table Design */
-                    .table-container {
-                        background: #fff;
-                        border-radius: 12px;
-                        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-                        overflow: hidden;
-                        margin-top: 20px;
-                        border: 1px solid #eef2f5;
-                    }
-                    
-                    table.promotion-table {
-                        width: 100%;
-                        border-collapse: collapse;
-                        font-family: 'Inter', 'Segoe UI', sans-serif;
-                    }
-                    
-                    table.promotion-table thead th {
-                        background-color: #f8fafc;
-                        color: #64748b;
+                    /* Premium status badge styles that blend well with both light and dark mode */
+                    .cell-status span {
+                        padding: 6px 12px;
+                        border-radius: 20px;
                         font-weight: 600;
-                        padding: 16px 20px;
-                        text-align: left;
-                        border-bottom: 2px solid #e2e8f0;
                         font-size: 13px;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-                        white-space: nowrap;
+                        display: inline-block;
                     }
-
-                    table.promotion-table tbody td {
-                        padding: 16px 20px;
-                        vertical-align: middle;
-                        border-bottom: 1px solid #f1f5f9;
-                        color: #334155;
-                        font-size: 14px;
+                    .status-delivered {
+                        background-color: rgba(16, 185, 129, 0.15);
+                        color: #10b981;
                     }
-
-                    table.promotion-table tbody tr:hover {
-                        background-color: #f8fafc;
-                        transition: background-color 0.2s ease;
+                    .status-shipping {
+                        background-color: rgba(59, 130, 246, 0.15);
+                        color: #3b82f6;
                     }
-
-                    /* Checkbox styling */
+                    .status-preparing {
+                        background-color: rgba(245, 158, 11, 0.15);
+                        color: #f59e0b;
+                    }
+                    .status-cancelled {
+                        background-color: rgba(239, 68, 68, 0.15);
+                        color: #ef4444;
+                    }
+                    .status-processing {
+                        background-color: rgba(100, 116, 139, 0.15);
+                        color: #64748b;
+                    }
                     .cell-tick input[type="checkbox"] {
                         width: 18px;
                         height: 18px;
                         cursor: pointer;
-                        accent-color: #3b82f6;
+                        accent-color: var(--primary);
                     }
-
-                    /* Status */
-                    .status-delivered {
-                        color: #28a745;
-                        font-weight: bold;
-                    }
-
-                    .status-shipping {
-                        color: #28a745;
-                        font-weight: bold;
-                    }
-
-                    .status-preparing {
-                        color: #fd7e14;
-                        font-weight: bold;
-                    }
-
-                    .status-cancelled {
-                        color: #dc3545;
-                        font-weight: bold;
-                    }
-
-                    .status-processing {
-                        color: #6c757d;
-                        font-weight: bold;
-                    }
-
-                    /* Action Buttons Alignment */
                     .cell-action {
                         display: flex;
                         gap: 8px;
                         flex-wrap: nowrap;
                     }
-                    
-                    /* ID Column styling */
                     .cell-id {
                         font-weight: 600;
-                        color: #0f172a;
+                        color: var(--text-main);
                     }
                 </style>
             </head>
@@ -104,31 +59,59 @@
             <body>
                 <div class="dashboard-container">
                     <nav class="dashboard-sidebar">
-                        <ul class="sidebar-items">n
+                        <ul class="sidebar-items">
                             <div class="group-avatar">
                                 <%@ include file="/admin/components/avatar.jsp" %>
-                                    <%@ include file="/admin/components/notify_icon.jsp" %>
+                                <%@ include file="/admin/components/notify_icon.jsp" %>
                             </div>
                             <c:set var="activePage" value="order" scope="request" />
                             <%@ include file="/admin/components/sidebar_items_component.jsp" %>
                         </ul>
-                        <div class="text">━ Được update tới 2025 ━</div>
                     </nav>
                     <div class="dashboard-content">
                         <main class="dashboard-main-content">
-                            <div class="button-group">
-                                <h2>Quản lí đơn hàng</h2>
-                                <div class="func-group">
-                                    <button class="button del" id="deleteAll-modal-btn" data-require-perm="orders:delete">
-                                        <ion-icon name="trash-outline"></ion-icon>
-                                        Xoá (Đã chọn)
+                            <div class="main-header">
+                                <h1>Quản lí đơn hàng</h1>
+                                <div class="header-actions">
+                                    <button class="btn btn-danger" id="deleteAll-modal-btn" data-require-perm="orders:delete">
+                                        <ion-icon name="trash-outline"></ion-icon> Xoá (Đã chọn)
                                     </button>
-                                    <button class="button add" data-require-perm="orders:upsert"
+                                    <button class="btn btn-primary" data-require-perm="orders:upsert"
                                         onclick="window.location.href='${pageContext.request.contextPath}/admin/create-order'">
-                                        <ion-icon name="add-outline" class="type-needCss"></ion-icon>
-                                        Tạo đơn mới
+                                        <ion-icon name="add-circle-outline"></ion-icon> Tạo đơn mới
                                     </button>
                                 </div>
+                            </div>
+
+                            <div class="filter-bar">
+                                <div class="filter-item">
+                                    <label>Từ ngày</label>
+                                    <input type="date" id="filter-from-date" class="filter-input">
+                                </div>
+                                <div class="filter-item">
+                                    <label>Đến ngày</label>
+                                    <input type="date" id="filter-to-date" class="filter-input">
+                                </div>
+                                <div class="filter-item">
+                                    <label>Trạng thái</label>
+                                    <select id="filter-status" class="filter-input">
+                                        <option value="">-- Tất cả --</option>
+                                        <option value="Chuẩn bị đơn hàng">Chuẩn bị đơn hàng</option>
+                                        <option value="Đang xử lý">Đang xử lý</option>
+                                        <option value="Đang giao hàng">Đang giao hàng</option>
+                                        <option value="Giao hàng thành công">Giao hàng thành công</option>
+                                        <option value="Đã giao">Đã giao</option>
+                                        <option value="Đã hủy">Đã hủy</option>
+                                        <option value="Thanh toán thất bại">Thanh toán thất bại</option>
+                                    </select>
+                                </div>
+                                <div class="filter-item">
+                                    <label>Khách hàng</label>
+                                    <input type="text" id="filter-customer" class="filter-input" placeholder="Tên khách hàng...">
+                                </div>
+                                <button type="button" class="btn-reset" id="btn-reset-filter">
+                                    Làm Mới Bộ Lọc
+                                </button>
                             </div>
 
                             <c:if test="${not empty sessionScope.successMessage or not empty requestScope.successMessage}">
@@ -153,83 +136,83 @@
                             </c:if>
 
                             <div class="table-container">
-                                <table id="order-table-main" class="promotion-table">
-                                    <thead>
-                                        <tr class="sample">
-                                            <th class="col-tick">Chọn</th>
-                                            <th class="col-id">ID Đơn Hàng</th>
-                                            <th class="col-customer">Khách Hàng</th>
-                                            <th class="col-date">Ngày Đặt</th>
-                                            <th class="col-total">Tổng Tiền</th>
-                                            <th class="col-payment">Thanh Toán</th>
-                                            <th class="col-status">Trạng Thái</th>
-                                            <th class="col-action">Hành Động</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <c:forEach items="${orders}" var="o">
-                                            <tr class="promotions" id="order-row-${o.id}">
-                                                <td class="cell-tick"><input type="checkbox" class="row-checkbox"
-                                                        value="${o.id}" /></td>
-                                                <td class="cell-id">DH${o.id}</td>
-                                                <td class="cell-customer">${o.customerName}</td>
-                                                <td class="cell-date">${o.formattedDate}</td>
-                                                <td class="cell-total">${o.formattedTotal}</td>
-                                                <td class="cell-payment">${o.payStrategy != null ? o.payStrategy : 'ChưaTT'}</td>
-                                                <td class="cell-status">
-                                                    <span class="${o.statusClass}">${o.statusText}</span>
-                                                </td>
-                                                <td class="cell-action">
-                                                    <button class="view btn"
-                                                        onclick="openViewModal(${o.id})">Xem</button>
-                                                    <button class="edit btn" data-require-perm="orders:upsert"
-                                                        onclick="openEditModal(${o.id})">Sửa</button>
-                                                    <button class="delete btn" data-require-perm="orders:delete"
-                                                        onclick="confirmDelete(${o.id})">Xoá</button>
-                                                </td>
+                                <div class="table-scroll-wrapper">
+                                    <table id="order-table-main" class="product-table">
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 5%;"><input type="checkbox" id="select-all-checkbox" /></th>
+                                                <th style="width: 10%;">ID Đơn Hàng</th>
+                                                <th style="width: 25%;">Khách Hàng</th>
+                                                <th style="width: 15%;">Ngày Đặt</th>
+                                                <th style="width: 15%;">Tổng Tiền</th>
+                                                <th style="width: 10%;">Thanh Toán</th>
+                                                <th style="width: 10%;">Trạng Thái</th>
+                                                <th style="width: 10%;">Hành Động</th>
                                             </tr>
-                                        </c:forEach>
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            <c:forEach items="${orders}" var="o">
+                                                <tr id="order-row-${o.id}">
+                                                    <td class="cell-tick">
+                                                        <input type="checkbox" class="row-checkbox" value="${o.id}" />
+                                                    </td>
+                                                    <td class="cell-id">DH${o.id}</td>
+                                                    <td class="cell-customer">${o.customerName}</td>
+                                                    <td class="cell-date">${o.formattedDate}</td>
+                                                    <td class="cell-total">${o.formattedTotal}</td>
+                                                    <td class="cell-payment">${o.payStrategy != null ? o.payStrategy : 'ChưaTT'}</td>
+                                                    <td class="cell-status">
+                                                        <span class="${o.statusClass}">${o.statusText}</span>
+                                                    </td>
+                                                    <td>
+                                                        <div class="cell-action">
+                                                            <button class="btn btn-secondary" onclick="openViewModal(${o.id})">Xem</button>
+                                                            <button class="btn btn-secondary" data-require-perm="orders:upsert" onclick="openEditModal(${o.id})">Sửa</button>
+                                                            <button class="btn btn-danger" data-require-perm="orders:delete" onclick="confirmDelete(${o.id})">Xoá</button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </c:forEach>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </main>
                     </div>
                 </div>
 
-                <div class="modal-overlay" id="add-order-modal">
-                    <div class="modal-content">
+                <div class="modal-overlay-form product-form-modal" id="add-order-modal">
+                    <div class="modal-content-form">
+                        <button type="button" class="modal-close-form" id="close-modal-btn">X</button>
+                        <h2>Thêm Đơn Hàng Nhanh</h2>
                         <form id="add-form">
-                            <div class="customer-input">
-                                <label for="customerEmail" class="label-with-icon">
-                                    <ion-icon name="mail-outline"></ion-icon>
-                                    Email Khách Hàng</label>
-                                <input type="email" name="customerEmail" placeholder="Nhập email khách hàng" required>
+                            <div class="form-group">
+                                <label for="customerEmail">Email Khách Hàng</label>
+                                <input type="email" name="customerEmail" id="customerEmail" placeholder="Nhập email khách hàng..." required>
                             </div>
-                            <div class="date-input">
-                                <label for="date" class="label-with-icon">
-                                    <ion-icon name="calendar-outline"></ion-icon>
-                                    Ngày Đặt</label>
-                                <input type="date" name="date" required>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="date">Ngày Đặt</label>
+                                    <input type="date" name="date" id="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="total">Tổng Tiền (VND)</label>
+                                    <input type="number" name="total" id="total" min="0" placeholder="Nhập tổng tiền..." required>
+                                </div>
                             </div>
-                            <div class="total-input">
-                                <label for="total" class="label-with-icon">
-                                    <ion-icon name="cash-outline"></ion-icon>
-                                    Tổng Tiền</label>
-                                <input type="text" name="total" placeholder="Nhập tổng tiền" required>
-                            </div>
-                            <div class="status-input">
-                                <label for="status" class="label-with-icon">
-                                    <ion-icon name="checkmark-circle-outline"></ion-icon>
-                                    Trạng Thái</label>
+                            <div class="form-group">
+                                <label for="status">Trạng Thái</label>
                                 <select id="status" name="status" required>
-                                    <option value="processing">Đang xử lý</option>
-                                    <option value="delivered">Giao hàng thành công</option>
-                                    <option value="cancelled">Đã hủy</option>
+                                    <option value="Đang xử lý">Đang xử lý</option>
+                                    <option value="Chuẩn bị đơn hàng">Chuẩn bị đơn hàng</option>
+                                    <option value="Đang giao hàng">Đang giao hàng</option>
+                                    <option value="Giao hàng thành công">Giao hàng thành công</option>
+                                    <option value="Đã hủy">Đã hủy</option>
                                 </select>
                             </div>
-                            <div class="group-button-action section">
-                                <button type="button" class="cancel element-button" id="close-modal-btn">Huỷ</button>
-                                <button type="submit" class="add-btn element-button">Thêm</button>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" id="close-modal-btn-2" onclick="document.getElementById('add-order-modal').classList.remove('show');">Huỷ</button>
+                                <button type="submit" class="btn btn-primary">Thêm đơn</button>
                             </div>
                         </form>
                     </div>
@@ -591,10 +574,95 @@
 
                     // Initialize DataTable
                     $(document).ready(function () {
-                        $('#order-table-main').DataTable({
+                        var table = $('#order-table-main').DataTable({
                             language: {
                                 url: 'https://cdn.datatables.net/plug-ins/2.3.5/i18n/vi.json',
                             },
+                            order: [[1, 'desc']] // Sort by ID descending by default
+                        });
+
+                        // Select all checkbox
+                        $('#select-all-checkbox').on('change', function () {
+                            table.$('input.row-checkbox').prop('checked', this.checked);
+                        });
+
+                        // Date helper to parse dd/MM/yyyy
+                        function parseDateDMY(dateStr) {
+                            if (!dateStr) return null;
+                            var parts = dateStr.trim().split('/');
+                            if (parts.length === 3) {
+                                return new Date(parts[2], parts[1] - 1, parts[0]);
+                            }
+                            return null;
+                        }
+
+                        // Date helper to parse yyyy-MM-dd
+                        function parseDateYMD(dateStr) {
+                            if (!dateStr) return null;
+                            var parts = dateStr.trim().split('-');
+                            if (parts.length === 3) {
+                                return new Date(parts[0], parts[1] - 1, parts[2]);
+                            }
+                            return null;
+                        }
+
+                        // Custom DataTables filter logic
+                        $.fn.dataTable.ext.search.push(
+                            function(settings, data, dataIndex) {
+                                // Customer name/email filter (Column 2)
+                                var filterCustomer = $('#filter-customer').val().toLowerCase().trim();
+                                var customerName = data[2] ? data[2].toLowerCase() : '';
+                                if (filterCustomer !== '' && !customerName.includes(filterCustomer)) {
+                                    return false;
+                                }
+
+                                // Status filter (Column 6)
+                                var filterStatus = $('#filter-status').val();
+                                var statusText = data[6] ? data[6].trim() : '';
+                                if (filterStatus !== '' && statusText.toLowerCase() !== filterStatus.toLowerCase()) {
+                                    return false;
+                                }
+
+                                // Date range filter (Column 3)
+                                var filterFrom = $('#filter-from-date').val();
+                                var filterTo = $('#filter-to-date').val();
+                                var dateStr = data[3] ? data[3].trim() : '';
+
+                                if (filterFrom || filterTo) {
+                                    var orderDate = parseDateDMY(dateStr);
+                                    if (!orderDate) return false;
+
+                                    if (filterFrom) {
+                                        var fromDate = parseDateYMD(filterFrom);
+                                        if (fromDate && orderDate < fromDate) {
+                                            return false;
+                                        }
+                                    }
+
+                                    if (filterTo) {
+                                        var toDate = parseDateYMD(filterTo);
+                                        if (toDate && orderDate > toDate) {
+                                            return false;
+                                        }
+                                    }
+                                }
+
+                                return true;
+                            }
+                        );
+
+                        // Redraw table when inputs change
+                        $('#filter-customer, #filter-status, #filter-from-date, #filter-to-date').on('keyup change', function() {
+                            table.draw();
+                        });
+
+                        // Reset filter fields
+                        $('#btn-reset-filter').on('click', function() {
+                            $('#filter-customer').val('');
+                            $('#filter-status').val('');
+                            $('#filter-from-date').val('');
+                            $('#filter-to-date').val('');
+                            table.draw();
                         });
                     });
 
@@ -836,7 +904,7 @@
 
                                 const statusOrder = ['Đang xử lý', 'Chuẩn bị đơn hàng', 'Đang giao hàng', 'Giao hàng thành công'];
                                 const currentIndex = statusOrder.indexOf(status);
-                                
+
                                 Array.from(statusSelect.options).forEach(opt => {
                                     if (status === 'Đã hủy') {
                                         opt.disabled = false;
@@ -863,10 +931,10 @@
                                     }
                                 });
                                 statusSelect.options[statusSelect.selectedIndex].style.color = '#333';
-                                
+
                                 const updateBtn = document.getElementById('update-order-btn');
                                 const isCompleted = (status === 'Đã hủy' || status === 'Thanh toán thất bại' || status === 'Giao hàng thành công' || status === 'Đã giao' || status === 'Đã xóa');
-                                
+
                                 if (!hasUpsertPerm || isCompleted) {
                                     if (updateBtn) updateBtn.style.display = 'none';
                                     statusSelect.disabled = true;

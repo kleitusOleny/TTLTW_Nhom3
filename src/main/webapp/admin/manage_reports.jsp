@@ -293,6 +293,40 @@
 
             <!-- Tab content: SAN PHAM BAN CHAY -->
             <c:if test="${tab == 'bestsellers'}">
+                <!-- Sub filter buttons (Thống kê theo) -->
+                <div class="report-sub-filters" style="margin-top: 10px;">
+                    <span style="font-size: 14px; font-weight: 600; color: var(--text-muted);">Thống kê theo:</span>
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=bestsellers&period=all"
+                       class="sub-filter-btn ${period == 'all' ? 'active' : ''}">Tất cả</a>
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=bestsellers&period=today"
+                       class="sub-filter-btn ${period == 'today' ? 'active' : ''}">Hôm nay</a>
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=bestsellers&period=yesterday"
+                       class="sub-filter-btn ${period == 'yesterday' ? 'active' : ''}">Hôm qua</a>
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=bestsellers&period=7days"
+                       class="sub-filter-btn ${period == '7days' ? 'active' : ''}">7 ngày qua</a>
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=bestsellers&period=30days"
+                       class="sub-filter-btn ${period == '30days' ? 'active' : ''}">30 ngày qua</a>
+                    <a href="${pageContext.request.contextPath}/report-manager?tab=bestsellers&period=month"
+                       class="sub-filter-btn ${period == 'month' ? 'active' : ''}">Tháng này</a>
+                </div>
+
+                <!-- Date range filter bar -->
+                <form action="${pageContext.request.contextPath}/report-manager" method="GET" class="filter-bar" style="margin-top: 10px;">
+                    <input type="hidden" name="tab" value="bestsellers">
+                    <div class="filter-item">
+                        <label>Từ ngày</label>
+                        <input type="date" name="startDate" class="filter-input" value="${startDate}">
+                    </div>
+                    <div class="filter-item">
+                        <label>Đến ngày</label>
+                        <input type="date" name="endDate" class="filter-input" value="${endDate}">
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="submit" class="btn btn-primary" style="height: 40px;">Lọc</button>
+                        <button type="button" class="btn-reset" onclick="window.location.href='${pageContext.request.contextPath}/report-manager?tab=bestsellers'">Làm Mới</button>
+                    </div>
+                </form>
+
                 <div class="stats-summary-grid">
                     <div class="stats-summary-card">
                         <h3>Tổng số sản phẩm</h3>
