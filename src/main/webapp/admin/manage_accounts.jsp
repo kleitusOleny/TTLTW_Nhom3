@@ -11,6 +11,7 @@
     <meta charset="UTF-8">
     <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
     <title>Quản Lí Tài Khoản Khách</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/manage_product_style.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/manage_accounts.css">
     <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
     <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
@@ -26,36 +27,32 @@
             <c:set var="activePage" value="account" scope="request" />
             <%@ include file="/admin/components/sidebar_items_component.jsp" %>
         </ul>
-        <div class="text">━ Được update tới 2025 ━</div>
     </nav>
     <div class="dashboard-content">
         <main class="dashboard-main-content">
-            <div class="button-group">
-                <div class="group-text-welcome">
-                    <h2>Quản lí tài khoản</h2>
-                    <p>Với các records được đánh dấu đỏ, nghĩa là đã khoá tài khoản</p>
+            <div class="main-header">
+                <div>
+                    <h1>Quản lí tài khoản</h1>
+                    <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">Với các tài khoản được đánh dấu đỏ nghĩa là đã khoá tài khoản</p>
                 </div>
-                <div class="func-group">
-                    <button class="button del" id="deleteAll-modal-btn" data-require-perm="account:delete">
+                <div class="header-actions">
+                    <button class="btn btn-danger" id="deleteAll-modal-btn" data-require-perm="account:delete" style="display: flex; align-items: center; gap: 8px;">
                         <ion-icon name="trash-outline"></ion-icon>
                         Khoá (Đã Chọn)
                     </button>
-                    <button class="button unlockAll" id="unlock-modal-btn" data-require-perm="account:upsert">
+                    <button class="btn btn-success" id="unlock-modal-btn" data-require-perm="account:upsert" style="display: flex; align-items: center; gap: 8px;">
                         <ion-icon name="checkmark-outline"></ion-icon>
                         Mở (Đã Chọn)
                     </button>
-                    <button class="button add" id="open-modal-btn" data-require-perm="account:upsert">
-                        <ion-icon name="add-outline" class="type-needCss"></ion-icon>
+                    <button class="btn btn-primary" id="open-modal-btn" data-require-perm="account:upsert" style="display: flex; align-items: center; gap: 8px;">
+                        <ion-icon name="add-circle-outline"></ion-icon>
                         Thêm
                     </button>
-                    <%--                    <button class="button excel" id="excel-modal-btn">--%>
-                    <%--                        <ion-icon name="cloud-download-outline"></ion-icon>--%>
-                    <%--                        Xuất ra Excel--%>
-                    <%--                    </button>--%>
                 </div>
             </div>
             <div class="table-container">
-                <table id="account-table-main" class="account-table">
+                <div class="table-scroll-wrapper">
+                    <table id="account-table-main" class="product-table">
                     <thead>
                     <tr class="sample">
                         <th class="col-tick">Chọn</th>
@@ -77,16 +74,16 @@
                             <td class="cell-fullname">${user.fullName}</td>
                             <td class="cell-create">${user.createdAt}</td>
                             <td class="cell-action">
-                                <a href="${pageContext.request.contextPath}/account-manager/detail?id=${user.id}" class="detail btn" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px; text-decoration: none; font-size: 14px;">Chi tiết</a>
-                                <button class="edit btn edit-btn-trigger" data-require-perm="account:upsert" data-target="modal-edit-${user.id}">Sửa</button>
+                                <a href="${pageContext.request.contextPath}/account-manager/detail?id=${user.id}" class="btn btn-secondary detail">Chi tiết</a>
+                                <button class="btn btn-secondary edit-btn-trigger" data-require-perm="account:upsert" data-target="modal-edit-${user.id}">Sửa</button>
                                 <c:choose>
                                     <c:when test="${user.active == 1}">
                                         <%-- Đang hoạt động --%>
-                                        <button class="lock btn" data-require-perm="account:delete" onclick="toggleUserStatus(${user.id}, 'block')">Khoá</button>
+                                        <button class="btn btn-danger lock" data-require-perm="account:delete" onclick="toggleUserStatus(${user.id}, 'block')">Khoá</button>
                                     </c:when>
                                     <c:otherwise>
                                         <%-- Đang bị khoá --%>
-                                        <button class="unlock btn" data-require-perm="account:upsert" onclick="toggleUserStatus(${user.id}, 'unlock')">Mở</button>
+                                        <button class="btn btn-success unlock" data-require-perm="account:upsert" onclick="toggleUserStatus(${user.id}, 'unlock')">Mở</button>
                                     </c:otherwise>
                                 </c:choose>
                             </td>
@@ -158,7 +155,8 @@
                         </div>
                     </c:forEach>
                     </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
         </main>
     </div>

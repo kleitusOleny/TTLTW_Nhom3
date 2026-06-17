@@ -8,6 +8,7 @@
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1">
                 <title>Quản Lí Khuyến Mãi</title>
+                <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/manage_product_style.css">
                 <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/manage_promotion_style.css?v=1.1">
                 <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
                 <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
@@ -21,35 +22,35 @@
                         <ul class="sidebar-items">
                             <div class="group-avatar">
                                 <%@ include file="/admin/components/avatar.jsp" %>
-                                    <%@ include file="/admin/components/notify_icon.jsp" %>
+                                <%@ include file="/admin/components/notify_icon.jsp" %>
                             </div>
                             <c:set var="activePage" value="promotion" scope="request" />
                             <%@ include file="/admin/components/sidebar_items_component.jsp" %>
                         </ul>
-                        <div class="text">━ Được update tới 2025 ━</div>
                     </nav>
                     <div class="dashboard-content">
                         <main class="dashboard-main-content">
-                            <div class="button-group">
-                                <h2>Quản Lí Khuyến Mãi</h2>
-                                <div class="func-group">
-                                    <a href="${pageContext.request.contextPath}/admin/promotion-stats" class="button" style="background-color: #8b5cf6; color: white; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                            <div class="main-header">
+                                <h1>Quản Lí Khuyến Mãi</h1>
+                                <div class="header-actions">
+                                    <a href="${pageContext.request.contextPath}/admin/promotion-stats" class="btn btn-secondary" style="background-color: #8b5cf6; color: white; border-color: #8b5cf6; display: flex; align-items: center; gap: 8px;">
                                         <ion-icon name="bar-chart-outline"></ion-icon>
                                         Thống kê
                                     </a>
-                                    <button class="button apply" id="open-apply-modal-btn" data-require-perm="promotion:upsert">
+                                    <button class="btn btn-secondary" id="open-apply-modal-btn" data-require-perm="promotion:upsert" style="display: flex; align-items: center; gap: 8px;">
                                         <ion-icon name="pricetag-outline"></ion-icon>
                                         Áp dụng mã
                                     </button>
-                                    <button class="button add" id="open-add-modal-btn">
-                                        <ion-icon name="add-circle-outline" class="type-needCss" data-require-perm="promotion:upsert"></ion-icon>
+                                    <button class="btn btn-primary" id="open-add-modal-btn" data-require-perm="promotion:upsert" style="display: flex; align-items: center; gap: 8px;">
+                                        <ion-icon name="add-circle-outline"></ion-icon>
                                         Thêm khuyến mãi
                                     </button>
                                 </div>
                             </div>
 
                             <div class="table-container">
-                                <table id="promotion-table-main" class="promotion-table" style="width:100%">
+                                <div class="table-scroll-wrapper">
+                                    <table id="promotion-table-main" class="product-table" style="width:100%">
                                     <thead>
                                         <tr class="sample">
                                             <th class="col-id">ID</th>
@@ -95,17 +96,17 @@
                                                 <td class="cell-action">
                                                     <c:choose>
                                                         <c:when test="${d.isDelete}">
-                                                            <button onclick="openEditModal(${d.id})" class="edit btn"
+                                                            <button onclick="openEditModal(${d.id})" class="btn btn-secondary edit"
                                                                 title="Sửa" data-require-perm="promotion:upsert">
                                                                 <ion-icon name="create-outline"></ion-icon>
                                                             </button>
                                                         </c:when>
                                                         <c:otherwise>
-                                                            <button onclick="openEditModal(${d.id})" class="edit btn"
+                                                            <button onclick="openEditModal(${d.id})" class="btn btn-secondary edit"
                                                                 title="Sửa" data-require-perm="promotion:upsert">
                                                                 <ion-icon name="create-outline"></ion-icon>
                                                             </button>
-                                                            <button onclick="confirmDelete(${d.id})" class="delete btn"
+                                                            <button onclick="confirmDelete(${d.id})" class="btn btn-danger delete"
                                                                 title="Xóa" data-require-perm="promotion:delete">
                                                                 <ion-icon name="trash-outline"></ion-icon>
                                                             </button>
@@ -115,7 +116,8 @@
                                             </tr>
                                         </c:forEach>
                                     </tbody>
-                                </table>
+                                    </table>
+                                </div>
                             </div>
                         </main>
                     </div>

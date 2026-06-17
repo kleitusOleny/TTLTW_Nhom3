@@ -1,14 +1,17 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-        <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-            <!DOCTYPE html>
-            <html lang="vi">
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<!DOCTYPE html>
+<html lang="vi">
 
-            <head>
-                <meta charset="UTF-8">
-                <title>Quản Lý Đánh Giá</title>
-                <link rel="stylesheet"
-                    href="${pageContext.request.contextPath}/admin/admin_css/manage_reviews_style.css">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Lý Đánh Giá</title>
+    <link rel="stylesheet"
+        href="${pageContext.request.contextPath}/admin/admin_css/manage_product_style.css?v=1.0.4">
+    <link rel="stylesheet"
+        href="${pageContext.request.contextPath}/admin/admin_css/manage_reviews_style.css?v=1.0.4">
             </head>
 
             <body>
@@ -17,36 +20,36 @@
                         <ul class="sidebar-items">
                             <div class="group-avatar">
                                 <%@ include file="/admin/components/avatar.jsp" %>
-                                    <%@ include file="/admin/components/notify_icon.jsp" %>
+                                <%@ include file="/admin/components/notify_icon.jsp" %>
                             </div>
                             <c:set var="activePage" value="review" scope="request" />
                             <%@ include file="/admin/components/sidebar_items_component.jsp" %>
                         </ul>
-                        <div class="text">━ Được update tới 2025 ━</div>
                     </nav>
                     <div class="dashboard-content">
                         <main class="dashboard-main-content">
-                            <div class="button-group">
-                                <h2>Quản lí đánh giá sản phẩm</h2>
-                                <div class="stats-group">
-                                    <div class="stat-item">
-                                        <ion-icon name="chatbubbles-outline"></ion-icon>
-                                        <span>Tổng: <strong>${totalReviews}</strong> đánh giá</span>
+                            <div class="main-header">
+                                <h1>Quản lí đánh giá sản phẩm</h1>
+                                <div class="header-actions">
+                                    <div class="stats-group" style="display: flex; gap: 16px; align-items: center; margin-right: 16px;">
+                                        <div class="stat-item" style="display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 14px; font-weight: 500;">
+                                            <ion-icon name="chatbubbles-outline" style="font-size: 18px; color: var(--primary);"></ion-icon>
+                                            <span>Tổng: <strong style="color: var(--text-main); font-weight: 600;">${totalReviews}</strong></span>
+                                        </div>
+                                        <div class="stat-item" style="display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-size: 14px; font-weight: 500;">
+                                            <ion-icon name="star" style="font-size: 18px; color: #f59e0b;"></ion-icon>
+                                            <span>TB: <strong style="color: var(--text-main); font-weight: 600;">${avgRating}</strong> sao</span>
+                                        </div>
                                     </div>
-                                    <div class="stat-item">
-                                        <ion-icon name="star"></ion-icon>
-                                        <span>TB: <strong>${avgRating}</strong> sao</span>
-                                    </div>
-                                </div>
-                                <div class="func-group">
-                                    <button class="button del" id="deleteAll-modal-btn" data-require-perm="review:delete">
+                                    <button class="btn btn-danger" id="deleteAll-modal-btn" data-require-perm="review:delete" style="display: flex; align-items: center; gap: 8px;">
                                         <ion-icon name="trash-outline"></ion-icon>
                                         Xoá (Đã Chọn)
                                     </button>
                                 </div>
                             </div>
                             <div class="table-container">
-                                <table id="review-table-main" class="review-table">
+                                <div class="table-scroll-wrapper">
+                                    <table id="review-table-main" class="product-table">
                                     <thead>
                                         <tr class="sample">
                                             <th class="col-tick">Chọn</th>
@@ -122,24 +125,30 @@
                                                     </c:choose>
                                                 </td>
                                                 <td class="cell-action">
-                                                    <button class="view btn"
-                                                        onclick="viewReview(${r.id}, '${r.userName}', '${r.productName}', ${r.star}, '${r.content}', '<fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy HH:mm" />', '${r.imagePath}')">
-                                                        <ion-icon name="eye-outline"></ion-icon>
+                                                    <button class="btn btn-secondary view-btn"
+                                                        data-id="${r.id}"
+                                                        data-username="${fn:escapeXml(r.userName)}"
+                                                        data-productname="${fn:escapeXml(r.productName)}"
+                                                        data-star="${r.star}"
+                                                        data-content="${fn:escapeXml(r.content)}"
+                                                        data-date="<fmt:formatDate value="${parsedDate}" pattern="dd/MM/yyyy HH:mm" />"
+                                                        data-image="${r.imagePath}">
+                                                        Xem
                                                     </button>
-                                                    <button class="edit btn"
+                                                    <button class="btn btn-secondary edit-btn"
                                                         onclick="location.href='${pageContext.request.contextPath}/admin/get-review?id=${r.id}'">
-                                                        <ion-icon name="create-outline"></ion-icon>
+                                                        Sửa
                                                     </button>
                                                     <c:choose>
                                                         <c:when test="${r.deleted}">
-                                                            <button class="restore btn"
+                                                            <button class="btn btn-success restore-btn"
                                                                 onclick="confirmRestore(${r.id})">
-                                                                <ion-icon name="refresh-outline"></ion-icon>
+                                                                Khôi phục
                                                             </button>
                                                         </c:when>
                                                         <c:otherwise>
-                                                            <button class="delete btn" onclick="confirmDelete(${r.id})">
-                                                                <ion-icon name="trash-outline"></ion-icon>
+                                                            <button class="btn btn-danger delete-btn" onclick="confirmDelete(${r.id})">
+                                                                Xoá
                                                             </button>
                                                         </c:otherwise>
                                                     </c:choose>
@@ -147,7 +156,8 @@
                                             </tr>
                                         </c:forEach>
                                     </tbody>
-                                </table>
+                                    </table>
+                                </div>
                             </div>
                         </main>
                     </div>
@@ -305,6 +315,18 @@
                                     url: 'https://cdn.datatables.net/plug-ins/2.3.5/i18n/vi.json',
                                 },
                                 order: [[6, 'desc']], // Sắp xếp theo thời gian mới nhất
+                            });
+
+                            // Click event handler for Safe Modal Viewer (retrieves data from attributes)
+                            $('#review-table-main').on('click', '.view-btn', function() {
+                                const id = $(this).attr('data-id');
+                                const userName = $(this).attr('data-username');
+                                const productName = $(this).attr('data-productname');
+                                const star = parseInt($(this).attr('data-star'));
+                                const content = $(this).attr('data-content');
+                                const dateStr = $(this).attr('data-date');
+                                const imagePath = $(this).attr('data-image');
+                                viewReview(id, userName, productName, star, content, dateStr, imagePath);
                             });
                         });
                     });
