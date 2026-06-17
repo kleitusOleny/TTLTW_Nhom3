@@ -50,6 +50,7 @@
     "/admin/promotion-stats": "promotion:read",
     "/admin/get-promotion": "promotion:read",
     "/admin/add-promotion": "promotion:upsert",
+    "/admin/create-product-voucher": "promotion:upsert",
     "/admin/update-promotion": "promotion:upsert",
     "/admin/delete-promotion": "promotion:delete",
     "/manage-orders": "orders:read",

@@ -15,8 +15,9 @@
     <script src="${pageContext.request.contextPath}/popup.js"></script>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/admin/admin_css/manage_product_style.css">
 
-    <!-- Load ApexCharts -->
+    <!-- Load ApexCharts & SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         /* CSS custom for Report Page to make it wow/premium */
@@ -160,6 +161,10 @@
             font-size: 22px;
             color: #d97706;
             flex-shrink: 0;
+        }
+
+        .d-none {
+            display: none !important;
         }
     </style>
 </head>
@@ -393,9 +398,10 @@
                         <thead>
                         <tr>
                             <th style="width: 10%;">ID</th>
-                            <th style="width: 50%;">Tên Sản Phẩm</th>
-                            <th style="width: 20%; text-align: right; padding-right: 20px;">Đơn Giá Bán</th>
-                            <th style="width: 20%; text-align: center;">Số Lượng Tồn Kho</th>
+                            <th style="width: 40%;">Tên Sản Phẩm</th>
+                            <th style="width: 15%; text-align: right; padding-right: 20px;">Đơn Giá Bán</th>
+                            <th style="width: 15%; text-align: center;">Số Lượng Tồn Kho</th>
+                            <th style="width: 20%; text-align: center;">Hành động</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -409,12 +415,18 @@
                                             <fmt:formatNumber value="${p.price}" pattern="#,##0" />đ
                                         </td>
                                         <td style="text-align: center; font-weight: bold; color: #ef4444;">${p.quantity}</td>
+                                        <td style="text-align: center;">
+                                            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px;" onclick="openCreateVoucherModal('${p.id}', '<c:out value="${p.product_name}"/>')">
+                                                <ion-icon name="ticket-outline"></ion-icon>
+                                                Tạo Voucher
+                                            </button>
+                                        </td>
                                     </tr>
                                 </c:forEach>
                             </c:when>
                             <c:otherwise>
                                 <tr>
-                                    <td colspan="4" style="text-align: center; color: #10b981; font-weight: bold;">
+                                    <td colspan="5" style="text-align: center; color: #10b981; font-weight: bold;">
                                         Tuyệt vời! Tất cả các sản phẩm đều đã phát sinh giao dịch trong thời gian này.
                                     </td>
                                 </tr>
@@ -424,6 +436,74 @@
                     </table>
                 </div>
             </c:if>
+            
+            <!-- Create Voucher Modal overlay -->
+            <div class="modal-overlay-form" id="create-voucher-modal">
+                <div class="modal-content-form" style="position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+                            <ion-icon name="ticket-outline" style="color: var(--primary); font-size: 24px;"></ion-icon>
+                            Tạo Voucher Cho Sản Phẩm
+                        </h2>
+                        <button type="button" class="modal-close-form" onclick="closeCreateVoucherModal()" style="top: 20px; right: 24px;">
+                            <ion-icon name="close-outline"></ion-icon>
+                        </button>
+                    </div>
+                    
+                    <form id="createVoucherForm">
+                        <input type="hidden" id="voucher-product-id" name="productId">
+                        
+                        <div class="form-group">
+                            <label>Sản phẩm áp dụng</label>
+                            <input type="text" id="voucher-product-name" class="form-control" readonly style="background-color: var(--bg-body); cursor: not-allowed; font-weight: 600;">
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="voucher-code">Mã khuyến mãi <span style="color: red">*</span></label>
+                                <input type="text" id="voucher-code" name="code" class="form-control" required placeholder="VD: SALE20" style="text-transform: uppercase;">
+                            </div>
+                            <div class="form-group">
+                                <label for="voucher-quantity">Số lượng <span style="color: red">*</span></label>
+                                <input type="number" id="voucher-quantity" name="quantity" class="form-control" required min="1" value="100">
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="voucher-type">Loại giảm giá <span style="color: red">*</span></label>
+                                <select id="voucher-type" name="type" class="form-control" required>
+                                    <option value="PERCENT">Phần trăm (%)</option>
+                                    <option value="FIXED">Số tiền cố định (VNĐ)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="voucher-value">Giá trị giảm <span style="color: red">*</span></label>
+                                <input type="text" id="voucher-value" name="value" class="form-control" required placeholder="VD: 15 hoặc 50000">
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="voucher-start">Ngày bắt đầu <span style="color: red">*</span></label>
+                                <input type="date" id="voucher-start" name="start" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="voucher-end">Ngày kết thúc <span style="color: red">*</span></label>
+                                <input type="date" id="voucher-end" name="end" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <div class="form-actions" style="margin-top: 24px; padding-top: 20px;">
+                            <button type="button" class="btn btn-secondary" onclick="closeCreateVoucherModal()">Huỷ</button>
+                            <button type="submit" class="btn btn-primary" id="submitVoucherBtn" style="display: flex; align-items: center; gap: 8px;">
+                                <span class="btn-text">Tạo Voucher</span>
+                                <span class="btn-loading d-none">Đang tạo...</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
         </main>
     </div>
@@ -571,6 +651,93 @@ document.addEventListener("DOMContentLoaded", function() {
         const bestsellerChart = new ApexCharts(document.querySelector("#bestsellers-chart"), bestsellerOptions);
         bestsellerChart.render();
     </c:if>
+});
+
+function openCreateVoucherModal(productId, productName) {
+    document.getElementById('voucher-product-id').value = productId;
+    document.getElementById('voucher-product-name').value = productName;
+    
+    // Auto-generate code: KM_<productId>_<randomSuffix>
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('voucher-code').value = 'KM' + productId + '_' + randomSuffix;
+    
+    // Set default dates: start is today, end is today + 30 days
+    const today = new Date();
+    const startVal = today.toISOString().split('T')[0];
+    const endVal = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    document.getElementById('voucher-start').value = startVal;
+    document.getElementById('voucher-end').value = endVal;
+    
+    document.getElementById('create-voucher-modal').classList.add('show');
+}
+
+function closeCreateVoucherModal() {
+    document.getElementById('create-voucher-modal').classList.remove('show');
+    document.getElementById('createVoucherForm').reset();
+}
+
+// Close modal when clicking outside of content
+document.getElementById('create-voucher-modal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCreateVoucherModal();
+    }
+});
+
+// Handle form submission via AJAX
+document.getElementById('createVoucherForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = document.getElementById('submitVoucherBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnLoading = submitBtn.querySelector('.btn-loading');
+    
+    submitBtn.disabled = true;
+    btnText.classList.add('d-none');
+    btnLoading.classList.remove('d-none');
+    
+    const formData = new URLSearchParams(new FormData(this));
+    
+    fetch('${pageContext.request.contextPath}/admin/create-product-voucher', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            closeCreateVoucherModal();
+            Swal.fire({
+                title: 'Thành công!',
+                text: data.message,
+                icon: 'success',
+                confirmButtonColor: '#4f46e5'
+            });
+        } else {
+            Swal.fire({
+                title: 'Thất bại!',
+                text: data.message,
+                icon: 'error',
+                confirmButtonColor: '#ef4444'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Lỗi!',
+            text: 'Có lỗi xảy ra trong quá trình xử lý.',
+            icon: 'error',
+            confirmButtonColor: '#ef4444'
+        });
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        btnText.classList.remove('d-none');
+        btnLoading.classList.add('d-none');
+    });
 });
 </script>
 </body>
