@@ -1623,3 +1623,19 @@ dialog iframe {
     font-size: 14px;
     font-weight: 500;
 }
+
+/* Responsive layout for payment page */
+@media (max-width: 768px) {
+    .payment-layout {
+        flex-direction: column !important;
+    }
+    .checkout-form-section, .order-summary-section {
+        width: 100% !important;
+        padding-right: 0 !important;
+        border-right: none !important;
+    }
+    .address-selector .address-item {
+        flex-direction: column;
+    }
+}
+

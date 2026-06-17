@@ -11,7 +11,11 @@
                 <a href="${pageContext.request.contextPath}/home" class="logo">LOGO</a>
             </div>
 
-            <div class="header-center">
+            <div class="mobile-menu-toggle d-block d-md-none" style="font-size: 24px; cursor: pointer;" onclick="toggleMobileNav()">
+                <i class="fas fa-bars"></i>
+            </div>
+
+            <div class="header-center d-none d-md-flex">
                 <form class="search-form" action="${pageContext.request.contextPath}/filter" method="get">
                     <input type="text" name="search" placeholder="Tìm kiếm sản phẩm..."
                            value="${param.search}" required>
@@ -30,7 +34,7 @@
                 </form>
             </div>
 
-            <div class="header-right">
+            <div class="header-right d-none d-md-flex">
                 <c:if test="${not empty sessionScope.user}">
                     <%-- check quyền dashboard:read --%>
                     <c:if test="${fn:contains(sessionScope.userPermissions, 'dashboard:read')}">
@@ -181,4 +185,14 @@
     </div>
 </header>
 <%@ include file="system_settings.jsp" %>
+<script>
+    function toggleMobileNav() {
+        var navBar = document.querySelector('.header-nav-bar');
+        var rightPanel = document.querySelector('.header-right');
+        navBar.classList.toggle('active-mobile');
+        if(rightPanel) {
+            rightPanel.classList.toggle('active-mobile');
+        }
+    }
+</script>
 </html>
