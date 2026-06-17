@@ -29,10 +29,10 @@
           Nhập Email để lấy mã xác thực</label>
         <input type="email" id="email" name="email"
                placeholder="nguyenanh24@gmail.com"
-               value="${not empty pendingUser ? pendingUser.email : (otpEmail != null ? otpEmail : param.email)}"
-        <%-- Nếu là luồng Register (có user) thì khóa không cho sửa email --%>
-            ${not empty user ? "readonly" : ""}
-            ${isBlocked ? "disabled" : ""}
+               value="${not empty pendingEmail ? pendingEmail : (otpEmail != null ? otpEmail : param.email)}"
+        <%-- Khóa ô email nếu đi từ luồng Đăng ký --%>
+        ${not empty pendingEmail ? "readonly" : ""}
+        ${isBlocked ? "disabled" : ""}
                class="${not empty emailError ? 'input-error' : ''}" required>
       </div>
       <div class="group-message">
